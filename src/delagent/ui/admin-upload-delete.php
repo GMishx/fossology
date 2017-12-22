@@ -189,7 +189,7 @@ class admin_upload_delete extends FO_Plugin
     $V.= "    {\n";
     /* Remove all options */
     //$V.= "    document.formy.upload.innerHTML = Uploads.responseText;\n";
-    $V.= "    document.getElementById('uploaddiv').innerHTML = '<BR><select name=\'upload\' multiple=multiple size=\'10\'>' + Uploads.responseText + '</select><P />';\n";
+    $V.= "    document.getElementById('uploaddiv').innerHTML = '<BR><select name=\'upload[]\' multiple=multiple size=\'10\'>' + Uploads.responseText + '</select><P />';\n";
     /* Add new options */
     $V.= "    }\n";
     $V.= "  }\n";
