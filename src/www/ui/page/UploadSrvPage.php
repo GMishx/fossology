@@ -27,6 +27,7 @@ class UploadSrvPage extends UploadPageBase
 {
   const NAME = 'upload_srv_files';
   const SOURCE_FILES_FIELD = 'sourceFiles';
+  const NAME_FIELD = 'uploadName';
 
   public function __construct()
   {
@@ -139,6 +140,7 @@ class UploadSrvPage extends UploadPageBase
   {
     $vars['sourceFilesField'] = self::SOURCE_FILES_FIELD;
     $vars['hostlist'] = HostListOption();
+    $vars['nameField'] = self::NAME_FIELD;
     return $this->render("upload_srv.html.twig", $this->mergeWithDefault($vars));
   }
 
@@ -187,12 +189,24 @@ class UploadSrvPage extends UploadPageBase
       return array(false, $text, $description);
     }
 
-    $shortName = basename($sourceFiles);
+    $shortName = stripslashes(trim($request->get(self::NAME_FIELD)));
+    $shortName = $this->basicShEscaping($shortName);
+    
+    if((preg_match('/[*]+/', $sourceFiles)) && (empty($shortName) || (strlen($shortName) == 0)) )
+    {
+      $text = _("The file path contains `*`, you must provide a name for the upload.");
+      return array(false, $text, $description);
+    }
+
+    if (empty($shortName))
+    {
+      $shortName = basename($sourceFiles);
+    }
     if (empty($shortName))
     {
       $shortName = $sourceFiles;
     }
-    if(strcmp($host,"localhost"))
+    if (strcmp($host,"localhost"))
     {
       $shortName = $host . ':' . $shortName;
     }
