@@ -1,0 +1,26 @@
+{# Copyright 2018 Siemens AG
+
+   Copying and distribution of this file, with or without modification,
+   are permitted in any medium without royalty provided the copyright notice and this notice are preserved.
+   This file is offered as-is, without any warranty.
+#}
+
+{% extends "include/base.html.twig" %}
+
+{% block content %}
+	<form method='post'>
+		Select the folder to <em>delete</em>
+		<ul>
+			<li>This will <em>delete</em> the folder, all subfolders, and all uploaded files stored within the folder!</li>
+    		<li>Be very careful with your selection since you can delete a lot of work!</li>
+    		<li>All analysis only associated with the deleted uploads will also be deleted.</li>
+			<li>THERE IS NO UNDELETE. When you select something to delete, it will be removed from the database and file repository.</li>
+		</ul>
+    	<p>Select the folder to delete:  <select name='folder'>
+    		<option value='' disabled selected>[select folder]</option>
+    		{{ folderListOption }}
+    		</select>
+		</p>
+		<input type='submit' value='Delete'>
+	</form>
+{% endblock %}
