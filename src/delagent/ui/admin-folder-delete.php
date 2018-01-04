@@ -105,34 +105,8 @@ class admin_folder_delete extends FO_Plugin {
         $this->vars['message'] = $text;
       }
     }
-
-    $V= "<form method='post'>\n"; // no url = this url
-    $text  =  _("Select the folder to");
-    $text1 = _("delete");
-    $V.= "$text <em>$text1</em>.\n";
-    $V.= "<ul>\n";
-    $text = _("This will");
-    $text1 = _("delete");
-    $text2 = _("the folder, all subfolders, and all uploaded files stored within the folder!");
-    $V.= "<li>$text <em>$text1</em> $text2\n";
-    $text = _("Be very careful with your selection since you can delete a lot of work!");
-    $V.= "<li>$text\n";
-    $text = _("All analysis only associated with the deleted uploads will also be deleted.");
-    $V.= "<li>$text\n";
-    $text = _("THERE IS NO UNDELETE. When you select something to delete, it will be removed from the database and file repository.");
-    $V.= "<li>$text\n";
-    $V.= "</ul>\n";
-    $text = _("Select the folder to delete:  ");
-    $V.= "<P>$text\n";
-    $V.= "<select name='folder'>\n";
-    $text = _("select folder");
-    $V.= "<option value=''>[$text]</option>\n";
-    $V.= FolderListOption(-1, 0, 1, -1, true);
-    $V.= "</select><P />\n";
-    $text = _("Delete");
-    $V.= "<input type='submit' value='$text'>\n";
-    $V.= "</form>\n";
-    return $V;
+    $this->vars['folderListOption'] = FolderListOption(-1, 0, 1, -1, true);
+    return $this->render('admin_folder_delete.html.twig');
   }
 }
 $NewPlugin = new admin_folder_delete;

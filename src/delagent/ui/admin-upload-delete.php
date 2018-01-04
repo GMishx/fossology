@@ -47,6 +47,11 @@ class admin_upload_delete extends FO_Plugin
     global $container;
     $this->uploadDao = $container->get('dao.upload');
   }
+  
+  public function getTemplateName()
+  {
+    return "admin_upload_delete.html.twig";
+  }
 
   /**
    * \brief Given a folder_pk, try to add a job after checking permissions.
@@ -171,91 +176,20 @@ class admin_upload_delete extends FO_Plugin
    */
   public function Output()
   {
-    $V = "";
     /* If this is a POST, then process the request. */
     $uploadpks = GetParm('upload', PARM_RAW);
     if (!empty($uploadpks))
     {
-      $V .= $this->initDeletion($uploadpks);
+      $this->vars['initDeletion'] = $this->initDeletion($uploadpks);
     }
     /* Create the AJAX (Active HTTP) javascript for doing the reply
      and showing the response. */
-    $V.= ActiveHTTPscript("Uploads");
-    $V.= "<script language='javascript'>\n";
-
-    $V.= "function Uploads_Reply()\n";
-    $V.= "  {\n";
-    $V.= "  if ((Uploads.readyState==4) && (Uploads.status==200))\n";
-    $V.= "    {\n";
-    /* Remove all options */
-    //$V.= "    document.formy.upload.innerHTML = Uploads.responseText;\n";
-    $V.= "    document.getElementById('uploaddiv').innerHTML = '<BR><select name=\'upload[]\' multiple=multiple size=\'10\'>' + Uploads.responseText + '</select><P />';\n";
-    /* Add new options */
-    $V.= "    }\n";
-    $V.= "  }\n";
-    $V.= "</script>\n";
-    /* Build HTML form */
-    $V.= "<form name='formy' method='post'>\n"; // no url = this url
-    $text = _("Select the uploaded file to");
-    $text1 = _("delete");
-    $V.= "$text <em>$text1</em>\n";
-    $V.= "<ul>\n";
-    $text = _("This will");
-    $text1 = _("delete");
-    $text2 = _("the upload file!");
-    $V.= "<li>$text <em>$text1</em> $text2\n";
-    $text = _("Be very careful with your selection since you can delete a lot of work!\n");
-    $V.= "<li>$text";
-    $text = _("All analysis only associated with the deleted upload file will also be deleted.\n");
-    $V.= "<li>$text";
-    $text = _("THERE IS NO UNDELETE. When you select something to delete, it will be removed from the database and file repository.\n");
-    $V.= "<li>$text";
-    $V.= "</ul>\n";
-    $text = _("Select the uploaded file to delete:");
-    $V.= "<P>$text<P>\n";
-    $V.= "<ol>\n";
-    $text = _("Select the folder containing the file to delete: ");
-    $V.= "<li>$text";
-    $V.= "<br />";
-    $V.= "<select id='folder_select' name='folder' ";
-
-    $V.= "onLoad='Uploads_Get((\"" . Traceback_uri() . "?mod=upload_options&folder=-1' ";
-    $V.= "onChange='Uploads_Get(\"" . Traceback_uri() . "?mod=upload_options&folder=\" + this.value)'>\n";
-
+    $this->vars['ActiveHTTPscript'] = ActiveHTTPscript("Uploads");
+    $this->vars['tracebackUri'] = Traceback_uri();
     $root_folder_pk = GetUserRootFolder();
-    $V.= FolderListOption($root_folder_pk, 0);
-    $V.= "</select><P />\n";
-    $text = _("Select the uploaded project to delete:");
-    $V.= "<li>$text";
-    $V.= "<div id='uploaddiv'>\n";
-    $V.= "<BR><select multiple='multiple' name='upload[]' size='10'>\n";
-    $List = FolderListUploads_perm($root_folder_pk, Auth::PERM_WRITE);
-    foreach($List as $L) {
-      $V.= "<option value='" . $L['upload_pk'] . "'>";
-      $V.= htmlentities($L['name']);
-      if (!empty($L['upload_desc'])) {
-        $V.= " (" . htmlentities($L['upload_desc']) . ")";
-      }
-      if (!empty($L['upload_ts'])) {
-        $V.= " :: " . substr($L['upload_ts'], 0, 19);
-      }
-      $V.= "</option>\n";
-    }
-    $V.= "</select><P />\n";
-    $V.= "</div>\n";
-    $V.= "</ol>\n";
-    $text = _("Delete");
-    $V.= "<input type='submit' value='$text'>\n";
-    $V.= "</form>\n";
-
-    $V.= <<<'EOT'
-    <script>
-      window.onload = function() {
-          $('#folder_select').select2();
-      }
-    </script>
-EOT;
-    return $V;
+    $this->vars['folderListOption'] = FolderListOption($root_folder_pk, 0);
+    $this->vars['uploadList'] = FolderListUploads_perm($root_folder_pk, Auth::PERM_WRITE);
+    return $this->render('admin_upload_delete.html.twig');
   }
 }
 $NewPlugin = new admin_upload_delete;
