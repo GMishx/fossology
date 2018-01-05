@@ -1,0 +1,58 @@
+{# Copyright 2018 Siemens AG
+
+   Copying and distribution of this file, with or without modification,
+   are permitted in any medium without royalty provided the copyright notice and this notice are preserved.
+   This file is offered as-is, without any warranty.
+#}
+
+{% extends "include/base.html.twig" %}
+
+{% block content %}
+	<p>
+		{{ 'The purpose of this is to facilitate editing an existing bucketpool. Make sure you understand'|trans }} <a href='http://www.fossology.org/projects/fossology/wiki/Buckets'>{{ 'Creating Bucket Pools'|trans }}</a> {{ 'before continuing.'|trans }} {{ 'It will explain why you should create a new bucketpool rather than edit an old one that has already recorded results.'|trans }}
+	</p>
+	<p>
+        {{ 'Steps to modify a bucketpool:'|trans }}
+    </p>
+	<ol>
+		<li>
+			{{ 'Create a baseline with your current bucketpool.  In other words, run a bucket scan on something.  If you do this before creating a new modified bucketpool, you can compare the old results with the new to verify it is working as you expect.'|trans }}
+		</li>
+		<li>
+			{{ 'Duplicate the bucketpool (this will increment the bucketpool version and its bucketdef records).  You should also check \'Update my default bucketpool\' since new bucket jobs only use your default bucketpool.'|trans }}
+		</li>
+		<li>
+			{{ 'Duplicate any bucket scripts that you defined in'|trans }} {{ projectStateDir }}.
+		</li>
+		<li>
+			{{ 'Manually edit the new bucketpool record, if desired.'|trans }}
+		</li>
+		<li>
+		    {{ 'Manually insert/update/delete the new bucketdef records.'|trans }}
+	    </li>
+		<li>
+			{{ 'Manually insert a new buckets record in the agent table.'|trans }}
+		</li>
+		<li>
+			{{ 'Queue up the new bucket job in Jobs > Schedule Agents.'|trans }}
+		</li>
+		<li>
+			{{ 'Use Buckets > Compare to compare the new and old runs. Verify the results.'|trans }}
+		</li>
+		<li>
+			{{ 'If you still need to edit the buckets, use Buckets > Remove Bucket Results to remove the previous runs results and repeat starting with editing the bucketpool or def records.'|trans }}
+		</li>
+		<li>
+			{{ 'When the bucket results are what you want, then you can reset all the users of the old bucketpool to the new one (manual sql step).'|trans }}
+		</li>
+	</ol>
+	<hr />
+	<form method='POST'>
+		{{ 'Choose the bucketpool to duplicate'|trans }}
+		{{ selectBucketPool }}
+		<p>
+			<input type='checkbox' name='updatedefault' checked> {{ 'Update my default bucketpool'|trans }}.
+		</p>
+		<input type='submit' value='{{ 'Submit'|trans }}'>
+	</form>
+{% endblock %}

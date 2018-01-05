@@ -1,6 +1,7 @@
 <?php
 /***********************************************************
  Copyright (C) 2010-2013 Hewlett-Packard Development Company, L.P.
+ Copyright (C) 2018 Siemens AG
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -130,54 +131,11 @@ select bucket_name, bucket_color, bucket_reportorder, bucket_evalorder, $newbuck
       $text = _("Your new bucketpool_pk is");
       $this->vars['message'] = "$text $newbucketpool_pk";
     }
-
-    $V = "<p>";
-    $V .= _("The purpose of this is to facilitate editing an existing bucketpool.  Make sure you understand");
-    $V .= " <a href='http://www.fossology.org/projects/fossology/wiki/Buckets'>";
-    $V .= _("Creating Bucket Pools");
-    $V .= "</a> ";
-    $V .= _("before continuing.");
-    $V .= _(" It will explain why you should create a new bucketpool rather than edit an old one that has already recorded results.");
-    $V .= "<p>";
-    $V .= _("Steps to modify a bucketpool:");
-    $V .= "<ol>";
-    $V .= "<li>";
-    $V .= _("Create a baseline with your current bucketpool.  In other words, run a bucket scan on something.  If you do this before creating a new modified bucketpool, you can compare the old results with the new to verify it is working as you expect.");
-    $V .= "<li>";
-    $V .= _("Duplicate the bucketpool (this will increment the bucketpool version and its bucketdef records).  You should also check 'Update my default bucketpool' since new bucket jobs only use your default bucketpool.");
-    $V .= "<li>";
-    $V .= _("Duplicate any bucket scripts that you defined in $PROJECTSTATEDIR.");
-    $V .= "<li>";
-    $V .= _("Manually edit the new bucketpool record, if desired.");
-    $V .= "<li>";
-    $V .= _("Manually insert/update/delete the new bucketdef records.");
-    $V .= "<li>";
-    $V .= _("Manually insert a new buckets record in the agent table.");
-    $V .= "<li>";
-    $V .= _("Queue up the new bucket job in Jobs > Schedule Agents.");
-    $V .= "<li>";
-    $V .= _("Use Buckets > Compare to compare the new and old runs.  Verify the results.");
-    $V .= "<li>";
-    $V .= _("If you still need to edit the buckets, use Buckets > Remove Bucket Results to remove the previous runs results and repeat starting with editing the bucketpool or def records.");
-    $V .= "<li>";
-    $V .= _("When the bucket results are what you want, then you can reset all the users of the old bucketpool to the new one (manual sql step).");
-    $V .= "</ol>";
-    $V .= "<hr>";
-
-    $V .= "<form method='POST'>";
-    $text = _("Choose the bucketpool to duplicate");
-    $V .= "$text ";
+    
+    $this->vars['projectStateDir'] = $PROJECTSTATEDIR;
     $Val = "";
-    $V .= SelectBucketPool($Val);
-
-    $V .= "<p>";
-    $text = _("Update my default bucketpool");
-    $V .= "<input type='checkbox' name='updatedefault' checked> $text.";
-    $V .= "<p>";
-    $text = _("Submit");
-    $V .= "<input type='submit' value='$text'>";
-    $V .= "</form>";
-    return $V;
+    $this->vars['selectBucketPool'] = SelectBucketPool($Val);
+    return $this->render('admin_bucket_pool.html.twig');
   }
 }
 
