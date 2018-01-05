@@ -1,0 +1,66 @@
+{# Copyright 2018 Siemens AG
+
+   Copying and distribution of this file, with or without modification,
+   are permitted in any medium without royalty provided the copyright notice and this notice are preserved.
+   This file is offered as-is, without any warranty.
+#}
+
+{% extends "include/base.html.twig" %}
+
+{% block content %}
+	{{ initDeletion }}
+	<form name='formy' method='post'>
+	    {{ "Select the uploaded file to"|trans }} <em>{{ "delete"|trans }}</em>
+		<ul>
+    		<li>{{ "This will"|trans }} <em>{{ "delete"|trans }}</em> {{ "the upload file!"|trans }}</li>
+          	<li>{{ "Be very careful with your selection since you can delete a lot of work!"| trans }}</li>
+          	<li>{{ "All analysis only associated with the deleted upload file will also be deleted."|trans }}</li>
+    		<li>{{ "THERE IS NO UNDELETE. When you select something to delete, it will be removed from the database and file repository."|trans }}</li>
+		</ul>
+		<p>{{ "Select the uploaded file to delete:"|trans }}</p>
+    	<ol>
+    		<li>{{ "Select the folder containing the file to delete"|trans }}: 
+    			<br />
+    			<select id='folder_select' name='folder' onLoad='Uploads_Get("{{ tracebackUri }}?mod=upload_options&folder=-1"' onChange='Uploads_Get("{{ tracebackUri }}?mod=upload_options&folder=" + this.value)'>
+    		        {{ folderListOption }}
+    			</select>
+    		</li>
+    		<li>{{ "Select the uploaded project to delete"|trans }}:
+    			<div id='uploaddiv'>
+    				<br />
+    				<select multiple='multiple' name='upload[]' size='10'>\n";
+    			    {% for listItem in uploadList %}
+    					<option value='{{ listItem['upload_pk'] }}' >
+        					{{ listItem['name']|e }}
+        					{% if listItem['upload_desc'] is not empty %}
+        						 ({{ listItem['upload_desc']|e }})
+        					{% endif %}
+        					{% if listItem['upload_ts'] is not empty %}
+        						 :: {{ listItem['upload_ts']|e|slice(0, 19) }}
+        					{% endif %}
+    					</option>
+    			    {% endfor %}
+    				</select>
+				</div>
+			</li>
+		</ol>
+    	<input type='submit' value='{{ 'Delete'|trans }}'>
+	</form>
+{% endblock %}
+
+{% block foot %}
+	{{ parent() }}
+	{{ ActiveHTTPscript }}
+    <script language='javascript'>
+    	function Uploads_Reply()
+		{
+			if ((Uploads.readyState==4) && (Uploads.status==200))
+			{
+				document.getElementById('uploaddiv').innerHTML = '<br /><select name=\'upload[]\' multiple=multiple size=\'10\'>' + Uploads.responseText + '</select>';
+			}
+		}
+        window.onload = function() {
+            $('#folder_select').select2();
+        }
+    </script>
+{% endblock %}
