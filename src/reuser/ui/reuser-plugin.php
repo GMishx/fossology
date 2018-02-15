@@ -16,8 +16,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  ***********************************************************/
 
-namespace Fossology\Reuser\Ui;
-
 use Fossology\Lib\Auth\Auth;
 use Fossology\Lib\Dao\FolderDao;
 use Fossology\Lib\Plugin\DefaultPlugin;
