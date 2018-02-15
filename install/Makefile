@@ -83,6 +83,22 @@ install: all
 		echo "WARNING: $(DESTDIR)$(CONFPATH)/samplefooter.txt already exists."; \
 		echo "  Not overwriting, consider checking it by hand or use the OVERWRITE option."; \
 	fi
+	
+	@if [ ! -f $(DESTDIR)$(CONFPATH)/fossology-header.html -o "$(OVERWRITE)" ]; then \
+		echo "NOTE: using default version for $(DESTDIR)$(CONFPATH)/fossology-header.html"; \
+	 	$(INSTALL) -m 666 defconf/fossology-header.html $(DESTDIR)$(CONFPATH)/fossology-header.html; \
+	else \
+		echo "WARNING: $(DESTDIR)$(CONFPATH)/fossology-header.html already exists."; \
+		echo "  Not overwriting, consider checking it by hand or use the OVERWRITE option."; \
+	fi
+	
+	@if [ ! -f $(DESTDIR)$(CONFPATH)/fossology-footer.html -o "$(OVERWRITE)" ]; then \
+		echo "NOTE: using default version for $(DESTDIR)$(CONFPATH)/fossology-footer.html"; \
+	 	$(INSTALL) -m 666 defconf/fossology-footer.html $(DESTDIR)$(CONFPATH)/fossology-footer.html; \
+	else \
+		echo "WARNING: $(DESTDIR)$(CONFPATH)/fossology-header.html already exists."; \
+		echo "  Not overwriting, consider checking it by hand or use the OVERWRITE option."; \
+	fi
 
 	@if [ ! -f $(DESTDIR)$(CONFPATH)/conf/fo-apache.conf -o "$(OVERWRITE)" ]; then \
 		echo "NOTE: using default version for $(DESTDIR)$(CONFPATH)/conf/fo-apache.conf"; \

@@ -20,6 +20,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <agent.h>
 #include <database.h>
 #include <logging.h>
+#include <emailformatter.h>
 
 /* other library includes */
 #include <libfossdb.h>
@@ -46,13 +47,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
   email_notify = 0;        \
   error = NULL; }
 
-#define EMAIL_BUILD_CMD "%s -s '%s' %s"
 #define DEFAULT_HEADER  "FOSSology scan complete\nmessage:\""
 #define DEFAULT_FOOTER  "\""
 #define DEFAULT_SUBJECT "FOSSology scan complete\n"
 #define DEFAULT_COMMAND "/usr/bin/mailx"
+#define DEFAULT_FORMAT "text"
 
 #define min(x, y) (x < y ? x : y)
+
+gchar* EMAIL_BUILD_CMD = NULL;
 
 /**
  * We need to pass both a job_t* and the fossology url string to the
@@ -91,9 +94,10 @@ static gboolean email_replace(const GMatchInfo* match, GString* ret,
   gchar* sql   = NULL;
   gchar* fossy_url = args->foss_url;
   job_t* job       = args->job;
+  GArray* rows = NULL;
   // TODO belongs to $DB if statement gchar* table, * column;
   PGresult* db_result;
-  // TODO belongs to $DB if statement guint i;
+  guint i;
 
   /* $UPLOADNAME
    *
@@ -213,9 +217,32 @@ static gboolean email_replace(const GMatchInfo* match, GString* ret,
     }
     else
     {
-      g_string_append(ret, PQgetvalue(db_result, 0, 0));
+      rows = g_array_new(FALSE, FALSE, sizeof(gchar*));
+      gchar* foldername = PQgetvalue(db_result, 0, 0);
+      guint folder_pk = atoi(PQget(db_result, 0, "folder_pk"));
+      g_array_append_val(rows, foldername);
+      PQclear(db_result);
+      g_free(sql);
+      sql = g_strdup_printf(parent_folder_name, folder_pk);
+      db_result = database_exec(args->scheduler, sql);
+      while(PQresultStatus(db_result) == PGRES_TUPLES_OK && PQntuples(db_result) == 1)
+      {
+        gchar* foldername = PQgetvalue(db_result, 0, 0);
+        guint folder_pk = atoi(PQget(db_result, 0, "folder_pk"));
+        g_array_append_val(rows, foldername);
+        PQclear(db_result);
+        g_free(sql);
+        sql = g_strdup_printf(parent_folder_name, folder_pk);
+        db_result = database_exec(args->scheduler, sql);
+      }
+      for(i = rows->len; i > 0; i--)
+      {
+        g_string_append(ret, g_array_index(rows, gchar*, i));
+        g_string_append(ret, " / ");
+      }
+      g_string_append(ret, g_array_index(rows, gchar*, 0));
+      g_array_free(rows, TRUE);
     }
-
     PQclear(db_result);
     g_free(sql);
   }
@@ -235,6 +262,52 @@ static gboolean email_replace(const GMatchInfo* match, GString* ret,
             job_status_strings[job->status]);
         break;
     }
+  }
+
+  /* $AGENTSTATUS
+   *
+   * Appends the list of agents run with their status.
+   */
+  else if(strcmp(m_str, "AGENTSTATUS") == 0)
+  {
+    sql = g_strdup_printf(jobsql_jobinfo, job->id);
+    db_result = database_exec(args->scheduler, sql);
+    if(PQresultStatus(db_result) != PGRES_TUPLES_OK)
+    {
+      g_string_append_printf(ret,
+                "[ERROR: unable to select agent info for job %d]", job->id);
+    }
+    else
+    {
+      rows = g_array_new(FALSE, FALSE, sizeof(column));
+      /* check for any failed jobs */
+      for(i = 0; i < PQntuples(db_result) && ret; i++)
+      {
+        column* data;
+        data->id = atoi(PQget(db_result, i, "jq_pk"));
+        data->agent = g_string_new(PQget(db_result, i, "jq_type"));
+        if(atoi(PQget(db_result, i, "jq_end_bits")) == 1)
+        {
+          data->status = TRUE;
+        }
+        else
+        {
+          data->status = FALSE;
+        }
+        g_array_append_val(rows, data);
+      }
+      if(strcmp(args->scheduler->email_format, "html") == 0)
+      {
+        g_string_append(ret, email_format_html(rows));
+      }
+      else
+      {
+        g_string_append(ret, email_format_text(rows));
+      }
+      g_array_free(rows, TRUE);
+    }
+    PQclear(db_result);
+    g_free(sql);
   }
 
   /* $DB.table.column
@@ -363,7 +436,9 @@ static void email_notification(scheduler_t* scheduler, job_t* job)
 
   if(is_meta_special(g_tree_lookup(scheduler->meta_agents, job->agent_type), SAG_NOEMAIL) ||
       !(status = email_checkjobstatus(scheduler, job)))
+  {
     return;
+  }
 
   sprintf(sql, select_upload_fk, j_id);
   db_result = database_exec(scheduler, sql);
@@ -537,6 +612,27 @@ void email_init(scheduler_t* scheduler)
 	  EMAIL_ERROR("email notification setting key \"client\" missing. Using default client");
 	scheduler->email_command = g_strdup(scheduler->email_command);
 	error = NULL;
+
+	/* load the format */
+  email_notify = 1;
+  scheduler->email_format = fo_config_get(scheduler->sysconfig, "EMAILNOTIFY",
+      "format", &error);
+  if(error)
+    scheduler->email_format = DEFAULT_FORMAT;
+  if(error && error->code == fo_missing_key)
+    EMAIL_ERROR("email notification setting key \"format\" missing. Using default format");
+  scheduler->email_format = g_strdup(scheduler->email_format);
+
+  if(strcmp(scheduler->email_format, "html") == 0)
+  {
+    EMAIL_BUILD_CMD = g_string_new("%s -a 'Content-type: text/html;' -s '%s' '%s'")->str;
+  }
+  else
+  {
+    EMAIL_BUILD_CMD = g_string_new("%s -s '%s' %s")->str;
+  }
+
+  error = NULL;
 }
 
 /* ************************************************************************** */

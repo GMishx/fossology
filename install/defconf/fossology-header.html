@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+.success {
+	background-color: darkgreen;
+	color: white;
+}
+
+.fail {
+	background-color: darkred;
+	color: white;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+.border {
+	border: 1px solid black;
+}
+</style>
+</head>
+<body>
+
+  <table style="border: 0px">
+
+    <tr>
+      <td><img
+        src="data:image/gif;base64,R0lGODlhlABSAOeyAMQEKcQEL8MFNMUHKsUIMMQJNcYLK8YLMcYMNsgOLMcOMckQLb8TLr4UM8AVLsEXL8sWOcoXPswYOssZP8wbQMYfOMUfPcchOcchPsgiOsgjP80qSc0rTs4sSs4sT8kwSMoxSMkxTtI6VNM7VdI7WtQ8Vs4/VM0/Wc9AVc5AWtdKZ9FMZdNMYdJNZtROYtNOZ9RPaNlabthadNpbb9RdbdRedIB+goF/g3yBhIKAhICCf4OBhdlpe4SChtpqfNlrgtxrfdpsg4mHi4qIjIuJjZCOkuB3i915hY6QjZGPk+F4jN56ho+RjpKQlOJ5jd17jJORlZiWmpaYlZmXm5eZlpqYnOGHmuOHld2JmuKIm+SIlt+Klt6Km+OJnKGeoqKfo5+hnqOgpJ2ipKCin+SWpemVpqeppuWXpqqorOqWp6upra2vrLCusq6wrbGvs7KwtOyksOqktuemsO2lseaot7m2u7e5trq4vLi6t7u5vb2/vMC+wsG/w+uzwL7Bvei1uu60vMPAxOm2u+y1wfC1vcfJxsrIzPPBzPDDxu7DzPTCzfHEx/fDyO/FzfLFyNHO0/XEzvDGzuvIztLP1M/RztPQ1dDSz9jW2tbY1dnX29TZ2+7S19vY3PXR2Nja1u/T2PDU2fPU0/bT2fTV1N7g3eHf49/h3uLg5Pbh5Png6unm6+bo5ffj5fXj6+fp5vjk5uro7Ovp7f///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////yH+EUNyZWF0ZWQgd2l0aCBHSU1QACH5BAEKAP8ALAAAAACUAFIAAAj+AP8JHEiwoMGDCBMqXMiwocOHECNKnEixosWLGDNq3Mixo8ePIEOKHEmypMmTKFOqXMmypUuMosgoabFJoB01gTi93HmS1ZEOBAgoIMBI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" />
+      </td>
+      <td style="font-size: x-large; font-weight: bold;">FOSSology
+        scan has completed.</td>
+    </tr>
+    <tr>
+      <td colspan="2">
+        <table style="border: 0">
+          <tr>
+            <th colspan="2">Upload Info</th>
+          </tr>
+          <tr>
+            <td>Upload Name</td>
+            <td><a href="$BROWSELINK">$UPLOADNAME</a></td>
+          </tr>
+          <tr>
+            <td>Job history</td>
+            <td><a href="$JOBQUEUELINK">Check here</a></td>
+          </tr>
+          <tr>
+            <td>Upload Folder</td>
+            <td>$UPLOADFOLDERNAME</td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2"><br />
+      <br /></td>
+    </tr>
+    <tr>
+      <td colspan="2">
+        <table class="border">
+          $AGENTSTATUS
+        </table>
+      </td>
+    </tr>
+  </table>

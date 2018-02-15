@@ -86,10 +86,11 @@ LOGDIR=/var/log/$PROJECT
 ; directory that contains this file). The subject is simply the subject that
 ; will be used in the email notification.
 [EMAILNOTIFY]
-header  = sampleheader.txt
-footer  = samplefooter.txt
+header  = fossology-header.html
+footer  = fossology-footer.html
 subject = FOSSology scan complete
 client  = /usr/bin/mailx
-
+; Format of the header and footer (html/text)
+format  = html
 
 

@@ -52,7 +52,8 @@ OBJS = scheduler.o \
        host.o \
        interface.o \
        job.o \
-       logging.o
+       logging.o \
+       emailformatter.o
 
 COVERAGE = $(OBJS:%.o=%_cov.o)
 
@@ -63,7 +64,8 @@ HEAD = agent.h \
        job.h \
        logging.h \
        interface.h \
-       sqlstatements.h
+       sqlstatements.h \
+       emailformatter.h
 
 ##########################
 # executable build rules #
@@ -116,6 +118,9 @@ job.o: %.o: %.c %.h agent.h database.h $(DEPEN)
 	$(CC) -c $(CFLAGS_LOCAL) $(DEF) $<
 
 logging.o: %.o: %.c $(DEPEN)
+	$(CC) -c $(CFLAGS_LOCAL) $(DEF) $<
+
+emailformatter.o: %.o: %.c agent.h $(DEPEN)
 	$(CC) -c $(CFLAGS_LOCAL) $(DEF) $<
 
 $(COVERAGE): %_cov.o: %.c $(HEAD) $(DEPEN)

@@ -88,6 +88,7 @@ typedef struct
     gchar*   email_header;    ///< The beginning of the email message
     gchar*   email_footer;    ///< The end of the email message
     gchar*   email_command;   ///< The command that will sends emails, usually xmail
+    gchar*   email_format;    ///< The format of email to be send (text/HTML)
     gboolean default_header;  ///< Is the header the default header
     gboolean default_footer;  ///< Is the footer the default footer
 
