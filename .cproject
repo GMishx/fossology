@@ -1,0 +1,640 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
+    	
+    <storageModule moduleId="org.eclipse.cdt.core.settings">
+        		
+        <cconfiguration id="cdt.managedbuild.toolchain.gnu.base.265896628">
+            			
+            <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.toolchain.gnu.base.265896628" moduleId="org.eclipse.cdt.core.settings" name="Default">
+                				
+                <externalSettings>
+                    					
+                    <externalSetting/>
+                    				
+                </externalSettings>
+                				
+                <extensions>
+                    					
+                    <extension id="org.eclipse.cdt.core.GNU_ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+                    					
+                    <extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+                    					
+                    <extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+                    					
+                    <extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+                    					
+                    <extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+                    					
+                    <extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+                    				
+                </extensions>
+                			
+            </storageModule>
+            			
+            <storageModule moduleId="cdtBuildSystem" version="4.0.0">
+                				
+                <configuration artifactName="${ProjName}" buildProperties="" description="" id="cdt.managedbuild.toolchain.gnu.base.265896628" name="Default" parent="org.eclipse.cdt.build.core.emptycfg">
+                    					
+                    <folderInfo id="cdt.managedbuild.toolchain.gnu.base.265896628.1284803324" name="/" resourcePath="">
+                        						
+                        <toolChain id="cdt.managedbuild.toolchain.gnu.base.1085083353" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.base">
+                            							
+                            <targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.GNU_ELF" id="cdt.managedbuild.target.gnu.platform.base.1651273609" name="Debug Platform" osList="linux,hpux,aix,qnx" superClass="cdt.managedbuild.target.gnu.platform.base"/>
+                            							
+                            <builder id="cdt.managedbuild.target.gnu.builder.base.1827591224" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.base">
+                                								
+                                <outputEntries>
+                                    									
+                                    <entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name=""/>
+                                    								
+                                </outputEntries>
+                                							
+                            </builder>
+                            							
+                            <tool id="cdt.managedbuild.tool.gnu.archiver.base.434819469" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
+                            							
+                            <tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.671810568" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
+                                								
+                                <option id="gnu.cpp.compiler.option.include.paths.1734988152" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+                                    									
+                                    <listOptionValue builtIn="false" value="/usr/include/c++"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/usr/include"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/usr/include/glib-2.0"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/glib-2.0/include"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/usr/include/postgresql"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/usr/include/cppunit"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/usr/include/rpm"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/usr/include/php/20160303/main"/>
+                                    								
+                                </option>
+                                								
+                                <option id="gnu.cpp.compiler.option.preprocessor.def.2038025010" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
+                                    									
+                                    <listOptionValue builtIn="false" value="PROJECT=fossology"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="PROJECTUSER=fossy"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="PROJECTGROUP=fossy"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="DESTDIR"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="PREFIX=/usr/local"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="BINDIR=PREFIX/bin"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="SBINDIR=PREFIX/sbin"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="INITDIR=/etc"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="LIBDIR=PREFIX/lib"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="INCLUDEDIR=PREFIX/include"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="LIBEXECDIR=PREFIX/lib/PROJECT"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="DATAROOTDIR=PREFIX/share"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="MODDIR=DATAROOTDIR/PROJECT"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="REPODIR=/srv/PROJECT/repository"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="LOCALSTATEDIR=/var/local"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="PROJECTSTATEDIR"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="CACHEDIR=LOCALSTATEDIR/cache/PROJECT"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="LOGDIR=/var/log/PROJECT"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="MANDIR=DATAROOTDIR/man"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="MAN1DIR=MANDIR/man1"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="DOCDIR=DATAROOTDIR/doc/PROJECT"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="WEBDIR=MODDIR/www"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="PHPDIR=MODDIR/php"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="SHELL=/bin/sh"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;INSTALL=/usr/bin/install -D&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="INSTALL_PROGRAM=INSTALL"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;INSTALL_DATA=INSTALL -m 644&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="FOSRCDIR=TOP/src"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="FOLIBDIR=FOSRCDIR/lib/c"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="FOLIBPHPDIR=FOSRCDIR/lib/php"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="FOCLIDIR=FOSRCDIR/cli"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="CXXFOLIBDIR=FOSRCDIR/lib/cpp"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="FOLIB=FOLIBDIR/libfossology.a"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;VERSION=system(&quot;`git describe --tags &gt; /dev/null 2&gt;&amp;1 &amp;&amp; git describe --tags | head -1 || echo \&quot;unknown\&quot;`&quot;)&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;BRANCH=system(&quot;`git rev-parse --abbrev-ref HEAD &gt; /dev/null 2&gt;&amp;1 &amp;&amp; git rev-parse --abbrev-ref HEAD | head -1 || echo \&quot;unknown\&quot;`&quot;)&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;COMMIT_HASH=system(&quot;`git show &gt; /dev/null 2&gt;&amp;1 &amp;&amp; git show | head -1 | awk '{print substr($$2,1,6}}' || echo \&quot;unknown\&quot;`&quot;)&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="PHPUNIT=FOSRCDIR/vendor/bin/phpunit"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="PHPUNIT_CONF=FOSRCDIR/phpunit.xml"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="PHPUNIT_BOOT=FOSRCDIR/phpunit-bootstrap.php"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;TWIG_CACHE=&lt;parameter key=\&quot;cache\&quot; type=\&quot;string\&quot;&gt;CACHEDIR&lt;/parameter&gt;&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="__GXX_EXPERIMENTAL_CXX0X__"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;DEFAULT_SETUP=${SYSCONFDIR}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="LOG_DIR=LOGDIR"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="CLI_DIR"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="FOSSDB_CONF=SYSCONFDIR/PROJECT/Db.conf"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="PROJECT_USER=PROJECTUSER"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="PROJECT_GROUP=PROJECTGROUP"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="PROJECT_NAME=PROJECT"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="_FILE_OFFSET_BITS=64"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="FOSSGROUP=PROJECTGROUP"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="DATADIR"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="IDENTITY_COPYRIGHT"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="IDENTITY_ECC"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="HAVE_CHARDET"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="_RPM_4_4"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="_RPM_4_4_COMPAT"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;TESTDBDIR=shell pwd/../&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="latex_paper_size=a4"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="STANDALONE"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="COMMIT_HASH_S=COMMIT_HASH"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="TOP=."/>
+                                    									
+                                    <listOptionValue builtIn="false" value="SYSCONFDIR=PREFIX/etc/PROJECT"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="VERSION_S=VERSION"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="BuildVersion=VERSION_S.COMMIT_HASH_S"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="PGRES_TUPLES_OK=2"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="PGRES_COMMAND_OK=3"/>
+                                    								
+                                </option>
+                                								
+                                <inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1771172934" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+                                							
+                            </tool>
+                            							
+                            <tool id="cdt.managedbuild.tool.gnu.c.compiler.base.1258414585" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base">
+                                								
+                                <option id="gnu.c.compiler.option.include.paths.558871186" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+                                    									
+                                    <listOptionValue builtIn="false" value="/usr/include/c++"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/usr/include"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/usr/include/glib-2.0"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/glib-2.0/include"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/usr/include/postgresql"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/usr/include/CUnit"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/usr/include/rpm"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/usr/include/php/20160303/main"/>
+                                    								
+                                </option>
+                                								
+                                <option id="gnu.c.compiler.option.preprocessor.def.symbols.1179574528" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
+                                    									
+                                    <listOptionValue builtIn="false" value="PROJECT=fossology"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="PROJECTUSER=fossy"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="PROJECTGROUP=fossy"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="DESTDIR"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="PREFIX=/usr/local"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="BINDIR=PREFIX/bin"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="SBINDIR=PREFIX/sbin"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="INITDIR=/etc"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="LIBDIR=PREFIX/lib"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="INCLUDEDIR=PREFIX/include"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="LIBEXECDIR=PREFIX/lib/PROJECT"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="DATAROOTDIR=PREFIX/share"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="MODDIR=DATAROOTDIR/PROJECT"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="REPODIR=/srv/PROJECT/repository"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="LOCALSTATEDIR=/var/local"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="PROJECTSTATEDIR"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="CACHEDIR=LOCALSTATEDIR/cache/PROJECT"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="LOGDIR=/var/log/PROJECT"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="MANDIR=DATAROOTDIR/man"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="MAN1DIR=MANDIR/man1"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="DOCDIR=DATAROOTDIR/doc/PROJECT"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="WEBDIR=MODDIR/www"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="PHPDIR=MODDIR/php"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="SHELL=/bin/sh"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;INSTALL=/usr/bin/install -D&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="INSTALL_PROGRAM=INSTALL"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;INSTALL_DATA=INSTALL -m 644&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="FOSRCDIR=TOP/src"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="FOLIBDIR=FOSRCDIR/lib/c"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="FOLIBPHPDIR=FOSRCDIR/lib/php"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="FOCLIDIR=FOSRCDIR/cli"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="CXXFOLIBDIR=FOSRCDIR/lib/cpp"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="FOLIB=FOLIBDIR/libfossology.a"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;VERSION=system(&quot;`git describe --tags &gt; /dev/null 2&gt;&amp;1 &amp;&amp; git describe --tags | head -1 || echo \&quot;unknown\&quot;`&quot;)&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;BRANCH=system(&quot;`git rev-parse --abbrev-ref HEAD &gt; /dev/null 2&gt;&amp;1 &amp;&amp; git rev-parse --abbrev-ref HEAD | head -1 || echo \&quot;unknown\&quot;`&quot;)&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;COMMIT_HASH=system(&quot;`git show &gt; /dev/null 2&gt;&amp;1 &amp;&amp; git show | head -1 | awk '{print substr($$2,1,6}}' || echo \&quot;unknown\&quot;`&quot;)&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="PHPUNIT=FOSRCDIR/vendor/bin/phpunit"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="PHPUNIT_CONF=FOSRCDIR/phpunit.xml"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="PHPUNIT_BOOT=FOSRCDIR/phpunit-bootstrap.php"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;TWIG_CACHE=&lt;parameter key=\&quot;cache\&quot; type=\&quot;string\&quot;&gt;CACHEDIR&lt;/parameter&gt;&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="__GXX_EXPERIMENTAL_CXX0X__"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;DEFAULT_SETUP=${SYSCONFDIR}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="LOG_DIR=LOGDIR"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="CLI_DIR"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="FOSSDB_CONF=SYSCONFDIR/PROJECT/Db.conf"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="PROJECT_USER=PROJECTUSER"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="PROJECT_GROUP=PROJECTGROUP"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="PROJECT_NAME=PROJECT"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="_FILE_OFFSET_BITS=64"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="FOSSGROUP=PROJECTGROUP"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="DATADIR"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="IDENTITY_COPYRIGHT"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="IDENTITY_ECC"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="HAVE_CHARDET"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="_RPM_4_4"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="_RPM_4_4_COMPAT"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;TESTDBDIR=shell pwd/../&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="latex_paper_size=a4"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="STANDALONE"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="COMMIT_HASH_S=COMMIT_HASH"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="TOP=."/>
+                                    									
+                                    <listOptionValue builtIn="false" value="SYSCONFDIR=PREFIX/etc/PROJECT"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="VERSION_S=VERSION"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="BuildVersion=VERSION_S.COMMIT_HASH_S"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="PGRES_TUPLES_OK=2"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="PGRES_COMMAND_OK=3"/>
+                                    								
+                                </option>
+                                								
+                                <inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.630894222" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+                                							
+                            </tool>
+                            							
+                            <tool id="cdt.managedbuild.tool.gnu.c.linker.base.1462835139" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base"/>
+                            							
+                            <tool id="cdt.managedbuild.tool.gnu.cpp.linker.base.1489517657" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base">
+                                								
+                                <option id="gnu.cpp.link.option.libs.622809289" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
+                                    									
+                                    <listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="&quot;${workspace_loc:/fossology/src/lib/c/libfossology.a}&quot;"/>
+                                    								
+                                </option>
+                                								
+                                <option id="gnu.cpp.link.option.paths.516469381" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths"/>
+                                								
+                                <inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.1930773500" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
+                                    									
+                                    <additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
+                                    									
+                                    <additionalInput kind="additionalinput" paths="$(LIBS)"/>
+                                    								
+                                </inputType>
+                                							
+                            </tool>
+                            							
+                            <tool id="cdt.managedbuild.tool.gnu.assembler.base.1691795861" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.base">
+                                								
+                                <option id="gnu.both.asm.option.include.paths.1284711073" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+                                    									
+                                    <listOptionValue builtIn="false" value="/usr/include/c++"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/usr/include"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/usr/include/glib-2.0"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/glib-2.0/include"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/usr/include/postgresql"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/usr/include/rpm"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/usr/include/php/20160303/main"/>
+                                    								
+                                </option>
+                                								
+                                <inputType id="cdt.managedbuild.tool.gnu.assembler.input.137185290" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+                                							
+                            </tool>
+                            						
+                        </toolChain>
+                        					
+                    </folderInfo>
+                    					
+                    <fileInfo id="cdt.managedbuild.toolchain.gnu.base.265896628.702071914" name="twig.c" rcbsApplicability="disable" resourcePath="src/vendor/twig/twig/ext/twig/twig.c" toolsToInvoke="cdt.managedbuild.tool.gnu.c.compiler.base.1258414585.411562642">
+                        						
+                        <tool id="cdt.managedbuild.tool.gnu.c.compiler.base.1258414585.411562642" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base.1258414585">
+                            							
+                            <option id="gnu.c.compiler.option.include.paths.1551126327" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+                                								
+                                <listOptionValue builtIn="false" value="/usr/include/c++"/>
+                                								
+                                <listOptionValue builtIn="false" value="/usr/include"/>
+                                								
+                                <listOptionValue builtIn="false" value="/usr/include/glib-2.0"/>
+                                								
+                                <listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/glib-2.0/include"/>
+                                								
+                                <listOptionValue builtIn="false" value="/usr/include/postgresql"/>
+                                								
+                                <listOptionValue builtIn="false" value="/usr/include/CUnit"/>
+                                								
+                                <listOptionValue builtIn="false" value="/usr/include/rpm"/>
+                                								
+                                <listOptionValue builtIn="false" value="/usr/include/php/20160303/main"/>
+                                								
+                                <listOptionValue builtIn="false" value="/usr/include/php/20160303"/>
+                                							
+                            </option>
+                            							
+                            <inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.487066050" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+                            						
+                        </tool>
+                        					
+                    </fileInfo>
+                    					
+                    <fileInfo id="cdt.managedbuild.toolchain.gnu.base.265896628.1723324839" name="symfony_debug.c" rcbsApplicability="disable" resourcePath="src/vendor/symfony/debug/Resources/ext/symfony_debug.c" toolsToInvoke="cdt.managedbuild.tool.gnu.c.compiler.base.1258414585.1631320883">
+                        						
+                        <tool id="cdt.managedbuild.tool.gnu.c.compiler.base.1258414585.1631320883" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base.1258414585">
+                            							
+                            <option id="gnu.c.compiler.option.include.paths.1409571573" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+                                								
+                                <listOptionValue builtIn="false" value="/usr/include/c++"/>
+                                								
+                                <listOptionValue builtIn="false" value="/usr/include"/>
+                                								
+                                <listOptionValue builtIn="false" value="/usr/include/glib-2.0"/>
+                                								
+                                <listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/glib-2.0/include"/>
+                                								
+                                <listOptionValue builtIn="false" value="/usr/include/postgresql"/>
+                                								
+                                <listOptionValue builtIn="false" value="/usr/include/CUnit"/>
+                                								
+                                <listOptionValue builtIn="false" value="/usr/include/rpm"/>
+                                								
+                                <listOptionValue builtIn="false" value="/usr/include/php/20160303/main"/>
+                                								
+                                <listOptionValue builtIn="false" value="/usr/include/php/20160303"/>
+                                							
+                            </option>
+                            							
+                            <inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.675768621" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+                            						
+                        </tool>
+                        					
+                    </fileInfo>
+                    					
+                    <fileInfo id="cdt.managedbuild.toolchain.gnu.base.265896628.498934556" name="encoding.c" rcbsApplicability="disable" resourcePath="src/monk/agent/encoding.c" toolsToInvoke="cdt.managedbuild.tool.gnu.c.compiler.base.1258414585.797591600">
+                        						
+                        <tool id="cdt.managedbuild.tool.gnu.c.compiler.base.1258414585.797591600" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base.1258414585">
+                            							
+                            <option id="gnu.c.compiler.option.include.paths.424444728" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+                                								
+                                <listOptionValue builtIn="false" value="/usr/include/c++"/>
+                                								
+                                <listOptionValue builtIn="false" value="/usr/include"/>
+                                								
+                                <listOptionValue builtIn="false" value="/usr/include/glib-2.0"/>
+                                								
+                                <listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/glib-2.0/include"/>
+                                								
+                                <listOptionValue builtIn="false" value="/usr/include/postgresql"/>
+                                								
+                                <listOptionValue builtIn="false" value="/usr/include/CUnit"/>
+                                								
+                                <listOptionValue builtIn="false" value="/usr/include/uchardet"/>
+                                							
+                            </option>
+                            							
+                            <inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.935926991" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+                            						
+                        </tool>
+                        					
+                    </fileInfo>
+                    				
+                </configuration>
+                			
+            </storageModule>
+            			
+            <storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+            		
+        </cconfiguration>
+        	
+    </storageModule>
+    	
+    <storageModule moduleId="cdtBuildSystem" version="4.0.0">
+        		
+        <project id="fossology.null.1714971573" name="fossology"/>
+        	
+    </storageModule>
+    	
+    <storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
+    	
+    <storageModule moduleId="refreshScope" versionNumber="2">
+        		
+        <configuration configurationName="Default">
+            			
+            <resource resourceType="PROJECT" workspacePath="/fossology"/>
+            		
+        </configuration>
+        	
+    </storageModule>
+    	
+    <storageModule moduleId="scannerConfiguration">
+        		
+        <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+        		
+        <scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.base.265896628;cdt.managedbuild.toolchain.gnu.base.265896628.1284803324;cdt.managedbuild.tool.gnu.c.compiler.base.1258414585;cdt.managedbuild.tool.gnu.c.compiler.input.630894222">
+            			
+            <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+            		
+        </scannerConfigBuildInfo>
+        		
+        <scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.base.265896628;cdt.managedbuild.toolchain.gnu.base.265896628.1284803324;cdt.managedbuild.tool.gnu.cpp.compiler.base.671810568;cdt.managedbuild.tool.gnu.cpp.compiler.input.1771172934">
+            			
+            <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+            		
+        </scannerConfigBuildInfo>
+        	
+    </storageModule>
+    	
+    <storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
+    	
+    <storageModule moduleId="org.eclipse.cdt.make.core.buildtargets">
+        		
+        <buildTargets>
+            			
+            <target name="all" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+                				
+                <buildCommand>make</buildCommand>
+                				
+                <buildArguments/>
+                				
+                <buildTarget>all</buildTarget>
+                				
+                <stopOnError>true</stopOnError>
+                				
+                <useDefaultCommand>true</useDefaultCommand>
+                				
+                <runAllBuilders>true</runAllBuilders>
+                			
+            </target>
+            			
+            <target name="install" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+                				
+                <buildCommand>make</buildCommand>
+                				
+                <buildTarget>install</buildTarget>
+                				
+                <stopOnError>true</stopOnError>
+                				
+                <useDefaultCommand>true</useDefaultCommand>
+                				
+                <runAllBuilders>true</runAllBuilders>
+                			
+            </target>
+            			
+            <target name="empty-cache" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+                				
+                <buildCommand>make</buildCommand>
+                				
+                <buildArguments/>
+                				
+                <buildTarget>empty-cache</buildTarget>
+                				
+                <stopOnError>true</stopOnError>
+                				
+                <useDefaultCommand>true</useDefaultCommand>
+                				
+                <runAllBuilders>true</runAllBuilders>
+                			
+            </target>
+            			
+            <target name="clean" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+                				
+                <buildCommand>make</buildCommand>
+                				
+                <buildArguments/>
+                				
+                <buildTarget>clean</buildTarget>
+                				
+                <stopOnError>true</stopOnError>
+                				
+                <useDefaultCommand>true</useDefaultCommand>
+                				
+                <runAllBuilders>true</runAllBuilders>
+                			
+            </target>
+            		
+        </buildTargets>
+        	
+    </storageModule>
+    
+</cproject>
