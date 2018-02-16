@@ -89,7 +89,7 @@ LOGDIR=/var/log/$PROJECT
 header  = fossology-header.html
 footer  = fossology-footer.html
 subject = FOSSology scan complete
-client  = /usr/bin/mailx
+client  = /usr/bin/mailx -S smtp="smtp.gmail.com:587" -S smtp-use-starttls -S smtp-auth=login -S smtp-auth-user="user@gmail.com" -S smtp-auth-password="password" -S ssl-verify=ignore
 ; Format of the header and footer (html/text)
 format  = html
 
