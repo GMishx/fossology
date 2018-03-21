@@ -105,7 +105,7 @@ matrix:
       after_script:
     - php: 7.0
       env: CC=clang-3.6 CXX=clang++-3.6 MAKETARGETS='all test-lib test-monk test-nomos'
-      6after_script:
+      after_script:
     - php: 7.0
       env: CC=gcc-5 CXX=g++-5 MAKETARGETS='all test-lib test-monk test-nomos'
       after_script:
@@ -118,7 +118,7 @@ matrix:
       after_script:
     - php: 7.1 # allowed failure
       env: CC=clang-3.6 CXX=clang++-3.6 MAKETARGETS='all test-lib test-monk test-nomos'
-      6after_script:
+      after_script:
     - php: 7.1 # allowed failure
       env: CC=gcc-5 CXX=g++-5 MAKETARGETS='all test-lib test-monk test-nomos'
       after_script:
@@ -161,7 +161,7 @@ matrix:
       after_script:
     - php: 7.1
       env: CC=clang-3.6 CXX=clang++-3.6 MAKETARGETS='all test-lib test-monk test-nomos'
-      6after_script:
+      after_script:
     - php: 7.1
       env: CC=gcc-5 CXX=g++-5 MAKETARGETS='all test-lib test-monk test-nomos'
       after_script:
