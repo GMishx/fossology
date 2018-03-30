@@ -19,6 +19,7 @@ VERSION
 .vagrant/
 *.orig
 .#*
+/.settings/language.settings.xml
 
 # compiled or derived files
 install/db/dbcreate
