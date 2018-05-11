@@ -83,7 +83,7 @@ class SchedulerTest extends \PHPUnit_Framework_TestCase
     $this->uploadDao = new UploadDao($this->dbManager, $logger, $this->uploadPermDao);
     $this->highlightDao = new HighlightDao($this->dbManager);
     $this->clearingDecisionFilter = new ClearingDecisionFilter();
-    $this->clearingDao = new ClearingDao($this->dbManager, $this->uploadDao);
+    $this->clearingDao = new ClearingDao($this->dbManager, $this->uploadDao, $this->uploadPermDao);
     $this->treeDao = \Mockery::mock(TreeDao::classname());
 
     $agentDao = new AgentDao($this->dbManager, $logger);
@@ -144,10 +144,10 @@ class SchedulerTest extends \PHPUnit_Framework_TestCase
     }
   }
 
-  private function getFilteredClearings($uploadId, $groupId)
+  private function getFilteredClearings($uploadId)
   {
     $bounds = $this->uploadDao->getParentItemBounds($uploadId);
-    return $this->clearingDao->getFileClearingsFolder($bounds, $groupId);
+    return $this->clearingDao->getFileClearingsFolder($bounds);
   }
 
   /** @group Functional */
@@ -175,7 +175,7 @@ class SchedulerTest extends \PHPUnit_Framework_TestCase
     assertThat($this->getHeartCount($output), equalTo(0));
 
     $bounds = $this->uploadDao->getParentItemBounds($uploadId);
-    assertThat($this->clearingDao->getFileClearingsFolder($bounds, $groupId=5), is(emptyArray()));
+    assertThat($this->clearingDao->getFileClearingsFolder($bounds), is(emptyArray()));
 
     $this->rmRepo();
   }
@@ -234,7 +234,7 @@ class SchedulerTest extends \PHPUnit_Framework_TestCase
 
     assertThat($this->getHeartCount($output), equalTo(0));
 
-    $decisions = $this->getFilteredClearings($uploadId, $this->groupId);
+    $decisions = $this->getFilteredClearings($uploadId);
     assertThat($decisions, is(emptyArray()));
 
     $this->rmRepo();
@@ -271,8 +271,8 @@ class SchedulerTest extends \PHPUnit_Framework_TestCase
     $this->assertEquals($retCode, 0, 'reuser failed: '.$output);
     assertThat($this->getHeartCount($output), equalTo($heartBeat));
 
-    $newUploadClearings = $this->getFilteredClearings($uploadId, $this->groupId);
-    $potentiallyReusableClearings = $this->getFilteredClearings($reusedUpload, $this->groupId);
+    $newUploadClearings = $this->getFilteredClearings($uploadId);
+    $potentiallyReusableClearings = $this->getFilteredClearings($reusedUpload);
 
     assertThat($newUploadClearings, is(arrayWithSize(1)));
 
@@ -328,8 +328,8 @@ class SchedulerTest extends \PHPUnit_Framework_TestCase
 
     assertThat($this->getHeartCount($output), equalTo(0));
 
-    $newUploadClearings = $this->getFilteredClearings($uploadId, $this->groupId);
-    $potentiallyReusableClearings = $this->getFilteredClearings($reusedUpload, $this->groupId);
+    $newUploadClearings = $this->getFilteredClearings($uploadId);
+    $potentiallyReusableClearings = $this->getFilteredClearings($reusedUpload);
 
     assertThat($newUploadClearings, is(arrayWithSize(1)));
 
@@ -356,7 +356,7 @@ class SchedulerTest extends \PHPUnit_Framework_TestCase
 
     /* reuser should have not created a correct local event history */
     $bounds = $this->uploadDao->getItemTreeBounds($originallyClearedItemId + $reusingUploadItemShift);
-    $newEvents = $this->clearingDao->getRelevantClearingEvents($bounds, $this->groupId);
+    $newEvents = $this->clearingDao->getRelevantClearingEvents($bounds);
 
     assertThat($newEvents, is(arrayWithSize(count($clearingLicenses))));
 
@@ -401,8 +401,8 @@ class SchedulerTest extends \PHPUnit_Framework_TestCase
     $this->assertTrue($success, 'cannot run runner');
     $this->assertEquals($retCode, 0, 'reuser failed: '.$output);
 
-    $newUploadClearings = $this->getFilteredClearings($uploadId, $this->groupId);
-    $potentiallyReusableClearings = $this->getFilteredClearings($reusedUpload, $this->groupId);
+    $newUploadClearings = $this->getFilteredClearings($uploadId);
+    $potentiallyReusableClearings = $this->getFilteredClearings($reusedUpload);
 
     assertThat($newUploadClearings, is(arrayWithSize(1)));
 
@@ -426,7 +426,7 @@ class SchedulerTest extends \PHPUnit_Framework_TestCase
 
     /* reuser should have not created a correct local event history */
     $bounds = $this->uploadDao->getItemTreeBounds($originallyClearedItemId + $reusingUploadItemShift);
-    $newEvents = $this->clearingDao->getRelevantClearingEvents($bounds, $this->groupId);
+    $newEvents = $this->clearingDao->getRelevantClearingEvents($bounds);
 
     assertThat($newEvents, is(arrayWithSize(count($clearingLicenses))));
 
@@ -438,10 +438,10 @@ class SchedulerTest extends \PHPUnit_Framework_TestCase
     }
     /*reuse main license*/
     $this->clearingDao->makeMainLicense($uploadId=2, $this->groupId, $mainLicenseId=402);
-    $mainLicenseIdForReuse = $this->clearingDao->getMainLicenseIds($reusedUploadId=2, $this->groupId);
+    $mainLicenseIdForReuse = $this->clearingDao->getMainLicenseIds($reusedUploadId=2);
     $mainLicenseIdForReuseSingle = array_values($mainLicenseIdForReuse);
     $this->clearingDao->makeMainLicense($uploadId=3, $this->groupId, $mainLicenseIdForReuseSingle[0]);
-    $mainLicense=$this->clearingDao->getMainLicenseIds($uploadId=3, $this->groupId);
+    $mainLicense=$this->clearingDao->getMainLicenseIds($uploadId=3);
     $mainLicenseSingle = array_values($mainLicense);
     $this->assertEquals($mainLicenseIdForReuseSingle, $mainLicenseSingle);
     $this->rmRepo();

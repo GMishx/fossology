@@ -172,7 +172,7 @@ class ui_browse_license extends DefaultPlugin
     
     if(!empty($agentMap))
     {
-      $licVars = $this->createLicenseHistogram($itemTreeBounds->getItemId(), $tag_pk, $itemTreeBounds, $selectedAgentIds, $groupId);
+      $licVars = $this->createLicenseHistogram($itemTreeBounds->getItemId(), $tag_pk, $itemTreeBounds, $selectedAgentIds);
       $vars = array_merge($vars, $licVars);
     }
 
@@ -222,11 +222,11 @@ class ui_browse_license extends DefaultPlugin
    * @param ClearingDecision []
    * @return array
    */
-  private function createLicenseHistogram($uploadTreeId, $tagId, ItemTreeBounds $itemTreeBounds, $agentIds, $groupId)
+  private function createLicenseHistogram($uploadTreeId, $tagId, ItemTreeBounds $itemTreeBounds, $agentIds)
   {
     $fileCount = $this->uploadDao->countPlainFiles($itemTreeBounds);
     $licenseHistogram = $this->licenseDao->getLicenseHistogram($itemTreeBounds, $agentIds);
-    $editedLicensesHist = $this->clearingDao->getClearedLicenseIdAndMultiplicities($itemTreeBounds, $groupId);
+    $editedLicensesHist = $this->clearingDao->getClearedLicenseIdAndMultiplicities($itemTreeBounds);
 
     $agentId = GetParm('agentId', PARM_INTEGER);
     $licListUri = Traceback_uri()."?mod=license_list_files&item=$uploadTreeId";

@@ -61,7 +61,7 @@ class MonkScheduledTest extends PHPUnit_Framework_TestCase
     $this->uploadPermDao = \Mockery::mock(UploadPermissionDao::classname());
     $this->uploadDao = new UploadDao($this->dbManager, $logger, $this->uploadPermDao);
     $this->highlightDao = new HighlightDao($this->dbManager);
-    $this->clearingDao = new ClearingDao($this->dbManager, $this->uploadDao);
+    $this->clearingDao = new ClearingDao($this->dbManager, $this->uploadDao, $this->uploadPermDao);
 
     $this->agentDir = dirname(dirname(__DIR__));
   }

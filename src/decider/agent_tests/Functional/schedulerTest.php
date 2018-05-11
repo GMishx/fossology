@@ -84,7 +84,7 @@ class SchedulerTest extends \PHPUnit_Framework_TestCase
     $agentDao = new AgentDao($this->dbManager, $logger);
     $this->agentLicenseEventProcessor = new AgentLicenseEventProcessor($this->licenseDao, $agentDao);
     $clearingEventProcessor = new ClearingEventProcessor();
-    $this->clearingDao = new ClearingDao($this->dbManager, $this->uploadDao);
+    $this->clearingDao = new ClearingDao($this->dbManager, $this->uploadDao, $this->$uploadPermDao);
     $this->showJobsDao = new ShowJobsDao($this->dbManager, $this->uploadDao);
     $this->clearingDecisionProcessor = new ClearingDecisionProcessor($this->clearingDao, $this->agentLicenseEventProcessor, $clearingEventProcessor, $this->dbManager);
 
@@ -190,7 +190,7 @@ class SchedulerTest extends \PHPUnit_Framework_TestCase
     assertThat($this->getHeartCount($output), equalTo(0));
 
     $uploadBounds = $this->uploadDao->getParentItemBounds($uploadId);
-    $decisions = $this->clearingDao->getFileClearingsFolder($uploadBounds, $groupId);
+    $decisions = $this->clearingDao->getFileClearingsFolder($uploadBounds);
     assertThat($decisions, is(arrayWithSize(0)));
 
     $this->rmRepo();
@@ -237,7 +237,7 @@ class SchedulerTest extends \PHPUnit_Framework_TestCase
     assertThat($this->getHeartCount($output), equalTo(1));
 
     $uploadBounds = $this->uploadDao->getParentItemBounds($uploadId);
-    $decisions = $this->clearingDao->getFileClearingsFolder($uploadBounds, $groupId);
+    $decisions = $this->clearingDao->getFileClearingsFolder($uploadBounds);
     assertThat($decisions, is(arrayWithSize(1)));
 
     $this->rmRepo();
@@ -285,7 +285,7 @@ class SchedulerTest extends \PHPUnit_Framework_TestCase
     assertThat($this->getHeartCount($output), equalTo(0));
 
     $uploadBounds = $this->uploadDao->getParentItemBounds($uploadId);
-    $decisions = $this->clearingDao->getFileClearingsFolder($uploadBounds, $groupId);
+    $decisions = $this->clearingDao->getFileClearingsFolder($uploadBounds);
     assertThat($decisions, is(arrayWithSize(0)));
 
     $this->rmRepo();
@@ -337,7 +337,7 @@ class SchedulerTest extends \PHPUnit_Framework_TestCase
     assertThat($this->getHeartCount($output), equalTo(1));
 
     $uploadBounds = $this->uploadDao->getParentItemBounds($uploadId);
-    $decisions = $this->clearingDao->getFileClearingsFolder($uploadBounds, $groupId);
+    $decisions = $this->clearingDao->getFileClearingsFolder($uploadBounds);
     assertThat($decisions, is(arrayWithSize(1)));
 
     $this->rmRepo();
@@ -396,7 +396,7 @@ class SchedulerTest extends \PHPUnit_Framework_TestCase
     assertThat($this->getHeartCount($output), equalTo(1));
 
     $uploadBounds = $this->uploadDao->getParentItemBounds($uploadId);
-    $decisions = $this->clearingDao->getFileClearingsFolder($uploadBounds, $groupId);
+    $decisions = $this->clearingDao->getFileClearingsFolder($uploadBounds);
     assertThat($decisions, is(arrayWithSize(1)));
 
     $this->rmRepo();
@@ -455,7 +455,7 @@ class SchedulerTest extends \PHPUnit_Framework_TestCase
     assertThat($this->getHeartCount($output), equalTo(0));
 
     $uploadBounds = $this->uploadDao->getParentItemBounds($uploadId);
-    $decisions = $this->clearingDao->getFileClearingsFolder($uploadBounds, $groupId);
+    $decisions = $this->clearingDao->getFileClearingsFolder($uploadBounds);
     assertThat($decisions, is(arrayWithSize(0)));
 
     $this->rmRepo();
@@ -515,7 +515,7 @@ class SchedulerTest extends \PHPUnit_Framework_TestCase
     assertThat($this->getHeartCount($output), equalTo(1));
 
     $uploadBounds = $this->uploadDao->getParentItemBounds($uploadId);
-    $decisions = $this->clearingDao->getFileClearingsFolder($uploadBounds, $groupId);
+    $decisions = $this->clearingDao->getFileClearingsFolder($uploadBounds);
     assertThat($decisions, is(arrayWithSize(1)));
 
     $this->rmRepo();
@@ -594,7 +594,7 @@ class SchedulerTest extends \PHPUnit_Framework_TestCase
     /* insert NoLicenseKnown decisions */
     $this->dbManager->queryOnce("INSERT INTO clearing_decision (clearing_decision_pk, uploadtree_fk, pfile_fk, user_fk, group_fk, decision_type, scope, date_added)"
             . " VALUES (2, $itemId, $pfile, $userId, $groupId, ".DecisionTypes::IDENTIFIED.", ".DecisionScopes::ITEM.", '2015-05-04 11:43:18.276425+02')");
-    $isWipBeforeDecider = $this->clearingDao->isDecisionWip($itemId, $groupId);
+    $isWipBeforeDecider = $this->clearingDao->isDecisionWip($itemId);
     assertThat($isWipBeforeDecider, equalTo(false));
 
     $this->dbManager->queryOnce("INSERT INTO license_file (fl_pk,rf_fk,pfile_fk,agent_fk) VALUES(12222,$licId1,$pfile,$monkAgentId)");
@@ -606,7 +606,7 @@ class SchedulerTest extends \PHPUnit_Framework_TestCase
     $this->assertTrue($success, 'cannot run runner');
     $this->assertEquals($retCode, 0, 'decider failed (did you make test?): '.$output);
 
-    $isWip = $this->clearingDao->isDecisionWip($itemId, $groupId);
+    $isWip = $this->clearingDao->isDecisionWip($itemId);
     assertThat($isWip, equalTo(true));
 
     $this->rmRepo();
@@ -639,7 +639,7 @@ class SchedulerTest extends \PHPUnit_Framework_TestCase
     /* insert NoLicenseKnown decisions */
     $this->dbManager->queryOnce("INSERT INTO clearing_decision (clearing_decision_pk, uploadtree_fk, pfile_fk, user_fk, group_fk, decision_type, scope, date_added)"
             . " VALUES (2, $itemId, $pfile, $userId, $groupId, ".DecisionTypes::IRRELEVANT.", ".DecisionScopes::ITEM.", '2015-05-04 11:43:18.276425+02')");
-    $lastDecision = $this->clearingDao->getRelevantClearingDecision($itemTreeBounds, $groupId);
+    $lastDecision = $this->clearingDao->getRelevantClearingDecision($itemTreeBounds);
     $lastClearingId = $lastDecision->getClearingId();
 
     $this->dbManager->queryOnce("INSERT INTO license_file (fl_pk,rf_fk,pfile_fk,agent_fk) VALUES(12222,$licId1,$pfile,$monkAgentId)");
@@ -651,7 +651,7 @@ class SchedulerTest extends \PHPUnit_Framework_TestCase
     $this->assertTrue($success, 'cannot run runner');
     $this->assertEquals($retCode, 0, 'decider failed (did you make test?): '.$output);
 
-    $newDecision = $this->clearingDao->getRelevantClearingDecision($itemTreeBounds, $groupId);
+    $newDecision = $this->clearingDao->getRelevantClearingDecision($itemTreeBounds);
     assertThat($newDecision->getClearingId(), equalTo($lastClearingId));
 
     $this->rmRepo();

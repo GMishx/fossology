@@ -27,7 +27,7 @@ use Fossology\Lib\Util\Object;
 class UploadBrowseProxy extends Object
 {
   const PRIO_COLUMN = 'priority';
-  
+
   protected $groupId;
   protected $userPerm;
   /** @var DbManager */
@@ -54,8 +54,8 @@ class UploadBrowseProxy extends Object
          . ' AND (public_perm>=$3 OR EXISTS(SELECT * FROM perm_upload WHERE perm_upload.upload_fk = upload_pk AND group_fk=$1))';
     $this->dbManager->getSingleRow($sql, $params);
   }
-  
-  
+
+
   public function updateTable($columnName, $uploadId, $value)
   {
     if ($columnName == 'status_fk')
@@ -71,8 +71,8 @@ class UploadBrowseProxy extends Object
     {
       throw new \Exception('invalid column');
     }
-  }  
-  
+  }
+
   protected function changeStatus($uploadId, $newStatus)
   {
     if ($newStatus == UploadStatus::REJECTED && $this->userPerm)
@@ -95,13 +95,13 @@ class UploadBrowseProxy extends Object
       $this->dbManager->getSingleRow($sql, $params,  __METHOD__ . '.user');
     }
   }
-  
+
   public function setStatusAndComment($uploadId, $statusId, $commentText)
   {
     $sql = "UPDATE upload_clearing SET status_fk=$1, status_comment=$2 WHERE group_fk=$3 AND upload_fk=$4";
     $this->dbManager->getSingleRow($sql, array($statusId, $commentText, $this->groupId, $uploadId), __METHOD__);
   }
-  
+
   public function moveUploadToInfinity($uploadId, $top)
   {
     $fun = $top ? 'MAX('.self::PRIO_COLUMN.')+1' : 'MIN('.self::PRIO_COLUMN.')-1';
@@ -111,7 +111,7 @@ class UploadBrowseProxy extends Object
             array($this->groupId,$uploadId),
             __METHOD__.($top?'+':'-'));
   }
-  
+
   public function moveUploadBeyond($moveUpload, $beyondUpload)
   {
     $this->dbManager->begin();
@@ -119,7 +119,7 @@ class UploadBrowseProxy extends Object
         $sql='SELECT upload_fk,'.self::PRIO_COLUMN.' FROM upload_clearing WHERE group_fk=$1 AND upload_fk=$2');
     $movePoint = $this->dbManager->getSingleRow($sql, array($this->groupId,$moveUpload), $stmt);
     $beyondPoint = $this->dbManager->getSingleRow($sql, array($this->groupId,$beyondUpload), $stmt);
-    
+
     if ($movePoint[self::PRIO_COLUMN] > $beyondPoint[self::PRIO_COLUMN])
     {
       $farPoint = $this->dbManager->getSingleRow("SELECT MAX(".self::PRIO_COLUMN.") m FROM upload_clearing WHERE group_fk=$1 AND ".self::PRIO_COLUMN."<$2",
@@ -131,14 +131,14 @@ class UploadBrowseProxy extends Object
               array($this->groupId,$beyondPoint[self::PRIO_COLUMN]), 'get.upload.with.higher.priority');
       $farPrio = $farPoint['m']!==null ? $farPoint['m'] : $beyondPoint[self::PRIO_COLUMN]+1;
     }
-    
+
     $newPriority = ($farPrio + $beyondPoint[self::PRIO_COLUMN]) / 2;
     $this->dbManager->getSingleRow('UPDATE upload_clearing SET '.self::PRIO_COLUMN.'=$1 WHERE group_fk=$2 AND upload_fk=$3',
             array($newPriority, $this->groupId, $moveUpload),
             __METHOD__.'.update.priority');
     $this->dbManager->commit();
   }
-  
+
   /**
    * @param array $params
    * @return string $partQuery where "select * from $partquery" is query to select all uploads in forderId = $params[0]
@@ -152,16 +152,19 @@ class UploadBrowseProxy extends Object
     $params[] = $this->groupId;
     $params[] = Auth::PERM_READ;
     $partQuery = 'upload
-        INNER JOIN upload_clearing ON upload_pk = upload_clearing.upload_fk AND group_fk=$2
+        INNER JOIN upload_clearing ON upload_pk = upload_clearing.upload_fk AND group_fk IN (
+          SELECT perm_upload.group_fk FROM perm_upload
+          WHERE perm_upload.upload_fk = upload_clearing.upload_fk AND perm_upload.perm > '. Auth::PERM_NONE .'
+        )
         INNER JOIN uploadtree ON upload_pk = uploadtree.upload_fk AND upload.pfile_fk = uploadtree.pfile_fk
-        WHERE upload_pk IN (SELECT child_id FROM foldercontents WHERE foldercontents_mode&2 != 0 AND parent_fk = $1 ) 
+        WHERE upload_pk IN (SELECT child_id FROM foldercontents WHERE foldercontents_mode&2 != 0 AND parent_fk = $1 )
          AND (public_perm>=$3
               OR EXISTS(SELECT * FROM perm_upload WHERE perm_upload.upload_fk = upload_pk AND group_fk=$2))
          AND parent IS NULL
          AND lft IS NOT NULL';
     return $partQuery;
   }
-  
+
   /**
    * @param int $uploadId
    * @return int
@@ -176,4 +179,4 @@ class UploadBrowseProxy extends Object
     }
     return $row['status_fk'];
   }
-} 
+}

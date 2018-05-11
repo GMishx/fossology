@@ -56,7 +56,7 @@ class MonkBulkTest extends \PHPUnit_Framework_TestCase
     $this->uploadPermDao = \Mockery::mock(UploadPermissionDao::classname());
     $this->uploadDao = new UploadDao($this->dbManager, $logger, $this->uploadPermDao);
     $this->highlightDao = new HighlightDao($this->dbManager);
-    $this->clearingDao = new ClearingDao($this->dbManager, $this->uploadDao);
+    $this->clearingDao = new ClearingDao($this->dbManager, $this->uploadDao, $this->uploadPermDao);
   }
 
   protected function tearDown()
@@ -172,8 +172,8 @@ class MonkBulkTest extends \PHPUnit_Framework_TestCase
     $this->assertEquals($retCode, 0, 'monk bulk failed: '.$output);
     $bounds6 = new ItemTreeBounds(6, 'uploadtree_a', 1, 17, 18);
     $bounds7 = new ItemTreeBounds(7, 'uploadtree_a', 1, 15, 16);
-    $relevantDecisionsItem6 = $this->clearingDao->getRelevantClearingEvents($bounds6, $groupId);
-    $relevantDecisionsItem7 = $this->clearingDao->getRelevantClearingEvents($bounds7, $groupId);
+    $relevantDecisionsItem6 = $this->clearingDao->getRelevantClearingEvents($bounds6);
+    $relevantDecisionsItem7 = $this->clearingDao->getRelevantClearingEvents($bounds7);
 
     assertThat(count($relevantDecisionsItem6),is(equalTo(1)));
     assertThat(count($relevantDecisionsItem7),is(equalTo(1)));
@@ -188,8 +188,8 @@ class MonkBulkTest extends \PHPUnit_Framework_TestCase
     list($output,$retCode) = $this->runBulkMonk($userId, $groupId, $jobId, $bulkSecondId);
 
     $this->assertEquals($retCode, 0, 'monk bulk failed: '.$output);
-    $relevantDecisionsItemPfile3 = $this->clearingDao->getRelevantClearingEvents($bounds6, $groupId);
-    $relevantDecisionsItemPfile4 = $this->clearingDao->getRelevantClearingEvents($bounds7, $groupId);
+    $relevantDecisionsItemPfile3 = $this->clearingDao->getRelevantClearingEvents($bounds6);
+    $relevantDecisionsItemPfile4 = $this->clearingDao->getRelevantClearingEvents($bounds7);
     assertThat(count($relevantDecisionsItemPfile3), is(equalTo(1)));
     
     assertThat(count($relevantDecisionsItemPfile4), is(equalTo(2)));
@@ -227,8 +227,8 @@ class MonkBulkTest extends \PHPUnit_Framework_TestCase
     $this->assertEquals($retCode, 0, 'monk bulk failed: '.$output);
     $bounds6 = new ItemTreeBounds(6, 'uploadtree_a', 1, 17, 18);
     $bounds7 = new ItemTreeBounds(7, 'uploadtree_a', 1, 15, 16);
-    $relevantDecisionsItem6 = $this->clearingDao->getRelevantClearingEvents($bounds6, $groupId);
-    $relevantDecisionsItem7 = $this->clearingDao->getRelevantClearingEvents($bounds7, $groupId);
+    $relevantDecisionsItem6 = $this->clearingDao->getRelevantClearingEvents($bounds6);
+    $relevantDecisionsItem7 = $this->clearingDao->getRelevantClearingEvents($bounds7);
 
     assertThat(count($relevantDecisionsItem6),is(equalTo(2)));
     assertThat(count($relevantDecisionsItem7),is(equalTo(2)));
@@ -296,8 +296,8 @@ class MonkBulkTest extends \PHPUnit_Framework_TestCase
     $this->assertEquals($retCode, 0, 'monk bulk failed: ' . $output);
     $bounds6 = new ItemTreeBounds(6, 'uploadtree_a', 1, 17, 18);
     $bounds7 = new ItemTreeBounds(7, 'uploadtree_a', 1, 15, 16);
-    $relevantDecisionsItem6 = $this->clearingDao->getRelevantClearingEvents($bounds6, $groupId);
-    $relevantDecisionsItem7 = $this->clearingDao->getRelevantClearingEvents($bounds7, $groupId);
+    $relevantDecisionsItem6 = $this->clearingDao->getRelevantClearingEvents($bounds6);
+    $relevantDecisionsItem7 = $this->clearingDao->getRelevantClearingEvents($bounds7);
 
     assertThat(count($relevantDecisionsItem6), is(equalTo(1)));
     assertThat(count($relevantDecisionsItem7), is(equalTo(1)));
@@ -350,8 +350,8 @@ class MonkBulkTest extends \PHPUnit_Framework_TestCase
     $this->assertEquals($retCode, 0, "monk bulk failed: $output");
     $bounds6 = new ItemTreeBounds(6, 'uploadtree_a', 1, 17, 18);
     $bounds7 = new ItemTreeBounds(7, 'uploadtree_a', 1, 15, 16);
-    $relevantDecisionsItem6 = $this->clearingDao->getRelevantClearingEvents($bounds6, $groupId);
-    $relevantDecisionsItem7 = $this->clearingDao->getRelevantClearingEvents($bounds7, $groupId);
+    $relevantDecisionsItem6 = $this->clearingDao->getRelevantClearingEvents($bounds6);
+    $relevantDecisionsItem7 = $this->clearingDao->getRelevantClearingEvents($bounds7);
 
     $this->assertEquals($expected=0, count($relevantDecisionsItem6));
     $this->assertEquals($expected=0, count($relevantDecisionsItem7));
@@ -383,8 +383,8 @@ class MonkBulkTest extends \PHPUnit_Framework_TestCase
     $this->assertEquals($retCode, 0, 'monk bulk failed: '.$output);
     $bounds6 = new ItemTreeBounds(6, 'uploadtree_a', 1, 17, 18);
     $bounds7 = new ItemTreeBounds(7, 'uploadtree_a', 1, 15, 16);
-    $relevantDecisionsItem6 = $this->clearingDao->getRelevantClearingEvents($bounds6, $groupId);
-    $relevantDecisionsItem7 = $this->clearingDao->getRelevantClearingEvents($bounds7, $groupId);
+    $relevantDecisionsItem6 = $this->clearingDao->getRelevantClearingEvents($bounds6);
+    $relevantDecisionsItem7 = $this->clearingDao->getRelevantClearingEvents($bounds7);
 
     assertThat(count($relevantDecisionsItem6),is(equalTo(1)));
     assertThat(count($relevantDecisionsItem7),is(equalTo(1)));
@@ -436,8 +436,8 @@ class MonkBulkTest extends \PHPUnit_Framework_TestCase
     $this->assertEquals($retCode, 0, 'monk bulk failed: '.$output);
     $bounds6 = new ItemTreeBounds(6, 'uploadtree_a', 1, 17, 18);
     $bounds7 = new ItemTreeBounds(7, 'uploadtree_a', 1, 15, 16);
-    $relevantDecisionsItem6 = $this->clearingDao->getRelevantClearingEvents($bounds6, $groupId);
-    $relevantDecisionsItem7 = $this->clearingDao->getRelevantClearingEvents($bounds7, $groupId);
+    $relevantDecisionsItem6 = $this->clearingDao->getRelevantClearingEvents($bounds6);
+    $relevantDecisionsItem7 = $this->clearingDao->getRelevantClearingEvents($bounds7);
 
     assertThat(count($relevantDecisionsItem6),is(equalTo(0)));
     assertThat(count($relevantDecisionsItem7),is(equalTo(0)));

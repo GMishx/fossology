@@ -257,7 +257,7 @@ class SpdxTwoAgent extends Agent
     $upload = $this->uploadDao->getUpload($uploadId);
     $fileNodes = $this->generateFileNodes($filesWithLicenses, $upload->getTreeTableName());
 
-    $mainLicenseIds = $this->clearingDao->getMainLicenseIds($uploadId, $this->groupId);
+    $mainLicenseIds = $this->clearingDao->getMainLicenseIds($uploadId);
     $mainLicenses = array();
     foreach($mainLicenseIds as $licId)
     {
@@ -292,7 +292,7 @@ class SpdxTwoAgent extends Agent
    */
   protected function getFilesWithLicensesFromClearings(ItemTreeBounds $itemTreeBounds)
   {
-    $clearingDecisions = $this->clearingDao->getFileClearingsFolder($itemTreeBounds, $this->groupId);
+    $clearingDecisions = $this->clearingDao->getFileClearingsFolder($itemTreeBounds);
 
     $filesWithLicenses = array();
     $clearingsProceeded = 0;

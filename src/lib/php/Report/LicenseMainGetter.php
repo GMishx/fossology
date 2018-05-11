@@ -44,7 +44,7 @@ class LicenseMainGetter extends ClearedGetterCommon
   {
     $dbManager = $GLOBALS['container']->get('db.manager');
     $licenseMap = new LicenseMap($dbManager, $groupId, LicenseMap::REPORT, true);
-    $mainLicIds = $this->clearingDao->getMainLicenseIds($uploadId, $groupId);
+    $mainLicIds = $this->clearingDao->getMainLicenseIds($uploadId);
 
     $allStatements = array();
     foreach ($mainLicIds as $originLicenseId) {

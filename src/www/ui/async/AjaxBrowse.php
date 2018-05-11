@@ -21,6 +21,7 @@ namespace Fossology\UI\Ajax;
 
 use Fossology\Lib\Auth\Auth;
 use Fossology\Lib\Dao\UploadDao;
+use Fossology\Lib\Dao\UploadPermissionDao;
 use Fossology\Lib\Dao\UserDao;
 use Fossology\Lib\Db\DbManager;
 use Fossology\Lib\Plugin\DefaultPlugin;
@@ -40,6 +41,8 @@ class AjaxBrowse extends DefaultPlugin
   private $uploadDao;
   /** @var UserDao $userDao */
   private $userDao;
+  /** @var UploadPermissionDao $uploadPermissionDao */
+  private $uploadPermissionDao;
   /** @var DbManager dbManager */
   private $dbManager;
   /** @var DataTablesUtility $dataTablesUtility */
@@ -62,6 +65,7 @@ class AjaxBrowse extends DefaultPlugin
     $this->userDao = $container->get('dao.user');
     $this->dbManager = $container->get('db.manager');
     $this->dataTablesUtility = $container->get('utils.data_tables_utility');
+    $this->uploadPermissionDao = $container->get('dao.upload.permission');
   }
 
   /**
@@ -91,7 +95,7 @@ class AjaxBrowse extends DefaultPlugin
     $beyondUpload = intval($request->get("beyond"));
     $commentText = $request->get('commentText');
     $direction = $request->get('direction');
-    
+
     if (!empty($columnName) && !empty($uploadId) && !empty($value))
     {
       $uploadBrowseProxy = new UploadBrowseProxy($groupId, $this->userPerm, $this->dbManager);
@@ -175,7 +179,7 @@ class AjaxBrowse extends DefaultPlugin
   {
     $show = $request->get('show');
     $folder = $request->get('folder');
-    
+
     $uploadId = intval($row['upload_pk']);
     $description = htmlentities($row['upload_desc']);
 
@@ -212,7 +216,7 @@ class AjaxBrowse extends DefaultPlugin
     {
       $nameColumn = '<input type="checkbox" name="uploads[]" class="browse-upload-checkbox" value="'.$uploadId.'"/>'.$nameColumn;
     }
-    
+
     $dateCol = substr($row['upload_ts'], 0, 19);
     $pairIdPrio = array($uploadId, floatval($row[UploadBrowseProxy::PRIO_COLUMN]));
     if (!$this->userPerm && 4 == $row['status_fk'])
@@ -235,18 +239,23 @@ class AjaxBrowse extends DefaultPlugin
     }
     $rejectableUploadId = ($this->userPerm || $row['status_fk'] < 4) ? $uploadId : 0;
     $tripleComment = array($rejectableUploadId, $row['status_fk'], htmlspecialchars($row['status_comment']));
-    
+    $accessibleGroups = $this->uploadPermissionDao->getAccessibleGroups($uploadId);
+
     $sql = "SELECT rf_pk, rf_shortname FROM upload_clearing_license ucl, license_ref"
-            . " WHERE ucl.group_fk=$1 AND upload_fk=$2 AND ucl.rf_fk=rf_pk";
-    $stmt = __METHOD__.'.collectMainLicenses';
+            . " WHERE ucl.group_fk IN ($accessibleGroups)"
+            . " AND upload_fk=$1 AND ucl.rf_fk=rf_pk";
+    $stmt = __METHOD__.'.collectMainLicenses'.$accessibleGroups;
     $this->dbManager->prepare($stmt, $sql);
-    $res = $this->dbManager->execute($stmt,array(Auth::getGroupId(),$uploadId));
+    $res = $this->dbManager->execute($stmt,array($uploadId));
     $mainLicenses = array();
     while($lic=$this->dbManager->fetchArray($res)){
-      $mainLicenses[] = '<a onclick="javascript:window.open(\''.Traceback_uri()
+      $licenseDisHTML = '<a onclick="javascript:window.open(\''.Traceback_uri()
               ."?mod=popup-license&rf=$lic[rf_pk]','License text','width=600,height=400,toolbar=no,scrollbars=yes,resizable=yes');"
-              .'" href="javascript:;">'.$lic['rf_shortname'].'</a>'
-              ."<img onclick=\"removeMainLicense($uploadId,$lic[rf_pk]);\" class=\"delete\" src=\"images/space_16.png\" alt=\"\"/></img>";
+              .'" href="javascript:;">'.$lic['rf_shortname'].'</a>';
+      if($this->uploadPermissionDao->isEditable($uploadId, Auth::getGroupId())){
+        $licenseDisHTML .= "<img onclick=\"removeMainLicense($uploadId,$lic[rf_pk]);\" class=\"delete\" src=\"images/space_16.png\" alt=\"\"/></img>";
+      }
+      $mainLicenses[] = $licenseDisHTML;
     }
     $this->dbManager->freeResult($res);
 
@@ -269,8 +278,8 @@ class AjaxBrowse extends DefaultPlugin
     $databaseMap[1] = _('Unassigned');
     return $this->createSelect($selectElementName,$databaseMap, $selectedValue,$action);
   }
-  
-  
+
+
   private function createSelect($id,$options,$select='',$action='')
   {
     $html = "<select name=\"$id\" id=\"$id\" $action>";
@@ -284,9 +293,9 @@ class AjaxBrowse extends DefaultPlugin
       $html .= ">$disp</option>";
     }
     $html .= '</select>';
-    return $html;    
+    return $html;
   }
-  
+
 
   /**
    * @param Request $request
@@ -297,19 +306,19 @@ class AjaxBrowse extends DefaultPlugin
     $uploadBrowseProxy = new UploadBrowseProxy(Auth::getGroupId(), $this->userPerm, $this->dbManager);
     $params = array($request->get('folder'));
     $partQuery = $uploadBrowseProxy->getFolderPartialQuery($params);
-    
+
     $iTotalRecordsRow = $this->dbManager->getSingleRow("SELECT count(*) FROM $partQuery", $params, __METHOD__ . "count.all");
     $iTotalRecords = $iTotalRecordsRow['count'];
-    
+
     $this->filterParams = $params;
     $filter = $this->getSearchString($request->get('sSearch'));
     $filter .= $this->getIntegerFilter(intval($request->get('assigneeSelected')), 'assignee');
     $filter .= $this->getIntegerFilter(intval($request->get('statusSelected')), 'status_fk');
-    
+
     $iTotalDisplayRecordsRow = $this->dbManager->getSingleRow("SELECT count(*) FROM $partQuery $filter",
         $this->filterParams, __METHOD__ . ".count.". $filter);
     $iTotalDisplayRecords = $iTotalDisplayRecordsRow['count'];
-    
+
     $orderString = $this->getOrderString();
     $stmt = __METHOD__ . "getFolderContents" . $orderString . $filter;
 

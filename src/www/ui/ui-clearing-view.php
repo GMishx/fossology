@@ -111,7 +111,7 @@ class ClearingView extends FO_Plugin
   {
     $unmaskAgents = $selectedAgentId;
     if(empty($selectedAgentId))
-    {  
+    {
       $scanJobProxy = new ScanJobProxy($this->agentsDao,$uploadId);
       $scanJobProxy->createAgentStatus(array('nomos','monk','ninka'));
       $unmaskAgents = $scanJobProxy->getLatestSuccessfulAgentIds();
@@ -270,15 +270,15 @@ class ClearingView extends FO_Plugin
     $clearingDecisions = null;
     if ($isSingleFile || $hasWritePermission)
     {
-      $clearingDecisions = $this->clearingDao->getFileClearings($itemTreeBounds, $groupId, false);
+      $clearingDecisions = $this->clearingDao->getFileClearings($itemTreeBounds, false);
     }
 
     if ($isSingleFile && $hasWritePermission)
     {
       $this->vars['bulkUri'] = Traceback_uri() . "?mod=popup-license";
       $licenseArray = $this->licenseDao->getLicenseArray($groupId);
-      // $clearingDecision = $this->clearingDao->getRelevantClearingDecision($itemTreeBounds, $groupId);
-      list($addedResults, $removedResults) = $this->clearingDecisionEventProcessor->getCurrentClearings($itemTreeBounds, $groupId, LicenseMap::CONCLUSION);
+      // $clearingDecision = $this->clearingDao->getRelevantClearingDecision($itemTreeBounds);
+      list($addedResults, $removedResults) = $this->clearingDecisionEventProcessor->getCurrentClearings($itemTreeBounds, LicenseMap::CONCLUSION);
       if(count($addedResults)+count($removedResults)>0)
       {
         array_unshift($licenseArray, array('id'=>0,'fullname'=>'','shortname'=>'------'));
@@ -316,7 +316,7 @@ class ClearingView extends FO_Plugin
     $this->vars['legendData'] = $this->highlightRenderer->getLegendData($selectedAgentId || $clearingId);
     $this->vars['clearingTypes'] = $this->decisionTypes->getMap();
     $this->vars['selectedClearingType'] = $selectedClearingType;
-    $this->vars['tmpClearingType'] = $this->clearingDao->isDecisionWip($uploadTreeId, $groupId);
+    $this->vars['tmpClearingType'] = $this->clearingDao->isDecisionWip($uploadTreeId);
     $this->vars['bulkHistory'] = $bulkHistory;
 
     $noLicenseUploadTreeView = new UploadTreeProxy($uploadId,
@@ -324,16 +324,16 @@ class ClearingView extends FO_Plugin
     $uploadTreeTableName,
     $viewName = 'no_license_uploadtree' . $uploadId);
     $filesOfInterest = $noLicenseUploadTreeView->count();
-    
+
     $nonClearedUploadTreeView = new UploadTreeProxy($uploadId,
         $options = array(UploadTreeProxy::OPT_SKIP_THESE => "alreadyCleared", UploadTreeProxy::OPT_GROUP_ID=>$groupId),
         $uploadTreeTableName,
         $viewName = 'already_cleared_uploadtree' . $uploadId);
     $filesToBeCleared = $nonClearedUploadTreeView->count();
-    
+
     $filesAlreadyCleared = $filesOfInterest - $filesToBeCleared;
     $this->vars['message'] = _("Cleared").": $filesAlreadyCleared/$filesOfInterest";
-    
+
     return $this->render("ui-clearing-view.html.twig");
   }
 

@@ -57,18 +57,17 @@ class ClearingDecisionProcessor extends Object
 
   /**
    * @param ItemTreeBounds $itemTreeBounds
-   * @param int $groupId
    * @param int[] $additionalEventIds additional event ids to include, indexed by licenseId
    * @param null|LicenseMap $licenseMap if given then license are considered as equal iff mapped to same
    * @return bool
    */
-  public function hasUnhandledScannerDetectedLicenses(ItemTreeBounds $itemTreeBounds, $groupId, $additionalEventIds = array(), $licenseMap=null)
+  public function hasUnhandledScannerDetectedLicenses(ItemTreeBounds $itemTreeBounds, $additionalEventIds = array(), $licenseMap=null)
   {
     if (!empty($licenseMap) && !($licenseMap instanceof LicenseMap))
     {
       throw new Exception('invalid license map');
     }
-    $userEvents = $this->clearingDao->getRelevantClearingEvents($itemTreeBounds, $groupId);
+    $userEvents = $this->clearingDao->getRelevantClearingEvents($itemTreeBounds);
     $usageId = empty($licenseMap) ? LicenseMap::TRIVIAL : $licenseMap->getUsage();
     $scannerDetectedEvents = $this->agentLicenseEventProcessor->getScannerEvents($itemTreeBounds,$usageId);
     $eventLicenceIds = array();
@@ -144,7 +143,7 @@ class ClearingDecisionProcessor extends Object
 
     $itemId = $itemBounds->getItemId();
 
-    $previousEvents = $this->clearingDao->getRelevantClearingEvents($itemBounds, $groupId, $includeSubFolders=false);
+    $previousEvents = $this->clearingDao->getRelevantClearingEvents($itemBounds, $includeSubFolders=false);
     if ($type === self::NO_LICENSE_KNOWN_DECISION_TYPE)
     {
       $type = DecisionTypes::IDENTIFIED;
@@ -168,7 +167,7 @@ class ClearingDecisionProcessor extends Object
       }
     }
 
-    $currentDecision = $this->clearingDao->getRelevantClearingDecision($itemBounds, $groupId);
+    $currentDecision = $this->clearingDao->getRelevantClearingDecision($itemBounds);
     $clearingEventIds = array_unique(array_merge($clearingEventIds, $additionalEventIds));
 
     $scope = $global ? DecisionScopes::REPO : DecisionScopes::ITEM;
@@ -186,14 +185,13 @@ class ClearingDecisionProcessor extends Object
 
   /**
    * @param ItemTreeBounds $itemTreeBounds
-   * @param int $groupId
    * @return array
    * @throws Exception
    */
-  public function getCurrentClearings(ItemTreeBounds $itemTreeBounds, $groupId, $usageId=LicenseMap::TRIVIAL)
+  public function getCurrentClearings(ItemTreeBounds $itemTreeBounds, $usageId=LicenseMap::TRIVIAL)
   {
     $agentEvents = $this->agentLicenseEventProcessor->getScannerEvents($itemTreeBounds, $usageId);
-    $events = $this->clearingDao->getRelevantClearingEvents($itemTreeBounds, $groupId);
+    $events = $this->clearingDao->getRelevantClearingEvents($itemTreeBounds);
 
     $addedResults = array();
     $removedResults = array();

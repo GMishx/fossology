@@ -134,7 +134,7 @@ class DeciderJobAgent extends Agent {
         break;
 
       default:
-        $createDecision = !$this->clearingDecisionProcessor->hasUnhandledScannerDetectedLicenses($itemTreeBounds, $groupId, $additionalEventsFromThisJob, $this->licenseMap);
+        $createDecision = !$this->clearingDecisionProcessor->hasUnhandledScannerDetectedLicenses($itemTreeBounds, $additionalEventsFromThisJob, $this->licenseMap);
     }
 
     if ($createDecision)

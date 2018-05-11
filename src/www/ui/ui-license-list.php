@@ -136,7 +136,7 @@ class ui_license_list extends FO_Plugin
     /** @var ItemTreeBounds */
     $itemTreeBounds = $this->uploadDao->getItemTreeBounds($uploadtree_pk, $uploadtreeTablename);
     $licensesPerFileNameOld = $this->licenseDao->getLicensesPerFileNameForAgentId($itemTreeBounds, $agent_pks, $includeSubfolder, array(), $exclude, $ignore, true);
-    $allDecisions = $this->clearingDao->getFileClearingsFolder($itemTreeBounds, Auth::getGroupId());
+    $allDecisions = $this->clearingDao->getFileClearingsFolder($itemTreeBounds);
     $editedMappedLicenses = $this->clearingFilter->filterCurrentClearingDecisionsForLicenseList($allDecisions);
     foreach($licensesPerFileNameOld as $path => $uploadTreePk){
       foreach($uploadTreePk as $uploadTreeId => $licenseArray){

@@ -205,10 +205,10 @@ abstract class ClearedGetterCommon
     $statements = $this->groupStatements($ungrupedStatements, $extended, $agentcall);
     return array("statements" => array_values($statements));
   }
-  
-  public function getLicenseHistogramForReport($uploadId, $groupId)
+
+  public function getLicenseHistogramForReport($uploadId)
   {
-    $histogramStatements = $this->getHistogram($uploadId, $groupId);
+    $histogramStatements = $this->getHistogram($uploadId);
     return array("statements" => $histogramStatements);
   }
 
@@ -221,9 +221,9 @@ abstract class ClearedGetterCommon
     return str_replace('\u001b','',$json);
   }
 
-  public function cJsonHist($uploadId, $groupId=null)
+  public function cJsonHist($uploadId)
   {
-    $jsonHist = json_encode($this->getLicenseHistogramForReport($uploadId, $groupId));
+    $jsonHist = json_encode($this->getLicenseHistogramForReport($uploadId));
     return str_replace('\u001b','',str_replace('\\f','',$jsonHist));
   }
 }

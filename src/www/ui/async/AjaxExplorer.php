@@ -45,7 +45,7 @@ use Symfony\Component\HttpFoundation\Response;
 class AjaxExplorer extends DefaultPlugin
 {
   const NAME = "ajax_explorer";
-  
+
   private $uploadtree_tablename = "";
   /** @var UploadDao */
   private $uploadDao;
@@ -65,7 +65,7 @@ class AjaxExplorer extends DefaultPlugin
   private $filesToBeCleared;
   /** @var array */
   protected $agentNames = array('nomos' => 'N', 'monk' => 'M', 'ninka' => 'Nk', 'reportImport' => 'I');
-  
+
   public function __construct() {
     parent::__construct(self::NAME, array(
         self::TITLE => _("Ajax: License Browser"),
@@ -100,7 +100,7 @@ class AjaxExplorer extends DefaultPlugin
     {
        throw new \Exception("Job unpack/adj2nest hasn't completed.");
     }
-    
+
     $scannerAgents = array_keys($this->agentNames);
     $scanJobProxy = new ScanJobProxy($this->agentDao, $upload);
     $scanJobProxy->createAgentStatus($scannerAgents);
@@ -110,7 +110,7 @@ class AjaxExplorer extends DefaultPlugin
     $UniqueTagArray = array();
     $this->licenseProjector = new LicenseMap($this->getObject('db.manager'),$groupId,LicenseMap::CONCLUSION,true);
     $vars = $this->createFileListing($tag_pk, $itemTreeBounds, $UniqueTagArray, $selectedAgentId, $groupId, $scanJobProxy);
-    
+
     return new JsonResponse(array(
             'sEcho' => intval($request->get('sEcho')),
             'aaData' => $vars['fileData'],
@@ -140,7 +140,7 @@ class AjaxExplorer extends DefaultPlugin
     {
       $selectedScanners = $scanJobProxy->getLatestSuccessfulAgentIds();
     }
-    
+
     /** change the license result when selecting one version of nomos */
     $uploadId = $itemTreeBounds->getUploadId();
     $isFlat = isset($_GET['flatten']);
@@ -153,7 +153,7 @@ class AjaxExplorer extends DefaultPlugin
     {
       $options = array(UploadTreeProxy::OPT_REALPARENT => $itemTreeBounds->getItemId());
     }
-    
+
     $searchMap = array();
     foreach(explode(' ',GetParm('sSearch', PARM_RAW)) as $pair)
     {
@@ -165,8 +165,8 @@ class AjaxExplorer extends DefaultPlugin
         $searchMap[$a[0]] = $a[1];
       }
     }
-    
-    
+
+
     if(array_key_exists('ext', $searchMap) && strlen($searchMap['ext'])>=1)
     {
       $options[UploadTreeProxy::OPT_EXT] = $searchMap['ext'];
@@ -192,15 +192,15 @@ class AjaxExplorer extends DefaultPlugin
       $options[UploadTreeProxy::OPT_GROUP_ID] = Auth::getGroupId();
       $options[UploadTreeProxy::OPT_SKIP_ALREADY_CLEARED] = true;
     }
-    
+
     $descendantView = new UploadTreeProxy($uploadId, $options, $itemTreeBounds->getUploadTreeTableName(), 'uberItems');
 
     $vars['iTotalDisplayRecords'] = $descendantView->count();
-    
+
     $columnNamesInDatabase = array($isFlat?'ufile_name':'lft');
     $defaultOrder = array(array(0, "asc"));
     $orderString = $this->getObject('utils.data_tables_utility')->getSortingString($_GET, $columnNamesInDatabase, $defaultOrder);
-    
+
     $offset = GetParm('iDisplayStart', PARM_INTEGER);
     $limit = GetParm('iDisplayLength', PARM_INTEGER);
     if ($offset) {
@@ -210,15 +210,15 @@ class AjaxExplorer extends DefaultPlugin
       $orderString .= " LIMIT $limit";
     }
 
-    /* Get ALL the items under this Uploadtree_pk */ 
+    /* Get ALL the items under this Uploadtree_pk */
     $sql = $descendantView->getDbViewQuery()." $orderString";
     $dbManager = $this->getObject('db.manager');
-            
+
     $dbManager->prepare($stmt=__METHOD__.$orderString,$sql);
     $res = $dbManager->execute($stmt,$descendantView->getParams());
     $descendants = $dbManager->fetchAll($res);
     $dbManager->freeResult($res);
-    
+
     /* Filter out Children that don't have tag */
     if (!empty($tagId))
     {
@@ -229,7 +229,7 @@ class AjaxExplorer extends DefaultPlugin
       $vars['fileData'] = array();
       return $vars;
     }
-    
+
     if ($isFlat) {
       $firstChild = reset($descendants);
       $lastChild = end($descendants);
@@ -289,11 +289,11 @@ class AjaxExplorer extends DefaultPlugin
     }
     $noLicenseUploadTreeView->unmaterialize();
 
-    $allDecisions = $this->clearingDao->getFileClearingsFolder($itemTreeBounds, $groupId, $isFlat);
+    $allDecisions = $this->clearingDao->getFileClearingsFolder($itemTreeBounds, $isFlat);
     $editedMappedLicenses = $this->clearingFilter->filterCurrentClearingDecisions($allDecisions);
     $baseUri = Traceback_uri().'?mod=license'.Traceback_parm_keep(array('upload','folder','show'));
 
-    $tableData = array();    
+    $tableData = array();
     global $Plugins;
     $ModLicView = &$Plugins[plugin_find_id("view-license")];
     $latestSuccessfulAgentIds = $scanJobProxy->getLatestSuccessfulAgentIds();
@@ -303,9 +303,9 @@ class AjaxExplorer extends DefaultPlugin
       {
         continue;
       }
-      $tableData[] = $this->createFileDataRow($child, $uploadId, $selectedAgentId, $pfileLicenses, $groupId, $editedMappedLicenses, $baseUri, $ModLicView, $UniqueTagArray, $isFlat, $latestSuccessfulAgentIds);
+      $tableData[] = $this->createFileDataRow($child, $uploadId, $selectedAgentId, $pfileLicenses, $editedMappedLicenses, $baseUri, $ModLicView, $UniqueTagArray, $isFlat, $latestSuccessfulAgentIds);
     }
-    
+
     $vars['fileData'] = $tableData;
     return $vars;
   }
@@ -325,7 +325,7 @@ class AjaxExplorer extends DefaultPlugin
    * @param int[] $latestSuccessfulAgentIds
    * @return array
    */
-  private function createFileDataRow($child, $uploadId, $selectedAgentId, $pfileLicenses, $groupId, $editedMappedLicenses, $uri, $ModLicView, &$UniqueTagArray, $isFlat, $latestSuccessfulAgentIds)
+  private function createFileDataRow($child, $uploadId, $selectedAgentId, $pfileLicenses, $editedMappedLicenses, $uri, $ModLicView, &$UniqueTagArray, $isFlat, $latestSuccessfulAgentIds)
   {
     $fileId = $child['pfile_fk'];
     $childUploadTreeId = $child['uploadtree_pk'];
@@ -378,13 +378,13 @@ class AjaxExplorer extends DefaultPlugin
       $fileName = "<a href='$linkUri'>$fileName</a>";
     }
     /* show licenses under file name */
-    $childItemTreeBounds = 
+    $childItemTreeBounds =
         new ItemTreeBounds($childUploadTreeId, $this->uploadtree_tablename, $child['upload_fk'], $child['lft'], $child['rgt']);
     if ($isContainer)
     {
       $agentFilter = $selectedAgentId ? array($selectedAgentId) : $latestSuccessfulAgentIds;
       $licenseEntries = $this->licenseDao->getLicenseShortnamesContained($childItemTreeBounds, $agentFilter, array());
-      $editedLicenses = $this->clearingDao->getClearedLicenses($childItemTreeBounds, $groupId);
+      $editedLicenses = $this->clearingDao->getClearedLicenses($childItemTreeBounds);
     } else
     {
       $licenseEntries = array();
@@ -418,7 +418,7 @@ class AjaxExplorer extends DefaultPlugin
         $editedLicenses = array();
       }
     }
-    
+
     $concludedLicenses = array();
     /** @var LicenseRef $licenseRef */
     foreach($editedLicenses as $licenseRef){
@@ -452,11 +452,11 @@ class AjaxExplorer extends DefaultPlugin
     $img = ($filesCleared == $filesToBeCleared) ? 'green' : 'red';
 
     // override green/red flag with yellow flag in case of single file with decision type "To Be Discussed"
-    $isDecisionTBD = $this->clearingDao->isDecisionTBD($childUploadTreeId, $groupId);
+    $isDecisionTBD = $this->clearingDao->isDecisionTBD($childUploadTreeId);
     $img = $isDecisionTBD ? 'yellow' : $img;
 
     return array($fileName, $licenseList, $editedLicenseList, $img, "$filesCleared/$filesToBeCleared", $fileListLinks);
-  } 
+  }
 }
 
 register_plugin(new AjaxExplorer());

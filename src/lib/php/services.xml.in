@@ -66,6 +66,7 @@ without any warranty.
         <service id="dao.clearing" class="Fossology\Lib\Dao\ClearingDao">
             <argument type="service" id="db.manager"/>
             <argument type="service" id="dao.upload"/>
+            <argument type="service" id="dao.upload.permission"/>
         </service>
         <service id="dao.highlight" class="Fossology\Lib\Dao\HighlightDao">
             <argument type="service" id="db.manager"/>

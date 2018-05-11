@@ -43,7 +43,7 @@ class LicenseIrrelevantGetter extends ClearedGetterCommon
   protected function getStatements($uploadId, $uploadTreeTableName, $groupId=null)
   {
     $itemTreeBounds = $this->uploadDao->getParentItemBounds($uploadId,$uploadTreeTableName);
-    return $this->clearingDao->getIrrelevantFilesFolder($itemTreeBounds, $groupId);
+    return $this->clearingDao->getIrrelevantFilesFolder($itemTreeBounds);
   }
   
   /**

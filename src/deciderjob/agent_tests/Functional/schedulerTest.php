@@ -82,7 +82,7 @@ class SchedulerTest extends \PHPUnit_Framework_TestCase
     $agentDao = new AgentDao($this->dbManager, $logger);
     $this->agentLicenseEventProcessor = new AgentLicenseEventProcessor($this->licenseDao, $agentDao);
     $clearingEventProcessor = new ClearingEventProcessor();
-    $this->clearingDao = new ClearingDao($this->dbManager, $this->uploadDao);
+    $this->clearingDao = new ClearingDao($this->dbManager, $this->uploadDao, $this->uploadPermDao);
     $this->clearingDecisionProcessor = new ClearingDecisionProcessor($this->clearingDao, $this->agentLicenseEventProcessor, $clearingEventProcessor, $this->dbManager);
 
     $this->runnerMock = new SchedulerTestRunnerMock($this->dbManager, $agentDao, $this->clearingDao, $this->uploadDao, $this->highlightDao, $this->clearingDecisionProcessor, $this->agentLicenseEventProcessor);
@@ -183,7 +183,7 @@ class SchedulerTest extends \PHPUnit_Framework_TestCase
     assertThat($this->getHeartCount($output), equalTo(1));
 
     $uploadBounds = $this->uploadDao->getParentItemBounds($uploadId);
-    $decisions = $this->clearingDao->getFileClearingsFolder($uploadBounds, $groupId);
+    $decisions = $this->clearingDao->getFileClearingsFolder($uploadBounds);
     assertThat($decisions, is(arrayWithSize(1)));
 
     /** @var ClearingDecision $deciderMadeDecision*/
@@ -233,7 +233,7 @@ class SchedulerTest extends \PHPUnit_Framework_TestCase
     assertThat($this->getHeartCount($output), equalTo(0));
 
     $uploadBounds = $this->uploadDao->getParentItemBounds($uploadId);
-    $decisions = $this->clearingDao->getFileClearingsFolder($uploadBounds, $groupId);
+    $decisions = $this->clearingDao->getFileClearingsFolder($uploadBounds);
     assertThat($decisions, is(arrayWithSize(0)));
 
     $this->rmRepo();
@@ -364,7 +364,7 @@ class SchedulerTest extends \PHPUnit_Framework_TestCase
     assertThat($this->getHeartCount($output), equalTo(1));
 
     $uploadBounds = $this->uploadDao->getParentItemBounds($uploadId);
-    $decisions = $this->clearingDao->getFileClearingsFolder($uploadBounds, $groupId);
+    $decisions = $this->clearingDao->getFileClearingsFolder($uploadBounds);
     assertThat($decisions, is(arrayWithSize(1)));
 
     /** @var ClearingDecision $deciderMadeDecision */

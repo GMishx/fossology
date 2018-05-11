@@ -91,16 +91,15 @@ class AjaxClearingView extends FO_Plugin
   }
 
   /**
-   * @param int $groupId
    * @param int $uploadId
    * @param int $uploadTreeId
    * @return string
    */
-  protected function doClearingHistory($groupId, $uploadId, $uploadTreeId)
+  protected function doClearingHistory($uploadId, $uploadTreeId)
   {
     $itemTreeBounds = $this->uploadDao->getItemTreeBoundsFromUploadId($uploadTreeId, $uploadId);
 
-    $clearingDecWithLicenses = $this->clearingDao->getFileClearings($itemTreeBounds, $groupId, false, true);
+    $clearingDecWithLicenses = $this->clearingDao->getFileClearings($itemTreeBounds, false, true);
 
     $table = array();
     $scope = new DecisionScopes();
@@ -130,16 +129,15 @@ class AjaxClearingView extends FO_Plugin
 
   /**
    * @param boolean $orderAscending
-   * @param int $groupId
    * @param int $uploadId
    * @param int $uploadTreeId
    * @return string
    */
-  protected function doLicenses($orderAscending, $groupId, $uploadId, $uploadTreeId)
+  protected function doLicenses($orderAscending, $uploadId, $uploadTreeId)
   {
     $itemTreeBounds = $this->uploadDao->getItemTreeBoundsFromUploadId($uploadTreeId, $uploadId);
 
-    list($licenseDecisions, $removed) = $this->clearingDecisionEventProcessor->getCurrentClearings($itemTreeBounds, $groupId);
+    list($licenseDecisions, $removed) = $this->clearingDecisionEventProcessor->getCurrentClearings($itemTreeBounds);
 
     $licenseRefs = $this->licenseDao->getConclusionLicenseRefs(Auth::getGroupId(), $_GET['sSearch'], $orderAscending, array_keys($licenseDecisions));
     $licenses = array();
@@ -196,7 +194,7 @@ class AjaxClearingView extends FO_Plugin
     switch ($action)
     {
       case "licenses":
-        return new JsonResponse($this->doLicenses($orderAscending, $groupId, $uploadId, $uploadTreeId));
+        return new JsonResponse($this->doLicenses($orderAscending, $uploadId, $uploadTreeId));
 
       case "licenseDecisions":
         return new JsonResponse($this->doClearings($orderAscending, $groupId, $uploadId, $uploadTreeId));
@@ -208,15 +206,15 @@ class AjaxClearingView extends FO_Plugin
       case "removeLicense":
         $this->clearingDao->insertClearingEvent($uploadTreeId, $userId, $groupId, $licenseId, true, ClearingEventTypes::USER);
         return new JsonResponse();
-        
+
       case "makeMainLicense":
         $this->clearingDao->makeMainLicense($uploadId, $groupId, $licenseId);
         return new JsonResponse();
 
       case "removeMainLicense":
-        $this->clearingDao->removeMainLicense($uploadId, $groupId, $licenseId);
+        $this->clearingDao->removeMainLicense($uploadId, $licenseId);
         return new JsonResponse();
-        
+
       case "setNextPrev":
       case "setNextPrevCopyRight":
       case "setNextPrevIp":
@@ -242,7 +240,7 @@ class AjaxClearingView extends FO_Plugin
         return $this->createPlainResponse("success");
 
       case "showClearingHistory":
-        return new JsonResponse($this->doClearingHistory($groupId, $uploadId, $uploadTreeId));
+        return new JsonResponse($this->doClearingHistory($uploadId, $uploadTreeId));
 
       default:
         return $this->createPlainResponse("fail");
@@ -260,7 +258,7 @@ class AjaxClearingView extends FO_Plugin
      if(empty($forValue) && $detectorType == 2 && $what == 2){
        $classAttr = "color:red;font-weight:bold;";
      }
- 
+
      if(!empty($forValue)) {
        $value = substr(ltrim($forValue, " \t\n"), 0, 15)."...";
      }
@@ -279,10 +277,10 @@ class AjaxClearingView extends FO_Plugin
     $uploadId = $itemTreeBounds->getUploadId();
     $uberUri = Traceback_uri() . "?mod=view-license" . Traceback_parm_keep(array('upload', 'folder'));
 
-    list($addedClearingResults, $removedLicenses) = $this->clearingDecisionEventProcessor->getCurrentClearings($itemTreeBounds, $groupId, LicenseMap::CONCLUSION);
+    list($addedClearingResults, $removedLicenses) = $this->clearingDecisionEventProcessor->getCurrentClearings($itemTreeBounds, LicenseMap::CONCLUSION);
     $licenseEventTypes = new ClearingEventTypes();
 
-    $mainLicIds = $this->clearingDao->getMainLicenseIds($uploadId, $groupId);
+    $mainLicIds = $this->clearingDao->getMainLicenseIds($uploadId);
 
     $table = array();
     /* @var $clearingResult ClearingResult */

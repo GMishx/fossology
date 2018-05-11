@@ -57,7 +57,7 @@ class LicenseClearedGetter extends ClearedGetterCommon
   protected function getStatements($uploadId, $uploadTreeTableName, $groupId = null)
   {
     $itemTreeBounds = $this->uploadDao->getParentItemBounds($uploadId,$uploadTreeTableName);
-    $clearingDecisions = $this->clearingDao->getFileClearingsFolder($itemTreeBounds, $groupId);
+    $clearingDecisions = $this->clearingDao->getFileClearingsFolder($itemTreeBounds);
     $dbManager = $GLOBALS['container']->get('db.manager');
     $licenseMap = new LicenseMap($dbManager, $groupId, LicenseMap::REPORT);
     $ungroupedStatements = array();
@@ -154,10 +154,10 @@ class LicenseClearedGetter extends ClearedGetterCommon
     return $this->licenseCache[$licenseId]->getRisk();
   }
   /**
-   * @param int $uploadId, $groupId
+   * @param int $uploadId
    * @return scannerLicenseHistogram, editedLicensesHist
    */
-  protected function getHistogram($uploadId, $groupId)
+  protected function getHistogram($uploadId)
   {
     $LicenseHistArray = array();
     $scannerAgents = array_keys($this->agentNames);
@@ -166,7 +166,7 @@ class LicenseClearedGetter extends ClearedGetterCommon
     $allAgentIds = $scanJobProxy->getLatestSuccessfulAgentIds();
     $itemTreeBounds = $this->uploadDao->getParentItemBounds($uploadId);
     $scannerLicenseHistogram = $this->licenseDao->getLicenseHistogram($itemTreeBounds, $allAgentIds);
-    $editedLicensesHist = $this->clearingDao->getClearedLicenseIdAndMultiplicities($itemTreeBounds, $groupId);
+    $editedLicensesHist = $this->clearingDao->getClearedLicenseIdAndMultiplicities($itemTreeBounds);
     $noScannerLicenseFoundCount = array_key_exists(LicenseDao::NO_LICENSE_FOUND, $scannerLicenseHistogram)
             ? $scannerLicenseHistogram[LicenseDao::NO_LICENSE_FOUND]['count'] : 0;
     $editedNoLicenseFoundCount = array_key_exists(LicenseDao::NO_LICENSE_FOUND, $editedLicensesHist)

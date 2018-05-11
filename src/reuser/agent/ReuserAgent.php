@@ -69,7 +69,6 @@ class ReuserAgent extends Agent
     foreach($this->uploadDao->getReusedUpload($uploadId, $this->groupId) as $reuseTriple)
     {
       $reusedUploadId = $reuseTriple['reused_upload_fk'];
-      $reusedGroupId = $reuseTriple['reused_group_fk'];
       $reuseMode = $reuseTriple['reuse_mode'];
       $itemTreeBoundsReused = $this->uploadDao->getParentItemBounds($reusedUploadId);
       if (false === $itemTreeBoundsReused)
@@ -77,31 +76,31 @@ class ReuserAgent extends Agent
         continue;
       }
       if($reuseMode & UploadDao::REUSE_ENHANCED){
-        $this->processEnhancedUploadReuse($itemTreeBounds, $itemTreeBoundsReused, $reusedGroupId);
+        $this->processEnhancedUploadReuse($itemTreeBounds, $itemTreeBoundsReused);
       }
       elseif($reuseMode & UploadDao::REUSE_MAIN){
-        $this->reuseMainLicense($uploadId, $this->groupId, $reusedUploadId, $reusedGroupId);
-        $this->processUploadReuse($itemTreeBounds, $itemTreeBoundsReused, $reusedGroupId);
+        $this->reuseMainLicense($uploadId, $this->groupId, $reusedUploadId);
+        $this->processUploadReuse($itemTreeBounds, $itemTreeBoundsReused);
       }
       elseif($reuseMode & UploadDao::REUSE_ENH_MAIN){
-        $this->reuseMainLicense($uploadId, $this->groupId, $reusedUploadId, $reusedGroupId);
-        $this->processEnhancedUploadReuse($itemTreeBounds, $itemTreeBoundsReused, $reusedGroupId);
+        $this->reuseMainLicense($uploadId, $this->groupId, $reusedUploadId);
+        $this->processEnhancedUploadReuse($itemTreeBounds, $itemTreeBoundsReused);
       }
       else{
-        $this->processUploadReuse($itemTreeBounds, $itemTreeBoundsReused, $reusedGroupId);
+        $this->processUploadReuse($itemTreeBounds, $itemTreeBoundsReused);
       }
     }
     return true;
   }
 
-  protected function reuseMainLicense($uploadId, $groupId, $reusedUploadId, $reusedGroupId)
+  protected function reuseMainLicense($uploadId, $groupId, $reusedUploadId)
   {
-    $mainLicenseIds = $this->clearingDao->getMainLicenseIds($reusedUploadId, $reusedGroupId);
+    $mainLicenseIds = $this->clearingDao->getMainLicenseIds($reusedUploadId);
     if(!empty($mainLicenseIds))
     {
       foreach($mainLicenseIds as $mainLicenseId)
       {
-        if(in_array($mainLicenseId, $this->clearingDao->getMainLicenseIds($uploadId, $groupId))){
+        if(in_array($mainLicenseId, $this->clearingDao->getMainLicenseIds($uploadId))){
           continue;
         }
         else{
@@ -112,13 +111,13 @@ class ReuserAgent extends Agent
     return true;
   }
 
-  protected function processUploadReuse($itemTreeBounds, $itemTreeBoundsReused, $reusedGroupId)
+  protected function processUploadReuse($itemTreeBounds, $itemTreeBoundsReused)
   {
     $groupId = $this->groupId;
     $userId = $this->userId;
 
-    $clearingDecisions = $this->clearingDao->getFileClearingsFolder($itemTreeBoundsReused, $reusedGroupId);
-    $currenlyVisibleClearingDecisions = $this->clearingDao->getFileClearingsFolder($itemTreeBounds, $groupId);
+    $clearingDecisions = $this->clearingDao->getFileClearingsFolder($itemTreeBoundsReused);
+    $currenlyVisibleClearingDecisions = $this->clearingDao->getFileClearingsFolder($itemTreeBounds);
 
     $currenlyVisibleClearingDecisionsById = $this->mapByClearingId($currenlyVisibleClearingDecisions);
     $clearingDecisionsById = $this->mapByClearingId($clearingDecisions);
@@ -157,10 +156,10 @@ class ReuserAgent extends Agent
     return true;
   }
 
-  protected function processEnhancedUploadReuse($itemTreeBounds, $itemTreeBoundsReused, $reusedGroupId)
+  protected function processEnhancedUploadReuse($itemTreeBounds, $itemTreeBoundsReused)
   {
-    $clearingDecisions = $this->clearingDao->getFileClearingsFolder($itemTreeBoundsReused, $reusedGroupId);
-    $currenlyVisibleClearingDecisions = $this->clearingDao->getFileClearingsFolder($itemTreeBounds, $this->groupId);
+    $clearingDecisions = $this->clearingDao->getFileClearingsFolder($itemTreeBoundsReused);
+    $currenlyVisibleClearingDecisions = $this->clearingDao->getFileClearingsFolder($itemTreeBounds);
 
     $currenlyVisibleClearingDecisionsById = $this->mapByClearingId($currenlyVisibleClearingDecisions);
     $clearingDecisionsById = $this->mapByClearingId($clearingDecisions);

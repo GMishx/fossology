@@ -41,6 +41,8 @@ class ClearingDaoTest extends \PHPUnit_Framework_TestCase
   private $uploadDao;
   /** @var ClearingDao */
   private $clearingDao;
+  /** @var UploadPermissionDao|MockInterface */
+  private $uploadPermDao
   /** @var int */
   private $now;
   /** @var array */
@@ -51,6 +53,7 @@ class ClearingDaoTest extends \PHPUnit_Framework_TestCase
   protected function setUp()
   {
     $this->uploadDao = M::mock(UploadDao::classname());
+    $this->uploadPermDao = M::mock(UploadPermissionDao::classname());
 
     $logger = new Logger('default');
     $logger->pushHandler(new ErrorLogHandler());
@@ -58,7 +61,7 @@ class ClearingDaoTest extends \PHPUnit_Framework_TestCase
     $this->testDb = new TestPgDb();
     $this->dbManager = &$this->testDb->getDbManager();
 
-    $this->clearingDao = new ClearingDao($this->dbManager, $this->uploadDao);
+    $this->clearingDao = new ClearingDao($this->dbManager, $this->uploadDao, $this->uploadPermDao);
 
     $this->testDb->createPlainTables(
         array(
@@ -74,7 +77,7 @@ class ClearingDaoTest extends \PHPUnit_Framework_TestCase
             'users',
             'uploadtree'
         ));
-    
+
     $this->testDb->createInheritedTables();
 
     $userArray = array(
@@ -143,8 +146,8 @@ class ClearingDaoTest extends \PHPUnit_Framework_TestCase
       $this->dbManager->insertInto('license_ref_bulk', 'lrb_pk, rf_text, upload_fk, uploadtree_fk, group_fk', $paramsRef, 'insert.bulkref');
       $this->dbManager->insertInto('license_set_bulk', 'lrb_fk, rf_fk, removing', $paramsSet, 'insert.bulkset');
     }
-    
-    
+
+
     $this->assertCountBefore = \Hamcrest\MatcherAssert::getCount();
   }
 
@@ -233,7 +236,7 @@ class ClearingDaoTest extends \PHPUnit_Framework_TestCase
     $itemTreeBounds->shouldReceive('getLeft')->andReturn($this->items[301][4]);
     $itemTreeBounds->shouldReceive('getRight')->andReturn($this->items[301][5]);
 
-    $events1 = $this->clearingDao->getRelevantClearingEvents($itemTreeBounds, $groupId);
+    $events1 = $this->clearingDao->getRelevantClearingEvents($itemTreeBounds);
 
     assertThat($events1, arrayWithSize(2));
     assertThat($events1, hasKeyInArray(401));
@@ -254,20 +257,20 @@ class ClearingDaoTest extends \PHPUnit_Framework_TestCase
     $this->buildDecisions(array(
         array(301,1,$groupId,DecisionTypes::IDENTIFIED,-90,DecisionScopes::REPO,array($firstEventId,$firstEventId+1))
     ));
-    $watchThis = $this->clearingDao->isDecisionWip(301, $groupId);
+    $watchThis = $this->clearingDao->isDecisionWip(301);
     assertThat($watchThis,is(FALSE));
-    $watchOther = $this->clearingDao->isDecisionWip(303, $groupId);
+    $watchOther = $this->clearingDao->isDecisionWip(303);
     assertThat($watchOther,is(FALSE));
     $this->buildProposals(array(
         array(301,1,$groupId,403,false,-89),
     ),$firstEventId+3);
     $this->clearingDao->markDecisionAsWip(301, 1, $groupId);
-    $watchThisNow = $this->clearingDao->isDecisionWip(301, $groupId);
+    $watchThisNow = $this->clearingDao->isDecisionWip(301);
     assertThat($watchThisNow,is(TRUE));
-    $watchOtherNow = $this->clearingDao->isDecisionWip(303, $groupId);
+    $watchOtherNow = $this->clearingDao->isDecisionWip(303);
     assertThat($watchOtherNow,is(FALSE));
   }
-  
+
   private function collectBulkLicenses($bulks)
   {
     $bulkLics = array();
@@ -357,7 +360,7 @@ class ClearingDaoTest extends \PHPUnit_Framework_TestCase
     assertThat($bulkLicDirs, arrayContaining(false, false, true, false, true, true));
     assertThat($bulkTried, arrayContaining(true, true, true, true, true, false));
   }
-  
+
   public function testGetClearedLicenseMultiplicities()
   {
     $user = 1;
@@ -377,11 +380,11 @@ class ClearingDaoTest extends \PHPUnit_Framework_TestCase
     $treeBounds->shouldReceive('getRight')->andReturn(8);
     $treeBounds->shouldReceive('getUploadTreeTableName')->andReturn("uploadtree");
     $treeBounds->shouldReceive('getUploadId')->andReturn(102);
-            
-    $map = $this->clearingDao->getClearedLicenseIdAndMultiplicities($treeBounds, $groupId);
+
+    $map = $this->clearingDao->getClearedLicenseIdAndMultiplicities($treeBounds);
     assertThat($map, is(array('FOO'=>array('count'=>2,'shortname'=>'FOO','rf_pk'=>401))));
   }
-  
+
   public function testGetClearedLicenses()
   {
     $user = 1;
@@ -401,48 +404,48 @@ class ClearingDaoTest extends \PHPUnit_Framework_TestCase
     $treeBounds->shouldReceive('getRight')->andReturn(8);
     $treeBounds->shouldReceive('getUploadTreeTableName')->andReturn("uploadtree");
     $treeBounds->shouldReceive('getUploadId')->andReturn(102);
-            
-    $map = $this->clearingDao->getClearedLicenses($treeBounds, $groupId);
+
+    $map = $this->clearingDao->getClearedLicenses($treeBounds);
     assertThat($map, equalTo(array(new LicenseRef($rf,'FOO','foo full'))));
   }
 
-  
+
   public function testMainLicenseIds()
   {
     $this->testDb->createPlainTables(array('upload_clearing_license'));
     $uploadId = 101;
-    $mainLicIdsInitially = $this->clearingDao->getMainLicenseIds($uploadId, $this->groupId);
+    $mainLicIdsInitially = $this->clearingDao->getMainLicenseIds($uploadId);
     assertThat($mainLicIdsInitially, is(emptyArray()));
-    
+
     $this->clearingDao->makeMainLicense($uploadId,$this->groupId,$licenseId=402);
-    $mainLicIdsAfterAddingOne = $this->clearingDao->getMainLicenseIds($uploadId, $this->groupId);
+    $mainLicIdsAfterAddingOne = $this->clearingDao->getMainLicenseIds($uploadId);
     assertThat($mainLicIdsAfterAddingOne, arrayContaining(array($licenseId)));
-    
+
     $this->clearingDao->makeMainLicense($uploadId,$this->groupId,$licenseId);
-    $mainLicIdsAfterAddingOneTwice = $this->clearingDao->getMainLicenseIds($uploadId, $this->groupId);
+    $mainLicIdsAfterAddingOneTwice = $this->clearingDao->getMainLicenseIds($uploadId);
     assertThat($mainLicIdsAfterAddingOneTwice, is(arrayWithSize(1)));
-    
+
     $this->clearingDao->makeMainLicense($uploadId,$this->groupId,$licenseId2=403);
-    $mainLicIdsAfterAddingOther = $this->clearingDao->getMainLicenseIds($uploadId, $this->groupId);
+    $mainLicIdsAfterAddingOther = $this->clearingDao->getMainLicenseIds($uploadId);
     assertThat($mainLicIdsAfterAddingOther, arrayContainingInAnyOrder(array($licenseId,$licenseId2)));
-    
-    $this->clearingDao->removeMainLicense($uploadId,$this->groupId,$licenseId2);
-    $mainLicIdsAfterRemovingOne = $this->clearingDao->getMainLicenseIds($uploadId, $this->groupId);
+
+    $this->clearingDao->removeMainLicense($uploadId,$licenseId2);
+    $mainLicIdsAfterRemovingOne = $this->clearingDao->getMainLicenseIds($uploadId);
     assertThat($mainLicIdsAfterRemovingOne, is(arrayWithSize(1)));
-    
-    $this->clearingDao->removeMainLicense($uploadId,$this->groupId,$licenseId2);
-    $mainLicIdAfterRemovingSomethingNotInSet = $this->clearingDao->getMainLicenseIds($uploadId, $this->groupId);
+
+    $this->clearingDao->removeMainLicense($uploadId,$licenseId2);
+    $mainLicIdAfterRemovingSomethingNotInSet = $this->clearingDao->getMainLicenseIds($uploadId);
     assertThat($mainLicIdAfterRemovingSomethingNotInSet, is(arrayWithSize(1)));
-    
-    $this->clearingDao->removeMainLicense($uploadId,$this->groupId+1,$licenseId);
-    $mainLicIdAfterInsertToOtherGroup = $this->clearingDao->getMainLicenseIds($uploadId, $this->groupId);
+
+    $this->clearingDao->removeMainLicense($uploadId,$licenseId);
+    $mainLicIdAfterInsertToOtherGroup = $this->clearingDao->getMainLicenseIds($uploadId);
     assertThat($mainLicIdAfterInsertToOtherGroup, is(arrayWithSize(1)));
-    
-    $this->clearingDao->removeMainLicense($uploadId+1,$this->groupId,$licenseId);
-    $mainLicIdAfterInsertToOtherUpload = $this->clearingDao->getMainLicenseIds($uploadId, $this->groupId);
+
+    $this->clearingDao->removeMainLicense($uploadId+1,$licenseId);
+    $mainLicIdAfterInsertToOtherUpload = $this->clearingDao->getMainLicenseIds($uploadId);
     assertThat($mainLicIdAfterInsertToOtherUpload, is(arrayWithSize(1)));
   }
-  
+
   public function testupdateClearingEvent()
   {
     $this->testDb->createSequences(array('clearing_event_clearing_event_pk_seq'));
@@ -452,7 +455,7 @@ class ClearingDaoTest extends \PHPUnit_Framework_TestCase
     $this->clearingDao->updateClearingEvent($uploadTreeId=301, $userId=1, $groupId=1, $licenseId=402, $what='comment', $changeCom='abc123');
     $rowPast = $this->dbManager->getSingleRow('SELECT * FROM clearing_event WHERE uploadtree_fk=$1 AND rf_fk=$2 ORDER BY clearing_event_pk DESC LIMIT 1',array($uploadTreeId,$licenseId),__METHOD__.'beforeReportinfo');
     assertThat($rowPast['comment'],equalTo($changeCom));
-    
+
     $this->clearingDao->updateClearingEvent($uploadTreeId, $userId, $groupId, $licenseId, $what='reportinfo', $changeRep='def456');
     $rowFuture = $this->dbManager->getSingleRow('SELECT * FROM clearing_event WHERE uploadtree_fk=$1 AND rf_fk=$2 ORDER BY clearing_event_pk DESC LIMIT 1',array($uploadTreeId,$licenseId),__METHOD__.'afterReportinfo');
     assertThat($rowFuture['comment'],equalTo($changeCom));
