@@ -107,16 +107,12 @@ if [ $BUILDTIME ]; then
          POSTGRE=`dpkg --get-selections|grep postgresql-server-dev`
          if [ -z "$POSTGRE" ]; then  ## if postgresql-server-dev is installed
            case "$CODENAME" in
-              lenny|hardy) apt-get $YesOpt install $YesOpt postgresql-server-dev-8.3;;
-              squeeze) apt-get $YesOpt install $YesOpt postgresql-server-dev-8.4;;
               wheezy) apt-get $YesOpt install $YesOpt postgresql-server-dev-9.1;;
-              lucid|natty) apt-get $YesOpt install postgresql-server-dev-8.4;;
-              isadora) apt-get $YesOpt install postgresql-server-dev-8.4;;
-              precise|oneiric|quantal|raring|saucy) apt-get $YesOpt install postgresql-server-dev-9.1;;
               trusty) apt-get $YesOpt install postgresql-server-dev-9.3;;
               jessie) apt-get $YesOpt install postgresql-server-dev-9.4;;
-              xenial|yakkety) apt-get $YesOpt install postgresql-server-dev-9.5;;
+              xenial) apt-get $YesOpt install postgresql-server-dev-9.5;;
               stretch|buster|sid|zesty|artful) apt-get $YesOpt install postgresql-server-dev-9.6;;
+              bionic) apt-get $YesOpt install postgresql-server-dev-10;;
               *) echo "ERROR: Unknown or Unsupported $DISTRO release, please report to the mailing list"; exit 1;;
            esac
          fi
@@ -173,28 +169,20 @@ if [ $RUNTIME ]; then
             poppler-utils upx-ucl \
             unrar-free unzip p7zip-full p7zip wget \
             subversion git \
-            dpkg-dev heirloom-mailx
+            dpkg-dev
          POSTGRE=`dpkg --get-selections|grep postgresql-8.4`
          if [ -z "$POSTGRE" ]; then  ## if postgresql-server-dev is installed
            case "$CODENAME" in
-              squeeze)
-                 apt-get $YesOpt install postgresql-8.4 libapache2-mod-php5 php5 php5-pgsql php5-cli php5-curl;;
-              wheezy)
-                 apt-get $YesOpt install postgresql-9.1 libapache2-mod-php5 php5 php5-pgsql php5-cli php5-curl;;
-              lucid|natty)
-                 apt-get $YesOpt install postgresql-8.4 libapache2-mod-php5 php5 php5-pgsql php5-cli php5-curl;;
-              isadora)
-                 apt-get $YesOpt install postgresql-8.4 libapache2-mod-php5 php5 php5-pgsql php5-cli php5-curl;;
-              precise|oneiric|quantal|raring|saucy)
-                 apt-get $YesOpt install postgresql-9.1 libapache2-mod-php5 php5 php5-pgsql php5-cli php5-curl;;
               trusty)
-                 apt-get $YesOpt install postgresql-9.3 libapache2-mod-php5 php5 php5-pgsql php5-cli php5-curl;;
+                 apt-get $YesOpt install postgresql-9.3 libapache2-mod-php5 php5 php5-pgsql php5-cli php5-curl heirloom-mailx;;
               jessie)
-                 apt-get $YesOpt install postgresql-9.4 libapache2-mod-php5 php5 php5-pgsql php5-cli php5-curl;;
-              xenial|yakkety)
-                 apt-get $YesOpt install postgresql-9.5 php7.0 libapache2-mod-php7.0 php7.0-pgsql php7.0-cli php7.0-curl php7.0-zip;;
+                 apt-get $YesOpt install postgresql-9.4 libapache2-mod-php5 php5 php5-pgsql php5-cli php5-curl heirloom-mailx;;
+              xenial)
+                 apt-get $YesOpt install postgresql-9.5 php7.0 libapache2-mod-php7.0 php7.0-pgsql php7.0-cli php7.0-curl php7.0-zip heirloom-mailx;;
               stretch|buster|sid|zesty|artful)
-                 apt-get $YesOpt install postgresql-9.6 php7.0 php7.0-pgsql php7.0-cli php7.0-curl php7.0-xml php7.0-zip;;
+                 apt-get $YesOpt install postgresql-9.6 php7.0 php7.0-pgsql php7.0-cli php7.0-curl php7.0-xml php7.0-zip heirloom-mailx;;
+              bionic)
+                 apt-get $YesOpt install postgresql-10 php7.2 php7.2-pgsql php7.2-cli php7.2-curl php7.2-xml php7.2-zip s-nail;;
               *) echo "ERROR: Unknown or Unsupported $DISTRO release, please report to the mailing list"; exit 1;;
            esac
          fi

@@ -431,10 +431,10 @@ void ReadHeaderInfo(Header header, struct rpmpkginfo *pi)
 
 #ifdef _RPM_4_4
   void* pointer;
-  int_32 type, data_size;
+  gint32 type, data_size;
 #endif /* RPM4.4 version*/
 
-#ifdef _RPM_4_4_COMPAT
+#if defined(_RPM_4_4_COMPAT) || defined(_RPM_4_14)
   struct rpmtd_s req;
   rpm_count_t data_size;
 #endif /* After RPM4.4 version*/
@@ -442,13 +442,25 @@ void ReadHeaderInfo(Header header, struct rpmpkginfo *pi)
   for (i = 0; i < 14; i++) {
     memset(fmt, 0, sizeof(fmt));
     strcat( fmt, "%{");
+#ifdef _RPM_4_14
+    strcat( fmt, rpmTagGetName(tag[i]));
+#else
     strcat( fmt, tagName(tag[i]));
+#endif
     strcat( fmt, "}\n");
 
-    msgstr = headerSprintf(header, fmt, rpmTagTable, rpmHeaderFormats, &errstr);
+#ifdef _RPM_4_14
+    msgstr = headerFormat(header, fmt, &errstr);
+#else
+    msgstr = headerSprintf(header, fmt, NULL, NULL, &errstr);
+#endif
     if (msgstr != NULL){
       trim(msgstr);
+#ifdef _RPM_4_14
+      printf("%s:%s\n",rpmTagGetName(tag[i]),msgstr);
+#else
       printf("%s:%s\n",tagName(tag[i]),msgstr);
+#endif
       switch (tag[i]) {
         case RPMTAG_NAME:
           EscapeString(msgstr, pi->pkgName, sizeof(pi->pkgName));
@@ -510,7 +522,7 @@ void ReadHeaderInfo(Header header, struct rpmpkginfo *pi)
     }
   }
 #endif/* RPM4.4 version*/
-#ifdef _RPM_4_4_COMPAT
+#if defined(_RPM_4_4_COMPAT) || defined(_RPM_4_14)
   header_status = headerGet(header, tag[14], &req, HEADERGET_DEFAULT);
   if (header_status) {
     data_size = rpmtdCount(&req);
