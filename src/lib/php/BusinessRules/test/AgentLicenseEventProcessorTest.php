@@ -26,6 +26,11 @@ use Fossology\Lib\Data\Tree\ItemTreeBounds;
 use Fossology\Lib\Db\DbManager;
 use Mockery as M;
 
+// PHP unit 7 compatibility
+if (class_exists('\PHPUnit\Framework\TestCase') && !class_exists('\PHPUnit_Framework_TestCase')) {
+  class_alias('PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+}
+
 class AgentLicenseEventProcessorTest extends \PHPUnit_Framework_TestCase
 {
   /** @var LicenseDao|M\MockInterface */
@@ -48,7 +53,7 @@ class AgentLicenseEventProcessorTest extends \PHPUnit_Framework_TestCase
     $this->itemTreeBounds = M::mock(ItemTreeBounds::classname());
 
     $this->agentLicenseEventProcessor = new AgentLicenseEventProcessor($this->licenseDao, $this->agentsDao);
-    
+
     global $container;
     $this->dbManagerMock = M::mock(DbManager::classname());
     $this->dbManagerMock->shouldReceive('prepare');
@@ -106,7 +111,7 @@ class AgentLicenseEventProcessorTest extends \PHPUnit_Framework_TestCase
             ->andReturn($licenseMatches);
 
     // $latestAgentDetectedLicenses = $this->agentLicenseEventProcessor->getScannerDetectedLicenseDetails($this->itemTreeBounds);
-    $reflection = new \ReflectionClass($this->agentLicenseEventProcessor); 
+    $reflection = new \ReflectionClass($this->agentLicenseEventProcessor);
     $method = $reflection->getMethod('getScannerDetectedLicenseDetails');
     $method->setAccessible(true);
     $latestAgentDetectedLicenses = $method->invoke($this->agentLicenseEventProcessor,$this->itemTreeBounds);
@@ -119,7 +124,7 @@ class AgentLicenseEventProcessorTest extends \PHPUnit_Framework_TestCase
                 array('id' => $licId, 'licenseRef' => $licenseRef2, 'agentRef' => $agentRef2, 'matchId' => 665, 'percentage' => 95)
             )
     ) );
-    
+
 
   }
 
@@ -137,7 +142,7 @@ class AgentLicenseEventProcessorTest extends \PHPUnit_Framework_TestCase
 
 
     // $latestAgentDetectedLicenses = $this->agentLicenseEventProcessor->getScannerDetectedLicenseDetails($this->itemTreeBounds);
-    $reflection = new \ReflectionClass($this->agentLicenseEventProcessor); 
+    $reflection = new \ReflectionClass($this->agentLicenseEventProcessor);
     $method = $reflection->getMethod('getScannerDetectedLicenseDetails');
     $method->setAccessible(true);
     $latestAgentDetectedLicenses = $method->invoke($this->agentLicenseEventProcessor,$this->itemTreeBounds);
@@ -165,7 +170,7 @@ class AgentLicenseEventProcessorTest extends \PHPUnit_Framework_TestCase
 
 
     // $latestAgentDetectedLicenses = $this->agentLicenseEventProcessor->getScannerDetectedLicenseDetails($this->itemTreeBounds);
-    $reflection = new \ReflectionClass($this->agentLicenseEventProcessor); 
+    $reflection = new \ReflectionClass($this->agentLicenseEventProcessor);
     $method = $reflection->getMethod('getScannerDetectedLicenseDetails');
     $method->setAccessible(true);
     $latestAgentDetectedLicenses = $method->invoke($this->agentLicenseEventProcessor,$this->itemTreeBounds);
@@ -186,7 +191,7 @@ class AgentLicenseEventProcessorTest extends \PHPUnit_Framework_TestCase
 
 
     // $latestAgentDetectedLicenses = $this->agentLicenseEventProcessor->getScannerDetectedLicenseDetails($this->itemTreeBounds);
-    $reflection = new \ReflectionClass($this->agentLicenseEventProcessor); 
+    $reflection = new \ReflectionClass($this->agentLicenseEventProcessor);
     $method = $reflection->getMethod('getScannerDetectedLicenseDetails');
     $method->setAccessible(true);
     $latestAgentDetectedLicenses = $method->invoke($this->agentLicenseEventProcessor,$this->itemTreeBounds);
@@ -240,4 +245,4 @@ class AgentLicenseEventProcessorTest extends \PHPUnit_Framework_TestCase
   }
 
 }
- 
+

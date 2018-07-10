@@ -19,6 +19,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 namespace Fossology\Lib\Data;
 
+// PHP unit 7 compatibility
+if (class_exists('\PHPUnit\Framework\TestCase') && !class_exists('\PHPUnit_Framework_TestCase')) {
+  class_alias('PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+}
 
 class LicenseTest extends \PHPUnit_Framework_TestCase {
   /** @var string */
@@ -46,4 +50,4 @@ class LicenseTest extends \PHPUnit_Framework_TestCase {
     assertThat($this->license->getUrl(), is($this->url));
   }
 }
- 
+

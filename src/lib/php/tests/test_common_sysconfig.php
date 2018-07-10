@@ -25,6 +25,11 @@ require_once(dirname(dirname(__FILE__)) . '/common-container.php');
 require_once(dirname(dirname(__FILE__)) . '/common-db.php');
 require_once(dirname(dirname(__FILE__)) . '/common-sysconfig.php');
 
+// PHP unit 7 compatibility
+if (class_exists('\PHPUnit\Framework\TestCase') && !class_exists('\PHPUnit_Framework_TestCase')) {
+  class_alias('PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+}
+
 /**
  * \class test_common_sysconfig
  */
@@ -32,8 +37,8 @@ class test_common_sysconfig extends PHPUnit_Framework_TestCase
 {
   public $PG_CONN;
   public $DB_COMMAND =  "";
-  public $DB_NAME =  "";  
-  public $sys_conf = ""; 
+  public $DB_NAME =  "";
+  public $sys_conf = "";
 
   /**
    * \brief initialization with db
@@ -98,5 +103,6 @@ class test_common_sysconfig extends PHPUnit_Framework_TestCase
       $this->assertEquals(check_IP($ip),$correct,$message="result for IP $ip is false");
       print('.');
     }
-  }  
+  }
 }
+

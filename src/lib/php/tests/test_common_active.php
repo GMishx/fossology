@@ -23,6 +23,11 @@
 
 require_once(dirname(__FILE__) .'/../common-active.php');
 
+// PHP unit 7 compatibility
+if (class_exists('\PHPUnit\Framework\TestCase') && !class_exists('\PHPUnit_Framework_TestCase')) {
+  class_alias('PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+}
+
 /**
  * \class test_common_active
  */
@@ -31,7 +36,7 @@ class test_common_active extends PHPUnit_Framework_TestCase
   /**
    * \brief initialization
    */
-  protected function setUp() 
+  protected function setUp()
   {
   }
 

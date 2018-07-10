@@ -21,6 +21,11 @@ namespace Fossology\Lib\View;
 use Fossology\Lib\Data\LicenseRef;
 use Mockery as M;
 
+// PHP unit 7 compatibility
+if (class_exists('\PHPUnit\Framework\TestCase') && !class_exists('\PHPUnit_Framework_TestCase')) {
+  class_alias('PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+}
+
 function Traceback_uri()
 {
   return "http://localhost/repo";
@@ -54,4 +59,4 @@ class UrlBuilderTest extends \PHPUnit_Framework_TestCase
         "'License text','width=600,height=400,toolbar=no,scrollbars=yes,resizable=yes');\">$shortName</a>"));
   }
 }
- 
+

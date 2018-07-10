@@ -24,6 +24,11 @@ use Fossology\Lib\Test\TestPgDb;
 use Mockery as M;
 use Monolog\Logger;
 
+// PHP unit 7 compatibility
+if (class_exists('\PHPUnit\Framework\TestCase') && !class_exists('\PHPUnit_Framework_TestCase')) {
+  class_alias('PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+}
+
 class AgentDaoTest extends \PHPUnit_Framework_TestCase {
 
   private $uploadId = 25;
@@ -72,7 +77,7 @@ class AgentDaoTest extends \PHPUnit_Framework_TestCase {
 
     $this->testDb = new TestPgDb();
     $this->dbManager = &$this->testDb->getDbManager();
-    
+
     $this->agent = new AgentRef($this->agentId, $this->agentName, $this->agentRev);
     $this->olderAgent = new AgentRef($this->olderAgentId, $this->agentName, $this->olderAgentRev);
     $this->otherAgent = new AgentRef($this->otherAgentId, $this->otherAgentName, $this->otherAgentRev);
@@ -146,7 +151,7 @@ class AgentDaoTest extends \PHPUnit_Framework_TestCase {
     $container = M::mock('ContainerBuilder');
     $this->dbManagerMock = M::mock(DbManager::classname());
     $container->shouldReceive('get')->withArgs(array('db.manager'))->andReturn($this->dbManagerMock);
-    
+
     $this->dbManagerMock->shouldReceive('prepare')->once();
     $this->dbManagerMock->shouldReceive('execute')->once();
     $this->dbManagerMock->shouldReceive('fetchArray')
@@ -154,7 +159,7 @@ class AgentDaoTest extends \PHPUnit_Framework_TestCase {
                     array('agent_pk'=>$this->otherAgentId,'agent_name'=>$this->otherAgentName),
                     false);
     $this->dbManagerMock->shouldReceive('freeResult')->once();
-    
+
     $latestAgentResults = $this->agentsDao->getLatestAgentResultForUpload($this->uploadId, array($this->agentName, $this->otherAgentName));
     assertThat($latestAgentResults, is(array(
       $this->agentName => $this->agentId,
@@ -192,4 +197,4 @@ class AgentDaoTest extends \PHPUnit_Framework_TestCase {
   }
 
 }
- 
+

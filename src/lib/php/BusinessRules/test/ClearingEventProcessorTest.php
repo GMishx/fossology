@@ -19,11 +19,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 namespace Fossology\Lib\BusinessRules;
 
 use Fossology\Lib\Data\Clearing\ClearingEvent;
-use Fossology\Lib\Data\Clearing\ClearingLicense;
 use Fossology\Lib\Data\Clearing\ClearingEventTypes;
+use Fossology\Lib\Data\Clearing\ClearingLicense;
 use Fossology\Lib\Data\LicenseRef;
 use Mockery as M;
 
+// PHP unit 7 compatibility
+if (class_exists('\PHPUnit\Framework\TestCase') && !class_exists('\PHPUnit_Framework_TestCase')) {
+  class_alias('PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+}
 
 class ClearingEventProcessorTest extends \PHPUnit_Framework_TestCase
 {
@@ -52,7 +56,7 @@ class ClearingEventProcessorTest extends \PHPUnit_Framework_TestCase
     $this->addedLicense = M::mock(ClearingLicense::classname());
     $this->addedLicense->shouldReceive("getShortName")->withNoArgs()->andReturn($this->addedName);
     $this->addedLicense->shouldReceive("getId")->withNoArgs()->andReturn($this->addedId);
-    
+
     $this->addedEvent = M::mock(ClearingEvent::classname());
     $this->addedEvent->shouldReceive("getLicenseShortName")->withNoArgs()->andReturn($this->addedName);
     $this->addedEvent->shouldReceive("getLicenseId")->withNoArgs()->andReturn($this->addedId);
@@ -184,4 +188,4 @@ class ClearingEventProcessorTest extends \PHPUnit_Framework_TestCase
   }
 
 }
- 
+

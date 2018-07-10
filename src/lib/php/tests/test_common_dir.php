@@ -23,6 +23,11 @@
 
 require_once(dirname(__FILE__) . '/../common-dir.php');
 
+// PHP unit 7 compatibility
+if (class_exists('\PHPUnit\Framework\TestCase') && !class_exists('\PHPUnit_Framework_TestCase')) {
+  class_alias('PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+}
+
 /**
  * \class test_common_dir
  */
@@ -34,7 +39,7 @@ class test_common_dir extends PHPUnit_Framework_TestCase
     // print "Starting unit test for common-dir.php\n";
     print('.');
   }
-  
+
   /**
    * \brief clean the env
    */
@@ -82,7 +87,7 @@ class test_common_dir extends PHPUnit_Framework_TestCase
   {
     $this->assertEquals(GetFileExt('autodestroy.exe.bak'),'bak');
   }
-  
+
    /**
    * \brief test for DirMode2String
    */
@@ -94,5 +99,5 @@ class test_common_dir extends PHPUnit_Framework_TestCase
     $result = DirMode2String(0644);
     $this->assertEquals("---rw-r--r--", $result);
   }
- 
+
 }

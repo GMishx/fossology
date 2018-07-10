@@ -21,6 +21,10 @@ namespace Fossology\Lib\Proxy;
 use Fossology\Lib\Test\TestLiteDb;
 use Mockery as M;
 
+// PHP unit 7 compatibility
+if (class_exists('\PHPUnit\Framework\TestCase') && !class_exists('\PHPUnit_Framework_TestCase')) {
+  class_alias('PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+}
 
 class LatestScannerProxyTest extends \PHPUnit_Framework_TestCase
 {
@@ -29,7 +33,7 @@ class LatestScannerProxyTest extends \PHPUnit_Framework_TestCase
   /** @var assertCountBefore */
   private $assertCountBefore;
 
-  
+
   protected function setUp()
   {
     $this->testDb = new TestLiteDb();
@@ -45,7 +49,7 @@ class LatestScannerProxyTest extends \PHPUnit_Framework_TestCase
     $this->addToAssertionCount(\Hamcrest\MatcherAssert::getCount()-$this->assertCountBefore);
     M::close();
   }
-  
+
   private function getAllColumns($sql,$params=array())
   {
     $backtrace = debug_backtrace();
@@ -54,14 +58,14 @@ class LatestScannerProxyTest extends \PHPUnit_Framework_TestCase
 
     $dbManager = &$this->testDb->getDbManager();
     $dbManager->prepare($stmt, $sql);
-    
+
     $res = $dbManager->execute($stmt,$params);
     $result = $dbManager->fetchAll($res);
     $dbManager->freeResult($res);
 
     return $result;
   }
-  
+
   public function testQuery()
   {
     $uploadId = 2;
@@ -71,7 +75,7 @@ class LatestScannerProxyTest extends \PHPUnit_Framework_TestCase
     $scanners = $this->getAllColumns($sql);
     assertThat($scanners,arrayContaining(array(array('agent_pk'=>6,'agent_name'=>'nomos'))));
   }
-  
+
   public function testQueryTwoScanners()
   {
     $this->testDb->getDbManager()->queryOnce('CREATE TABLE monk_ars AS SELECT * FROM nomos_ars WHERE 0=1');
@@ -83,7 +87,7 @@ class LatestScannerProxyTest extends \PHPUnit_Framework_TestCase
     $scanners = $this->getAllColumns($sql);
     assertThat($scanners,arrayContainingInAnyOrder(array(array('agent_pk'=>6,'agent_name'=>'nomos'),array('agent_pk'=>5,'agent_name'=>'monk'))));
   }
-  
+
   /**
    * @expectedException \Exception
    */
@@ -93,7 +97,7 @@ class LatestScannerProxyTest extends \PHPUnit_Framework_TestCase
     $agentNames = array();
     new LatestScannerProxy($uploadId,$agentNames,'latest_scanner', "AND agent_enabled='true'");
   }
-  
+
   public function testQueryPrepared()
   {
     $uploadId = 2;
@@ -103,7 +107,7 @@ class LatestScannerProxyTest extends \PHPUnit_Framework_TestCase
     $scanners = $this->getAllColumns($sql,array($uploadId));
     assertThat($scanners,arrayContaining(array(array('agent_pk'=>6,'agent_name'=>'nomos'))));
   }
-  
+
   public function testMaterializePossibleForUnparameterizedQuery()
   {
     $uploadId = 2;
@@ -111,7 +115,7 @@ class LatestScannerProxyTest extends \PHPUnit_Framework_TestCase
     $latestScannerProxy = new LatestScannerProxy($uploadId,$agentNames,'latest_scanner', "AND agent_enabled='true'");
     $latestScannerProxy->materialize();
   }
-  
+
   /**
    * @expectedException \Exception
    */
@@ -121,8 +125,8 @@ class LatestScannerProxyTest extends \PHPUnit_Framework_TestCase
     $latestScannerProxy = new LatestScannerProxy('$1',$agentNames,'latest_scanner', "AND agent_enabled='true'");
     $latestScannerProxy->materialize();
   }
- 
-  
+
+
   public function testGetNameToIdMap()
   {
     $uploadId = 2;
@@ -131,7 +135,7 @@ class LatestScannerProxyTest extends \PHPUnit_Framework_TestCase
     $map = $latestScannerProxy->getNameToIdMap();
     assertThat($map,equalTo(array('nomos'=>6)));
   }
-  
+
   /**
    * @expectedException \Exception
    */
@@ -141,5 +145,5 @@ class LatestScannerProxyTest extends \PHPUnit_Framework_TestCase
     $latestScannerProxy = new LatestScannerProxy('$1',$agentNames,'latest_scanner', "AND agent_enabled='true'");
     $latestScannerProxy->getNameToIdMap();
   }
-  
+
 }

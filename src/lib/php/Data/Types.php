@@ -20,9 +20,9 @@
 namespace Fossology\Lib\Data;
 
 use Fossology\Lib\Exception;
-use Fossology\Lib\Util\Object;
+use Fossology\Lib\Util\ObjectType;
 
-class Types extends Object {
+class Types extends ObjectType {
   /** @var array */
   protected $map;
   /** @var string */

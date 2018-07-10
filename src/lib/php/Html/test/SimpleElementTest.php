@@ -19,6 +19,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 namespace Fossology\Lib\Html;
 
+// PHP unit 7 compatibility
+if (class_exists('\PHPUnit\Framework\TestCase') && !class_exists('\PHPUnit_Framework_TestCase')) {
+  class_alias('PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+}
 
 class SimpleHtmlElementTest extends \PHPUnit_Framework_TestCase
 {
@@ -56,4 +60,4 @@ class SimpleHtmlElementTest extends \PHPUnit_Framework_TestCase
     assertThat($element->getClosingText(), is("</p>"));
   }
 }
- 
+

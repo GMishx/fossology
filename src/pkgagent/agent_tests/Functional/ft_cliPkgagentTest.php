@@ -26,6 +26,11 @@
 
 require_once (__DIR__ . "/../../../testing/db/createEmptyTestEnvironment.php");
 
+// PHP unit 7 compatibility
+if (class_exists('\PHPUnit\Framework\TestCase') && !class_exists('\PHPUnit_Framework_TestCase')) {
+  class_alias('PHPUnit\Framework\TestCase', 'PHPUnit_Framework_TestCase');
+}
+
 class ft_cliPkgagentTest extends PHPUnit_Framework_TestCase {
 
   public $agentDir;

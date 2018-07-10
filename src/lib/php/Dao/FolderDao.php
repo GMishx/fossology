@@ -23,10 +23,10 @@ use Fossology\Lib\Auth\Auth;
 use Fossology\Lib\Data\Folder\Folder;
 use Fossology\Lib\Data\Upload\UploadProgress;
 use Fossology\Lib\Db\DbManager;
-use Fossology\Lib\Util\Object;
+use Fossology\Lib\Util\ObjectType;
 use Monolog\Logger;
 
-class FolderDao extends Object
+class FolderDao extends ObjectType
 {
   const FOLDER_KEY = "folder" ;
   const DEPTH_KEY = "depth" ;

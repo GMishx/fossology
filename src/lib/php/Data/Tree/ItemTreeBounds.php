@@ -19,9 +19,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 namespace Fossology\Lib\Data\Tree;
 
-use Fossology\Lib\Util\Object;
+use Fossology\Lib\Util\ObjectType;
 
-class ItemTreeBounds extends Object
+class ItemTreeBounds extends ObjectType
 {
   /**
    * @var string

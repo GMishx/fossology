@@ -22,6 +22,11 @@ namespace Fossology\Lib\Data;
 use Fossology\Lib\Html\HtmlElement;
 use Mockery as M;
 
+// PHP unit 7 compatibility
+if (class_exists('\PHPUnit\Framework\TestCase') && !class_exists('\PHPUnit_Framework_TestCase')) {
+  class_alias('PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+}
+
 class HighlightTest extends \PHPUnit_Framework_TestCase
 {
   private $start = 10;
@@ -100,4 +105,4 @@ class HighlightTest extends \PHPUnit_Framework_TestCase
     assertThat($this->highlight->getHtmlElement(), is($this->htmlElement));
   }
 }
- 
+

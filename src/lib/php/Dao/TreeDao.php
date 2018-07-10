@@ -21,10 +21,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 namespace Fossology\Lib\Dao;
 
 use Fossology\Lib\Db\DbManager;
-use Fossology\Lib\Util\Object;
+use Fossology\Lib\Util\ObjectType;
 use Monolog\Logger;
 
-class TreeDao extends Object
+class TreeDao extends ObjectType
 {
   /** @var DbManager */
   private $dbManager;

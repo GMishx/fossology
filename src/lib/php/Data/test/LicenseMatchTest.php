@@ -19,6 +19,11 @@
 
 namespace Fossology\Lib\Data;
 
+// PHP unit 7 compatibility
+if (class_exists('\PHPUnit\Framework\TestCase') && !class_exists('\PHPUnit_Framework_TestCase')) {
+  class_alias('PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+}
+
 class LicenseMatchTest extends \PHPUnit_Framework_TestCase
 {
   /** @var LicenseRef */
@@ -63,7 +68,7 @@ class LicenseMatchTest extends \PHPUnit_Framework_TestCase
     $this->licenseFileId = 12;
 
     $this->licenseMatch = new LicenseMatch($this->fileId, $this->licenseRef, $this->agentRef, $this->licenseFileId, $this->percent);
-    
+
     $this->assertCountBefore = \Hamcrest\MatcherAssert::getCount();
   }
 
@@ -71,7 +76,7 @@ class LicenseMatchTest extends \PHPUnit_Framework_TestCase
   {
     $this->addToAssertionCount(\Hamcrest\MatcherAssert::getCount()-$this->assertCountBefore);
   }
-  
+
   public function testGetFileId()
   {
     assertThat($this->licenseMatch->getFileId(), is($this->fileId));

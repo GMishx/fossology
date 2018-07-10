@@ -21,10 +21,10 @@ namespace Fossology\Lib\Dao;
 
 use Fossology\Lib\Auth\Auth;
 use Fossology\Lib\Db\DbManager;
-use Fossology\Lib\Util\Object;
+use Fossology\Lib\Util\ObjectType;
 use Monolog\Logger;
 
-class UserDao extends Object
+class UserDao extends ObjectType
 {
   const USER = 0;
   const ADMIN = 1;

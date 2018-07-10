@@ -18,10 +18,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 namespace Fossology\Lib\Util;
 
+// PHP unit 7 compatibility
+if (class_exists('\PHPUnit\Framework\TestCase') && !class_exists('\PHPUnit_Framework_TestCase')) {
+  class_alias('PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+}
 
 class StringOperationTest extends \PHPUnit_Framework_TestCase
 {
-  
+
   protected function setUp()
   {
     $this->assertCountBefore = \Hamcrest\MatcherAssert::getCount();
@@ -42,6 +46,6 @@ class StringOperationTest extends \PHPUnit_Framework_TestCase
     assertThat(StringOperation::getCommonHead('abc',''), equalTo(''));
     assertThat(StringOperation::getCommonHead('','abc'), equalTo(''));
    }
-  
+
 }
- 
+

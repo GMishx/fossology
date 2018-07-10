@@ -33,6 +33,11 @@
 // The standard Pear install puts PHPUnit in /usr/share/php/PHPUnit.
 require_once '/usr/share/php/PHPUnit/Framework.php';
 
+// PHP unit 7 compatibility
+if (class_exists('\PHPUnit\Framework\TestCase') && !class_exists('\PHPUnit_Framework_TestCase')) {
+  class_alias('PHPUnit\Framework\TestCase', 'PHPUnit_Framework_TestCase');
+}
+
 // Must have if pathinclude.php is used.
 global $GlobalReady;
 $GlobalReady=TRUE;

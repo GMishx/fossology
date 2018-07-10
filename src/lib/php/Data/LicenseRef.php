@@ -20,9 +20,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 namespace Fossology\Lib\Data;
 
 
-use Fossology\Lib\Util\Object;
+use Fossology\Lib\Util\ObjectType;
 
-class LicenseRef extends Object
+class LicenseRef extends ObjectType
 {
   /** @var int */
   private $id;

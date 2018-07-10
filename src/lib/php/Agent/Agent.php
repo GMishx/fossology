@@ -19,7 +19,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 namespace Fossology\Lib\Agent;
 
-use Fossology\Lib\Util\Object;
+use Fossology\Lib\Util\ObjectType;
 use Fossology\Lib\Db\DbManager;
 use Fossology\Lib\Dao\AgentDao;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -28,7 +28,7 @@ require_once(dirname(dirname(__FILE__))."/common-cli.php");
 
 define("ALARM_SECS", 30);
 
-abstract class Agent extends Object
+abstract class Agent extends ObjectType
 {
   private $agentName;
   private $agentVersion;

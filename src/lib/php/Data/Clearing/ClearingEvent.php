@@ -19,9 +19,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 namespace Fossology\Lib\Data\Clearing;
 
 use Fossology\Lib\Data\LicenseRef;
-use Fossology\Lib\Util\Object;
+use Fossology\Lib\Util\ObjectType;
 
-class ClearingEvent extends Object implements LicenseClearing
+class ClearingEvent extends ObjectType implements LicenseClearing
 {
   /** @var int */
   private $eventId;

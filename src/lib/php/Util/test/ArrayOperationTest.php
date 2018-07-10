@@ -18,10 +18,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 namespace Fossology\Lib\Util;
 
+// PHP unit 7 compatibility
+if (class_exists('\PHPUnit\Framework\TestCase') && !class_exists('\PHPUnit_Framework_TestCase')) {
+  class_alias('PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+}
 
 class ArrayOperationTest extends \PHPUnit_Framework_TestCase
 {
-  
+
   protected function setUp()
   {
     $this->assertCountBefore = \Hamcrest\MatcherAssert::getCount();
@@ -81,7 +85,7 @@ class ArrayOperationTest extends \PHPUnit_Framework_TestCase
       return array(count($values));
     }, array(), 0);
   }
-  
+
   public function testMultiSearch()
   {
     $haystack = array(100, 101, 102, 101);
@@ -91,6 +95,6 @@ class ArrayOperationTest extends \PHPUnit_Framework_TestCase
     assertThat(ArrayOperation::multiSearch(array(200),$haystack),is(false));
     assertThat(ArrayOperation::multiSearch(array(200,102),$haystack),is(2));
   }
-  
+
 }
- 
+

@@ -25,6 +25,11 @@ use Fossology\Lib\Data\Clearing\ClearingEvent;
 use Fossology\Lib\Data\Clearing\ClearingLicense;
 use Mockery as M;
 
+// PHP unit 7 compatibility
+if (class_exists('\PHPUnit\Framework\TestCase') && !class_exists('\PHPUnit_Framework_TestCase')) {
+  class_alias('PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+}
+
 class ClearingDecisionBuilderTest extends \PHPUnit_Framework_TestCase
 {
   /** @var bool */
@@ -88,7 +93,7 @@ class ClearingDecisionBuilderTest extends \PHPUnit_Framework_TestCase
 
   public function testSameFolder()
   {
-    $clearingDec =$this->clearingDecisionBuilder 
+    $clearingDec =$this->clearingDecisionBuilder
         ->setSameFolder($this->sameFolder)
         ->build();
     assertThat($clearingDec->getSameFolder(), is($this->sameFolder));
@@ -105,16 +110,16 @@ class ClearingDecisionBuilderTest extends \PHPUnit_Framework_TestCase
   public function testPositiveLicenses()
   {
     $addedLic = M::mock(LicenseRef::classname());
-    
+
     $addedClearingLic = M::mock(ClearingLicense::classname());
     $addedClearingLic->shouldReceive('isRemoved')->withNoArgs()->andReturn(false);
     $addedClearingLic->shouldReceive('getLicenseRef')->withNoArgs()->andReturn($addedLic);
-    
+
     $removedClearingLic = M::mock(ClearingLicense::classname());
     $removedClearingLic->shouldReceive('isRemoved')->andReturn(true);
 
     $removedClearingEvent = M::mock(ClearingEvent::classname());
-    
+
     $this->clearingEvent->shouldReceive('getClearingLicense')->andReturn($addedClearingLic);
     $removedClearingEvent->shouldReceive('getClearingLicense')->andReturn($removedClearingLic);
 
@@ -181,4 +186,4 @@ class ClearingDecisionBuilderTest extends \PHPUnit_Framework_TestCase
   }
 
 }
- 
+

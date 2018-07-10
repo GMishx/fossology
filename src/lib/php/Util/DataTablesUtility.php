@@ -21,7 +21,7 @@ namespace Fossology\Lib\Util;
 
 use Monolog\Logger;
 
-class DataTablesUtility extends Object
+class DataTablesUtility extends ObjectType
 {
   /**
    * @var Logger

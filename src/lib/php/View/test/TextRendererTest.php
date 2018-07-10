@@ -23,6 +23,11 @@ use Fossology\Lib\Data\SplitPosition;
 use Fossology\Lib\Data\TextFragment;
 use Mockery as M;
 
+// PHP unit 7 compatibility
+if (class_exists('\PHPUnit\Framework\TestCase') && !class_exists('\PHPUnit_Framework_TestCase')) {
+  class_alias('PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+}
+
 require_once __DIR__.'/../../common-string.php';
 
 class TextRendererTest extends \PHPUnit_Framework_TestCase
@@ -180,7 +185,7 @@ class TextRendererTest extends \PHPUnit_Framework_TestCase
 
     assertThat($renderedText, is("fo<a id=\"highlight\"></a><span class=\"hi-url\" title=\"0\">o <span class=\"hi-match\" title=\"0\">bar </span>ba</span>z quux"));
   }
-  
+
   function testRenderHighlightThatIsIgnorableByBulk()
   {
     $highlight1 = new Highlight(14, 14, Highlight::DELETED, 0, 0, 'ref1');
@@ -194,5 +199,5 @@ class TextRendererTest extends \PHPUnit_Framework_TestCase
 
     assertThat($cleanText, is("foo bar baz quux"));
   }
-  
+
 }

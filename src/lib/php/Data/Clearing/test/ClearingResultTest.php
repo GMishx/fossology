@@ -22,6 +22,11 @@ use Fossology\Lib\Data\LicenseRef;
 use Fossology\Lib\Exception;
 use Mockery as M;
 
+// PHP unit 7 compatibility
+if (class_exists('\PHPUnit\Framework\TestCase') && !class_exists('\PHPUnit_Framework_TestCase')) {
+  class_alias('PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+}
+
 class ClearingResultTest extends \PHPUnit_Framework_TestCase
 {
 
@@ -35,7 +40,7 @@ class ClearingResultTest extends \PHPUnit_Framework_TestCase
   private $agentClearingEvent2;
   /** @var ClearingResult */
   private $licenseDecisionResult;
-  
+
 
   protected function setUp()
   {
@@ -44,7 +49,7 @@ class ClearingResultTest extends \PHPUnit_Framework_TestCase
 
     $this->agentClearingEvent1 = M::mock(AgentClearingEvent::classname());
     $this->agentClearingEvent2 = M::mock(AgentClearingEvent::classname());
-    
+
     $this->assertCountBefore = \Hamcrest\MatcherAssert::getCount();
   }
 
@@ -83,7 +88,7 @@ class ClearingResultTest extends \PHPUnit_Framework_TestCase
     $this->licenseDecisionResult = new ClearingResult($this->clearingEvent, array($this->agentClearingEvent1));
     assertThat($this->licenseDecisionResult->getLicenseRef(), is($this->licenseRef));
   }
-  
+
   public function testGetLicenseRefFromAgentEvents()
   {
     $this->agentClearingEvent1->shouldReceive("getLicenseRef")->once()->andReturn($this->licenseRef);
@@ -99,7 +104,7 @@ class ClearingResultTest extends \PHPUnit_Framework_TestCase
     assertThat($this->licenseDecisionResult->getLicenseId(), is($licenseId));
   }
 
-  
+
   public function testGetLicenseIdFromAgentEvent()
   {
     $licenseId = 123;
@@ -107,7 +112,7 @@ class ClearingResultTest extends \PHPUnit_Framework_TestCase
     $this->licenseDecisionResult = new ClearingResult(null, array($this->agentClearingEvent1));
     assertThat($this->licenseDecisionResult->getLicenseId(), is($licenseId));
   }
-  
+
   public function testGetLicenseShortName()
   {
     $licenseShortName = "<shortName>";
@@ -131,7 +136,7 @@ class ClearingResultTest extends \PHPUnit_Framework_TestCase
     $this->licenseDecisionResult = new ClearingResult($this->clearingEvent, array($this->agentClearingEvent1));
     assertThat($this->licenseDecisionResult->getComment(), is($comment));
   }
-  
+
   public function testGetCommentWithoutClearingEvent()
   {
     $comment = "";
@@ -155,7 +160,7 @@ class ClearingResultTest extends \PHPUnit_Framework_TestCase
     $this->licenseDecisionResult = new ClearingResult($this->clearingEvent, array($this->agentClearingEvent1));
     assertThat($this->licenseDecisionResult->getAcknowledgement(), is($acknowledgement));
   }
-  
+
   public function testGetReportInfoWithoutClearingEvent()
   {
     $reportInfo = "";
@@ -208,7 +213,7 @@ class ClearingResultTest extends \PHPUnit_Framework_TestCase
     $this->licenseDecisionResult = new ClearingResult($this->clearingEvent, array($this->agentClearingEvent1));
     assertThat($this->licenseDecisionResult->getLicenseId(), is($licenseId));
   }
-  
+
   public function testGetLicenseIdWithoutClearingEvent()
   {
     $licenseId = 123;
@@ -239,4 +244,4 @@ class ClearingResultTest extends \PHPUnit_Framework_TestCase
     new ClearingResult(null);
   }
 }
- 
+

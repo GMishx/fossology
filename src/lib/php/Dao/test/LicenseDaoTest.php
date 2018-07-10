@@ -24,8 +24,12 @@ use Fossology\Lib\Data\AgentRef;
 use Fossology\Lib\Data\LicenseMatch;
 use Fossology\Lib\Data\LicenseRef;
 use Fossology\Lib\Data\Tree\ItemTreeBounds;
-use Fossology\Lib\Db\DbManager;
 use Fossology\Lib\Test\TestPgDb;
+
+// PHP unit 7 compatibility
+if (class_exists('\PHPUnit\Framework\TestCase') && !class_exists('\PHPUnit_Framework_TestCase')) {
+  class_alias('PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+}
 
 class LicenseDaoTest extends \PHPUnit_Framework_TestCase
 {

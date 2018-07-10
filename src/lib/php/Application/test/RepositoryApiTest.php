@@ -16,6 +16,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 namespace Fossology\Lib\Application;
 
+// PHP unit 7 compatibility
+if (class_exists('\PHPUnit\Framework\TestCase') && !class_exists('\PHPUnit_Framework_TestCase')) {
+  class_alias('PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+}
+
 class RepositoryApiTest extends \PHPUnit_Framework_TestCase {
   /** @var RepositoryApi */
   private $repositoryApi;
@@ -28,7 +33,7 @@ class RepositoryApiTest extends \PHPUnit_Framework_TestCase {
     $result = $this->repositoryApi->getLatestRelease();
     assertThat($result, hasKey('tag_name'));
   }
-  
+
   public function testGetCommitsOfLastDays() {
     $result = $this->repositoryApi->getCommitsOfLastDays(60);
     assertThat($result, is(not(emptyArray())));

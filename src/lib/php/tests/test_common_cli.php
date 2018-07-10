@@ -23,6 +23,11 @@
 
 require_once(dirname(__FILE__) . '/../common-cli.php');
 
+// PHP unit 7 compatibility
+if (class_exists('\PHPUnit\Framework\TestCase') && !class_exists('\PHPUnit_Framework_TestCase')) {
+  class_alias('PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+}
+
 /**
  * \class test_common_cli
  */
@@ -31,12 +36,12 @@ class test_common_cli extends PHPUnit_Framework_TestCase
   /**
    * \brief initialization
    */
-  protected function setUp() 
+  protected function setUp()
   {
   }
 
   /**
-   * \brief test for cli_logger 
+   * \brief test for cli_logger
    */
   function testcli_logger()
   {
@@ -54,7 +59,7 @@ class test_common_cli extends PHPUnit_Framework_TestCase
     $this->assertEquals("$data\n", $file_contents);
     print "unit test for common-cli.php end\n";
   }
-  
+
   /**
    * \brief clean the env
    */

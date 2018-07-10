@@ -23,6 +23,11 @@ use Fossology\Lib\Db\DbManager;
 use Fossology\Lib\Test\TestPgDb;
 use Mockery as M;
 
+// PHP unit 7 compatibility
+if (class_exists('\PHPUnit\Framework\TestCase') && !class_exists('\PHPUnit_Framework_TestCase')) {
+  class_alias('PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+}
+
 class FolderDaoTest extends \PHPUnit_Framework_TestCase
 {
   /** @var TestPgDb */
@@ -44,7 +49,7 @@ class FolderDaoTest extends \PHPUnit_Framework_TestCase
     $this->testDb->createSequences(array('folder_folder_pk_seq','foldercontents_foldercontents_pk_seq'));
     $this->testDb->createConstraints(array('folder_pkey','foldercontents_pkey'));
     $this->testDb->alterTables(array('folder','foldercontents'));
-    
+
     $this->assertCountBefore = \Hamcrest\MatcherAssert::getCount();
   }
 
@@ -74,7 +79,7 @@ class FolderDaoTest extends \PHPUnit_Framework_TestCase
     assertThat($htlf, is(FALSE));
   }
 
-  
+
   public function testInsertFolder()
   {
     $folderId = $this->folderDao->insertFolder($folderName = 'three', $folderDescription = 'floor(PI)');
@@ -82,7 +87,7 @@ class FolderDaoTest extends \PHPUnit_Framework_TestCase
     $folderInfo = $this->dbManager->getSingleRow('SELECT folder_name,folder_desc FROM folder WHERE folder_pk=$1',
       array($folderId), __METHOD__);
     assertThat($folderInfo, is(array('folder_name' => $folderName, 'folder_desc' => $folderDescription)));
-    
+
     $folderIdPlusOne = $this->folderDao->insertFolder($folderName = 'four', $folderDescription = 'ceil(PI)');
     assertThat($folderIdPlusOne, equalTo(FolderDao::TOP_LEVEL+1));
 
@@ -126,7 +131,7 @@ class FolderDaoTest extends \PHPUnit_Framework_TestCase
     $folders = $this->dbManager->getSingleRow('SELECT count(*) FROM folder');
     assertThat($folders['count'],is(1));
   }
-  
+
   public function testIsWithoutReusableFolders()
   {
     assertThat($this->folderDao->isWithoutReusableFolders(array()),is(true));
@@ -140,7 +145,7 @@ class FolderDaoTest extends \PHPUnit_Framework_TestCase
 
     assertThat($this->folderDao->isWithoutReusableFolders(array($filledFolder,$emptyFolder)),is(false));
   }
-  
+
   public function testGetFolderChildFolders()
   {
     $this->folderDao->ensureTopLevelFolder();
@@ -149,7 +154,7 @@ class FolderDaoTest extends \PHPUnit_Framework_TestCase
     $this->folderDao->insertFolder('C', '/C', FolderDao::TOP_LEVEL);
     assertThat($this->folderDao->getFolderChildFolders(FolderDao::TOP_LEVEL),is(arrayWithSize(2)));
   }
-  
+
   public function testMoveContent()
   {
     $this->folderDao->ensureTopLevelFolder();
@@ -160,7 +165,7 @@ class FolderDaoTest extends \PHPUnit_Framework_TestCase
     $this->folderDao->moveContent($fc['foldercontents_pk'], FolderDao::TOP_LEVEL);
     assertThat($this->folderDao->getFolderChildFolders(FolderDao::TOP_LEVEL),is(arrayWithSize(2)));
   }
-  
+
   /**
    * @expectedException Exception
    */
@@ -173,7 +178,7 @@ class FolderDaoTest extends \PHPUnit_Framework_TestCase
             array($folderA),__METHOD__.'.needs.the.foldercontent_pk');
     $this->folderDao->moveContent($fc['foldercontents_pk'], $folderB);
   }
-  
+
   public function testCopyContent()
   {
     $this->folderDao->ensureTopLevelFolder();
@@ -186,7 +191,7 @@ class FolderDaoTest extends \PHPUnit_Framework_TestCase
     assertThat($this->folderDao->getFolderChildFolders($folderA),is(arrayWithSize(1)));
     assertThat($this->folderDao->getFolderChildFolders(FolderDao::TOP_LEVEL),is(arrayWithSize(3)));
   }
-  
+
   public function testGetRemovableContents()
   {
     $this->folderDao->ensureTopLevelFolder();
@@ -199,7 +204,7 @@ class FolderDaoTest extends \PHPUnit_Framework_TestCase
     $this->dbManager->insertTableRow('foldercontents',array('foldercontents_mode'=> FolderDao::MODE_FOLDER,'parent_fk'=>$folderA,'child_id'=>$folderC));
     assertThat($this->folderDao->getRemovableContents($folderA),arrayWithSize(1));
   }
-  
+
   public function testGetFolder()
   {
     $this->folderDao->ensureTopLevelFolder();

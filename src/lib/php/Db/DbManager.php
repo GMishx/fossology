@@ -20,10 +20,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 namespace Fossology\Lib\Db;
 
 use Fossology\Lib\Exception;
-use Fossology\Lib\Util\Object;
+use Fossology\Lib\Util\ObjectType;
 use Monolog\Logger;
 
-abstract class DbManager extends Object
+abstract class DbManager extends ObjectType
 {
   /** @var Driver */
   protected $dbDriver;

@@ -20,6 +20,11 @@ namespace Fossology\Lib\Util;
 
 use Mockery as M;
 
+// PHP unit 7 compatibility
+if (class_exists('\PHPUnit\Framework\TestCase') && !class_exists('\PHPUnit_Framework_TestCase')) {
+  class_alias('PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+}
+
 class HackedTimingLogger extends TimingLogger
 {
   public $timestamp = 3.1415926;
@@ -32,7 +37,7 @@ class HackedTimingLogger extends TimingLogger
 class TimingLoggerTest extends \PHPUnit_Framework_TestCase
 {
   private $logger;
-  
+
   protected function setUp()
   {
     $this->logger = M::mock('Monolog\Logger');
@@ -75,6 +80,6 @@ class TimingLoggerTest extends \PHPUnit_Framework_TestCase
     $hackedTimingLogger->timestamp = $endTime;
     $hackedTimingLogger->toc($text,$watch);
   }
-  
+
 }
- 
+

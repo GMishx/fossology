@@ -25,6 +25,11 @@ use Fossology\Lib\Data\License;
 use Fossology\Lib\Data\SplitPosition;
 use Mockery as M;
 
+// PHP unit 7 compatibility
+if (class_exists('\PHPUnit\Framework\TestCase') && !class_exists('\PHPUnit_Framework_TestCase')) {
+  class_alias('PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+}
+
 class HighlightProcessorTest extends \PHPUnit_Framework_TestCase
 {
   /** @var License */
@@ -282,7 +287,7 @@ class HighlightProcessorTest extends \PHPUnit_Framework_TestCase
             new Highlight(7, 9, Highlight::KEYWORD, 'ref2', 0, 0)
         )));
   }
-  
+
   function testFlattenHighlightWithOverlappingEntriesThatHaveEqualEnd()
   {
     $highlight1 = new Highlight(5, 10, Highlight::MATCH, 'ref1', 0, 0);

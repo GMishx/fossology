@@ -22,6 +22,11 @@ namespace Fossology\Lib\View;
 
 use Mockery as M;
 
+// PHP unit 7 compatibility
+if (class_exists('\PHPUnit\Framework\TestCase') && !class_exists('\PHPUnit_Framework_TestCase')) {
+  class_alias('PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+}
+
 class PagedHexResultTest extends \PHPUnit_Framework_TestCase
 {
 
@@ -86,4 +91,4 @@ class PagedHexResultTest extends \PHPUnit_Framework_TestCase
         is("0x00000005 |66 6f 6f 20 <b>62 61 72 </b>62 61 7a 20 64 6f 6e 65 __| |foo&nbsp;<b>bar</b>baz&nbsp;done&nbsp;|"));
   }
 }
- 
+

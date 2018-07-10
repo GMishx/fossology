@@ -22,6 +22,11 @@ use Fossology\Lib\Data\AgentRef;
 use Fossology\Lib\Data\LicenseRef;
 use Mockery as M;
 
+// PHP unit 7 compatibility
+if (class_exists('\PHPUnit\Framework\TestCase') && !class_exists('\PHPUnit_Framework_TestCase')) {
+  class_alias('PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+}
+
 class AgentClearingEventTest extends \PHPUnit_Framework_TestCase {
   /** @var LicenseRef|M\MockInterface */
   private $licenseRef;
@@ -120,4 +125,4 @@ class AgentClearingEventTest extends \PHPUnit_Framework_TestCase {
     assertThat($this->agentClearingEvent->getPercentage(), is($this->percentage));
   }
 }
- 
+

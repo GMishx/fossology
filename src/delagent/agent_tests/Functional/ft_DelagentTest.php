@@ -23,6 +23,11 @@ require_once (__DIR__ . "/../../../testing/db/createEmptyTestEnvironment.php");
  * \brief test delagent cli
  */
 
+// PHP unit 7 compatibility
+if (class_exists('\PHPUnit\Framework\TestCase') && !class_exists('\PHPUnit_Framework_TestCase')) {
+  class_alias('PHPUnit\Framework\TestCase', 'PHPUnit_Framework_TestCase');
+}
+
 class ft_DelagentTest extends PHPUnit_Framework_TestCase {
 
   public $SYSCONF_DIR;

@@ -24,6 +24,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 require_once(dirname(__FILE__) . '/../common-ui.php');
 
+// PHP unit 7 compatibility
+if (class_exists('\PHPUnit\Framework\TestCase') && !class_exists('\PHPUnit_Framework_TestCase')) {
+  class_alias('PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+}
+
 /**
  * \class test_common_dir
  */

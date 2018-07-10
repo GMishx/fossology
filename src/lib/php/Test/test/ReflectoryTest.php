@@ -18,6 +18,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 namespace Fossology\Lib\Test;
 
+// PHP unit 7 compatibility
+if (class_exists('\PHPUnit\Framework\TestCase') && !class_exists('\PHPUnit_Framework_TestCase')) {
+  class_alias('PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+}
+
 class ClassWithPrivateMethod
 {
   private $internal = 1;
@@ -42,14 +47,14 @@ class ReflectoryTest extends \PHPUnit_Framework_TestCase
   protected function tearDown() {
     $this->addToAssertionCount(\Hamcrest\MatcherAssert::getCount()-$this->assertCountBefore);
   }
-  
+
   public function testInvokeObjectsMethodnameWith()
   {
     $instanceWithPrivateMethod = new ClassWithPrivateMethod();
     assertThat(Reflectory::invokeObjectsMethodnameWith($instanceWithPrivateMethod, 'add', array(2)),is(1+2));
     assertThat(Reflectory::invokeObjectsMethodnameWith($instanceWithPrivateMethod, 'add', array(4)),is(1+2+4));
   }
-  
+
   public function testGetObjectsProperty()
   {
     $instanceWithPrivateMethod = new ClassWithPrivateMethod();
@@ -62,6 +67,6 @@ class ReflectoryTest extends \PHPUnit_Framework_TestCase
     Reflectory::setObjectsProperty($instanceWithPrivateMethod, 'internal', 3);
     assertThat($instanceWithPrivateMethod->getInternal(),is(3));
   }
-  
-  
+
+
 }

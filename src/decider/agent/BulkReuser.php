@@ -18,16 +18,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 namespace Fossology\Decider;
 
-use Fossology\DeciderJob\UI\DeciderJobAgentPlugin;
-use Fossology\Lib\Dao\UploadDao;
-use Fossology\Lib\Db\DbManager;
-use Fossology\Lib\Plugin\AgentPlugin;
-use Fossology\Lib\Util\Object;
+use Fossology\Lib\Util\ObjectType;
 use Symfony\Component\Config\Definition\Exception\Exception;
 
 include_once(__DIR__ . "/../../lib/php/common-job.php");
 
-class BulkReuser extends Object
+class BulkReuser extends ObjectType
 {
   /** @var DbManager */
   private $dbManager;

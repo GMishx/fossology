@@ -24,6 +24,11 @@
 require_once(dirname(__FILE__) . '/../common-cache.php');
 require_once(dirname(__FILE__) . '/../common-db.php');
 
+// PHP unit 7 compatibility
+if (class_exists('\PHPUnit\Framework\TestCase') && !class_exists('\PHPUnit_Framework_TestCase')) {
+  class_alias('PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+}
+
 /**
  * \class test_common_cache
  */
@@ -37,7 +42,7 @@ class test_common_cached extends PHPUnit_Framework_TestCase
   /**
    * \brief initialization
    */
-  protected function setUp() 
+  protected function setUp()
   {
     global $PG_CONN;
     $sysconfig = dirname(__FILE__).'/sysconfigDirTest';
@@ -112,7 +117,7 @@ class test_common_cached extends PHPUnit_Framework_TestCase
     $this->assertEquals($CacheValue, $value);
     $this->resetEnv4ReportCachePut();
   }
-  
+
   /**
    * \brief test for ReportCachePut upload id is not in $CacheKey
    */
@@ -140,7 +145,7 @@ class test_common_cached extends PHPUnit_Framework_TestCase
   }
 
   /**
-   * \brief test for ReportCacheGet 
+   * \brief test for ReportCacheGet
    */
   function testReportCacheGet()
   {

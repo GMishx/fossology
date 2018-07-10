@@ -27,6 +27,10 @@ require_once(dirname($wwwPath).'/lib/php/Plugin/FO_Plugin.php');
 if(!function_exists('register_plugin')){ function register_plugin(){}}
 require_once ($wwwPath.'/ui/ui-picker.php');
 
+// PHP unit 7 compatibility
+if (class_exists('\PHPUnit\Framework\TestCase') && !class_exists('\PHPUnit_Framework_TestCase')) {
+  class_alias('PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+}
 
 class ui_picker_Test extends \PHPUnit_Framework_TestCase
 {

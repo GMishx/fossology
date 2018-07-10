@@ -1,7 +1,7 @@
 <?php
 /*
 Copyright (C) 2015, Siemens AG
-Author: Johannes Najjar, anupam.ghosh@siemens.com, Shaheem Azmal 
+Author: Johannes Najjar, anupam.ghosh@siemens.com, Shaheem Azmal
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -24,6 +24,11 @@ use Fossology\Lib\Db\DbManager;
 use Fossology\Lib\Test\TestPgDb;
 use Mockery as M;
 
+// PHP unit 7 compatibility
+if (class_exists('\PHPUnit\Framework\TestCase') && !class_exists('\PHPUnit_Framework_TestCase')) {
+  class_alias('PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+}
+
 class ShowJobsDaoTest extends \PHPUnit_Framework_TestCase
 {
   /** @var TestPgDb */
@@ -36,7 +41,7 @@ class ShowJobsDaoTest extends \PHPUnit_Framework_TestCase
   private $showJobsDao;
   /** @var Mock for UploadPermissionDao */
   private $uploadPermissionDao;
-  
+
   private $job_pks = array(2,1);
 
   protected function setUp()
@@ -76,7 +81,7 @@ class ShowJobsDaoTest extends \PHPUnit_Framework_TestCase
     $this->uploadPermissionDao = M::mock('Fossology\Lib\Dao\UploadPermissionDao');
     $this->uploadDao = new UploadDao($this->dbManager, $logger, $this->uploadPermissionDao);
     $this->showJobsDao = new ShowJobsDao($this->dbManager, $this->uploadDao);
-    
+
     $this->assertCountBefore = \Hamcrest\MatcherAssert::getCount();
   }
 
@@ -86,7 +91,7 @@ class ShowJobsDaoTest extends \PHPUnit_Framework_TestCase
     $this->testDb = null;
     $this->dbManager = null;
   }
-  
+
 
 
   public function testUploads2Jobs()
@@ -106,7 +111,7 @@ class ShowJobsDaoTest extends \PHPUnit_Framework_TestCase
     $jobsWithUploadFour = $showJobDao->uploads2Jobs(array(4));
     assertThat($jobsWithUploadFour, is(emptyArray()));
   }
-  
+
   public function testUploads2JobsPaged()
   {
     $jobs = array_combine(range(3,13),range(3,13));
@@ -115,7 +120,7 @@ class ShowJobsDaoTest extends \PHPUnit_Framework_TestCase
     }
     $uploadDao = M::mock('Fossology\Lib\Dao\UploadDao');
     $showJobDao = new ShowJobsDao($this->dbManager,$uploadDao);
-    
+
     $jobsPage1 = $showJobDao->uploads2Jobs(range(1,17),0);
     assertThat($jobsPage1, arrayWithSize(10));
     $jobsPage2 = $showJobDao->uploads2Jobs(array_combine(range(10,16),range(11,17)),1);
@@ -123,7 +128,7 @@ class ShowJobsDaoTest extends \PHPUnit_Framework_TestCase
     $jobsPage3 = $showJobDao->uploads2Jobs(array(),2);
     assertThat($jobsPage3, arrayWithSize(0));
   }
-  
+
 
   public function testgetJobName()
   {
@@ -133,7 +138,7 @@ class ShowJobsDaoTest extends \PHPUnit_Framework_TestCase
     $testJobNameIfNothingQueued = $this->showJobsDao->getJobName($uploadId = 3);
     assertThat($testJobNameIfNothingQueued, equalTo($uploadId));
   }
-  
+
   public function testMyJobs()
   {
     $groupId = 2;
@@ -153,7 +158,7 @@ class ShowJobsDaoTest extends \PHPUnit_Framework_TestCase
     $testOutdatedJobs = $this->showJobsDao->myJobs(true);
     assertThat($testOutdatedJobs,equalTo(array(2)));
   }
-  
+
   public function testgetNumItemsPerSec()
   {
     $numSecs = 30;
@@ -169,7 +174,7 @@ class ShowJobsDaoTest extends \PHPUnit_Framework_TestCase
     $this->dbManager->prepare($stmt = 'insert.jobqueue',
        "INSERT INTO jobqueue (jq_pk, jq_job_fk, jq_type, jq_args, jq_starttime, jq_endtime, jq_endtext, jq_end_bits, jq_schedinfo, jq_itemsprocessed)"
      . "VALUES ($1, $2, $3, $4,$5, $6,$7,$8,$9,$10)");
-    
+
     $nowTime = time();
     $diffTime = 2345;
     $nomosTime = date('Y-m-d H:i:sO',$nowTime-$diffTime);
@@ -179,7 +184,7 @@ class ShowJobsDaoTest extends \PHPUnit_Framework_TestCase
     {
       $this->dbManager->freeResult($this->dbManager->execute($stmt, $uploadEntry));
     }
-    
+
     $this->dbManager->prepare($stmt = 'insert.uploadtree_a',
             "INSERT INTO uploadtree_a (uploadtree_pk, parent, upload_fk, pfile_fk, ufile_mode, lft, rgt, ufile_name)"
          . "VALUES ($1, $2, $3, $4,$5, $6, $7, $8)");
@@ -219,14 +224,14 @@ class ShowJobsDaoTest extends \PHPUnit_Framework_TestCase
     $hourMinSec = explode(':', $formattedEstimatedTime);
     assertThat($hourMinSec[0]*3600+$hourMinSec[1]*60+$hourMinSec[2],
             is(closeTo(($itemCount-$itemNomos)/$testFilesPerSec,0.5+$testFilesPerSec)));
-    
+
     $testGetEstimatedTime = $this->showJobsDao->getEstimatedTime($job_pk=1, $jq_Type, 0);
     assertThat($testGetEstimatedTime, matchesPattern ('/\\d+:\\d{2}:\\d{2}/'));
     $hourMinSec = explode(':', $testGetEstimatedTime);
     $tolerance = 0.5+($itemCount-$itemNomos)/$itemNomos+(time()-$nowTime);
     assertThat($hourMinSec[0]*3600+$hourMinSec[1]*60+$hourMinSec[2],
             is(closeTo(($itemCount-$itemNomos)/$itemNomos*$diffTime,$tolerance)));
-  
+
     $fewFilesPerSec = 0.003;
     $formattedLongTime = $this->showJobsDao->getEstimatedTime($job_pk=1, $jq_Type="nomos", $fewFilesPerSec);
     assertThat($formattedLongTime, matchesPattern ('/\\d+:\\d{2}:\\d{2}/'));
@@ -234,13 +239,13 @@ class ShowJobsDaoTest extends \PHPUnit_Framework_TestCase
     assertThat($hourMinSec[0]*3600+$hourMinSec[1]*60+$hourMinSec[2],
             is(closeTo(($itemCount-$itemNomos)/$fewFilesPerSec,0.5+$fewFilesPerSec)));
   }
-  
+
   public function testGetEstimatedTimeShouldNotDivideByZero()
   {
     $this->dbManager->prepare($stmt = 'insert.jobqueue',
        "INSERT INTO jobqueue (jq_pk, jq_job_fk, jq_type, jq_args, jq_starttime, jq_endtime, jq_endtext, jq_end_bits, jq_schedinfo, jq_itemsprocessed)"
      . "VALUES ($1, $2, $3, $4,$5, $6,$7,$8,$9,$10)");
-    
+
     $nowTime = time();
     $diffTime = 2345;
     $nomosTime = date('Y-m-d H:i:sO',$nowTime-$diffTime);
@@ -250,7 +255,7 @@ class ShowJobsDaoTest extends \PHPUnit_Framework_TestCase
     {
       $this->dbManager->freeResult($this->dbManager->execute($stmt, $uploadEntry));
     }
-    
+
     $showJobsDaoMock = M::mock('Fossology\\Lib\\Dao\\ShowJobsDao[getNumItemsPerSec]',array($this->dbManager, $this->uploadDao));
     $showJobsDaoMock->shouldReceive('getNumItemsPerSec')->andReturn(0);
 

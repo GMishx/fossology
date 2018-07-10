@@ -21,6 +21,11 @@ namespace Fossology\Lib\Db;
 use Mockery as M;
 use Mockery\MockInterface;
 
+// PHP unit 7 compatibility
+if (class_exists('\PHPUnit\Framework\TestCase') && !class_exists('\PHPUnit_Framework_TestCase')) {
+  class_alias('PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+}
+
 abstract class DbManagerTest extends \PHPUnit_Framework_TestCase
 {
   /** @var Driver|MockInterface */
@@ -39,7 +44,7 @@ abstract class DbManagerTest extends \PHPUnit_Framework_TestCase
 
     $this->logger = M::mock('Monolog\\Logger');
     $this->logger->shouldReceive('addDebug');
-    
+
     // $this->dbManager->setDriver($this->driver);
   }
 
@@ -60,7 +65,7 @@ abstract class DbManagerTest extends \PHPUnit_Framework_TestCase
     $this->dbManager->begin();
     $this->dbManager->begin();
   }
-  
+
   /**
    * @expectedException \Exception
    */
@@ -69,7 +74,7 @@ abstract class DbManagerTest extends \PHPUnit_Framework_TestCase
     $this->driver->shouldReceive("commit")->withNoArgs()->never();
     $this->dbManager->commit();
   }
-  
+
   function testBeginAndCommitTransaction()
   {
     $this->driver->shouldReceive("begin")->withNoArgs()->once();
@@ -77,34 +82,34 @@ abstract class DbManagerTest extends \PHPUnit_Framework_TestCase
     $this->driver->shouldReceive("commit")->withNoArgs()->once();
     $this->dbManager->commit();
   }
-  
+
   abstract function testInsertTableRow();
-  
+
   function testFlushStats()
   {
     $this->driver->shouldReceive('prepare');
     $sqlStmt = 'foo';
     $this->dbManager->prepare($sqlStmt,'SELECT elephant FROM africa');
-    $this->logger->shouldReceive('addDebug')->with("/executing '$sqlStmt' took /");
+    $this->logger->shouldReceive('addDebug')->with(matchesPattern("/executing '$sqlStmt' took /"));
     $this->dbManager->flushStats();
   }
-  
+
   abstract function testCreateMap();
-  
+
   function testExistsDb_no()
   {
-    $this->driver->shouldReceive('existsTable')->with('/dTable/')->andReturn(FALSE);
+    $this->driver->shouldReceive('existsTable')->with(matchesPattern('/dTable/'))->andReturn(FALSE);
     $existsTable = $this->dbManager->existsTable('badTable');
     assertThat($existsTable, is(FALSE));
   }
-  
+
   function testExistsDb_yes()
   {
-    $this->driver->shouldReceive('existsTable')->with('/dTable/')->andReturn(TRUE);
+    $this->driver->shouldReceive('existsTable')->with(matchesPattern('/dTable/'))->andReturn(TRUE);
     $existsTable = $this->dbManager->existsTable('goodTable');
     assertThat($existsTable, is(TRUE));
   }
-  
+
   /**
    * @expectedException \Exception
    */
@@ -112,7 +117,7 @@ abstract class DbManagerTest extends \PHPUnit_Framework_TestCase
   {
     $this->dbManager->existsTable("goodTable' OR 3<'4");
   }
-  
+
   function testInsertTableRowReturning()
   {
     $this->driver->shouldReceive('query');

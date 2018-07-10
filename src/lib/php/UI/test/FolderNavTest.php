@@ -24,6 +24,11 @@ use Fossology\Lib\Db\DbManager;
 use Fossology\Lib\Test\Reflectory;
 use Mockery as M;
 
+// PHP unit 7 compatibility
+if (class_exists('\PHPUnit\Framework\TestCase') && !class_exists('\PHPUnit_Framework_TestCase')) {
+  class_alias('PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+}
+
 function Traceback_uri()
 {
   return 'uri';
@@ -54,7 +59,7 @@ class FolderNavTest extends \PHPUnit_Framework_TestCase
     $this->addToAssertionCount(\Hamcrest\MatcherAssert::getCount()-$this->assertCountBefore);
     M::close();
   }
-  
+
   protected function getFormattedItem($row)
   {
     return Reflectory::invokeObjectsMethodnameWith($this->folderNav, 'getFormattedItem', array($row,$this->uri));
@@ -70,7 +75,7 @@ class FolderNavTest extends \PHPUnit_Framework_TestCase
     $this->dbManager->shouldReceive('freeResult')->with($res);
     return $res;
   }
-  
+
   public function testShowFolderTreeWithoutContent()
   {
     $res = $this->prepareShowFolderTree($parentFolderId='foo');
@@ -79,7 +84,7 @@ class FolderNavTest extends \PHPUnit_Framework_TestCase
     $out = $this->folderNav->showFolderTree($parentFolderId);
     assertThat($out, equalTo('<ul id="tree"><li>'.$this->getFormattedItem($rowA).'</li></ul>'));
   }
-  
+
   public function testShowFolderTreeWithContent()
   {
     $res = $this->prepareShowFolderTree($parentFolderId='foo');

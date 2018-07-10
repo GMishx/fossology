@@ -25,6 +25,11 @@ require_once(dirname(dirname(dirname(dirname(__FILE__))))."/lib/php/Plugin/FO_Pl
 require_once(dirname(dirname(dirname(dirname(__FILE__))))."/lib/php/common.php");
 require_once(dirname(dirname(dirname(__FILE__)))."/ui/showjobs.php");
 
+// PHP unit 7 compatibility
+if (class_exists('\PHPUnit\Framework\TestCase') && !class_exists('\PHPUnit_Framework_TestCase')) {
+  class_alias('PHPUnit\Framework\TestCase', 'PHPUnit_Framework_TestCase');
+}
+
 /**
  * \class test_showjobs
  */

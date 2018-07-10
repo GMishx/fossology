@@ -20,6 +20,11 @@ namespace Fossology\Lib\Data\Clearing;
 
 use Mockery as M;
 
+// PHP unit 7 compatibility
+if (class_exists('\PHPUnit\Framework\TestCase') && !class_exists('\PHPUnit_Framework_TestCase')) {
+  class_alias('PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+}
+
 class ClearingEventTest extends \PHPUnit_Framework_TestCase
 {
   /** @var int */
@@ -102,4 +107,4 @@ class ClearingEventTest extends \PHPUnit_Framework_TestCase
     assertThat($this->licenseDecisionEvent->getGroupId(), is($this->groupId));
   }
 }
- 
+

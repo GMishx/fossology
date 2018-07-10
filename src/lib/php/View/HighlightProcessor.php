@@ -23,9 +23,9 @@ use Fossology\Lib\Dao\LicenseDao;
 use Fossology\Lib\Data\Highlight;
 use Fossology\Lib\Data\License;
 use Fossology\Lib\Data\SplitPosition;
-use Fossology\Lib\Util\Object;
+use Fossology\Lib\Util\ObjectType;
 
-class HighlightProcessor extends Object
+class HighlightProcessor extends ObjectType
 {
   const LEVEL = 'level';
   const ACTION = 'action';

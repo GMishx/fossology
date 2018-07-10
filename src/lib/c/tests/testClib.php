@@ -19,9 +19,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 use Fossology\Lib\Test\TestPgDb;
 use Mockery as M;
 
-/** 
+/**
  * @todo remove this file and change Makefile
  */
+// PHP unit 7 compatibility
+if (class_exists('\PHPUnit\Framework\TestCase') && !class_exists('\PHPUnit_Framework_TestCase')) {
+  class_alias('PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+}
 
 if (!function_exists('Traceback_uri'))
 {

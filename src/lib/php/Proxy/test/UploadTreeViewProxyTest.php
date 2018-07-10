@@ -21,6 +21,11 @@ namespace Fossology\Lib\Proxy;
 use Fossology\Lib\Data\Tree\ItemTreeBounds;
 use Mockery as M;
 
+// PHP unit 7 compatibility
+if (class_exists('\PHPUnit\Framework\TestCase') && !class_exists('\PHPUnit_Framework_TestCase')) {
+  class_alias('PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+}
+
 class UploadTreeViewProxyTest extends \PHPUnit_Framework_TestCase
 {
   private $viewSuffix = "<suffix>";
@@ -143,4 +148,4 @@ class UploadTreeViewProxyTest extends \PHPUnit_Framework_TestCase
     new UploadTreeViewProxy($this->itemTreeBounds, array('bar'));
   }
 }
- 
+

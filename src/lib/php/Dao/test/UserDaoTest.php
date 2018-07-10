@@ -23,6 +23,11 @@ use Fossology\Lib\Db\DbManager;
 use Fossology\Lib\Test\TestLiteDb;
 use Monolog\Logger;
 
+// PHP unit 7 compatibility
+if (class_exists('\PHPUnit\Framework\TestCase') && !class_exists('\PHPUnit_Framework_TestCase')) {
+  class_alias('PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+}
+
 class UserDaoTest extends \PHPUnit_Framework_TestCase
 {
   /** @var TestLiteDb */
@@ -44,7 +49,7 @@ class UserDaoTest extends \PHPUnit_Framework_TestCase
     $this->userDao = new UserDao($this->dbManager, $this->logger);
     $this->assertCountBefore = \Hamcrest\MatcherAssert::getCount();
   }
-  
+
   protected function tearDown()
   {
     $this->addToAssertionCount(\Hamcrest\MatcherAssert::getCount()-$this->assertCountBefore);
@@ -56,11 +61,11 @@ class UserDaoTest extends \PHPUnit_Framework_TestCase
   {
     $this->testDb->createPlainTables(array('groups','group_user_member'));
     $this->testDb->insertData(array('groups','group_user_member'));
-    
+
     $defaultGroups = $this->userDao->getUserGroupMap($userId=1);
     assertThat($defaultGroups, equalTo(array(1=>'Default User')));
   }
-  
+
   public function testGetAdminGroupMap()
   {
     $this->testDb->createPlainTables(array('groups','group_user_member'));
@@ -70,8 +75,8 @@ class UserDaoTest extends \PHPUnit_Framework_TestCase
     $defaultGroups = $this->userDao->getAdminGroupMap($userId=2,$userLevel=PLUGIN_DB_ADMIN);
     assertThat($defaultGroups, equalTo(array(1=>'Default User',2=>'fossy')));
   }
-  
-  
+
+
   public function testGetDeletableAdminGroupMap()
   {
     $this->testDb->createPlainTables(array('groups','group_user_member','users'));
@@ -89,10 +94,10 @@ class UserDaoTest extends \PHPUnit_Framework_TestCase
 
     $groups = $this->userDao->getDeletableAdminGroupMap($userId);
     assertThat($groups, equalTo(array($deletable['group_pk']=>$deletable['group_name'])));
-    
+
     $groupsAsForeign = $this->userDao->getDeletableAdminGroupMap($userId+1);
     assertThat($groupsAsForeign, equalTo(array()));
-  }  
+  }
 
   public function testAddGroup()
   {
@@ -102,7 +107,7 @@ class UserDaoTest extends \PHPUnit_Framework_TestCase
     $row = $this->dbManager->getSingleRow('SELECT group_name FROM groups WHERE group_pk=$1',array($groupId));
     assertThat($row['group_name'], equalTo($groupName));
   }
-  
+
   /**
    * @expectedException \Exception
    */
@@ -122,7 +127,7 @@ class UserDaoTest extends \PHPUnit_Framework_TestCase
     $this->testDb->insertData(array('groups','user'));
     $this->userDao->addGroup('');
   }
-  
+
   public function testGetUserName()
   {
     $username = 'testi';
@@ -132,7 +137,7 @@ class UserDaoTest extends \PHPUnit_Framework_TestCase
     $uName = $this->userDao->getUserName($userId);
     assertThat($uName,equalTo($username));
   }
-  
+
   /**
    * @expectedException \Exception
    * @expectedExceptionMessage unknown user with id=101
@@ -142,7 +147,7 @@ class UserDaoTest extends \PHPUnit_Framework_TestCase
     $this->testDb->createPlainTables(array('users'));
     $this->userDao->getUserName(101);
   }
-  
+
   public function testGetGroupIdByName()
   {
     $this->testDb->createPlainTables(array('groups'));
@@ -150,7 +155,7 @@ class UserDaoTest extends \PHPUnit_Framework_TestCase
     $groupId = $this->userDao->getGroupIdByName('fossy');
     assertThat($groupId,equalTo(2));
   }
-  
+
   public function testAddGroupMembership()
   {
     $this->testDb->createPlainTables(array('users','groups','group_user_member'));
