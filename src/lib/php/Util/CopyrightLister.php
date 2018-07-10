@@ -30,7 +30,7 @@ use Fossology\Lib\Dao\TreeDao;
 use Fossology\Lib\Dao\UploadDao;
 use Fossology\Lib\Db\DbManager;
 
-class CopyrightLister extends Object
+class CopyrightLister extends ObjectType
 {
   /** @var DbManager */
   private $dbManager;

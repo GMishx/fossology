@@ -21,13 +21,13 @@ namespace Fossology\Lib\View;
 
 use Fossology\Lib\Data\Highlight;
 use Fossology\Lib\Data\SplitPosition;
-use Fossology\Lib\Util\Object;
+use Fossology\Lib\Util\ObjectType;
 
 /**
  * Class HighlightRenderer
  * @package Fossology\Lib\View
  */
-class HighlightRenderer extends Object
+class HighlightRenderer extends ObjectType
 {
   const DEFAULT_PADDING = 0;
   

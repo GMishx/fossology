@@ -22,14 +22,14 @@ namespace Fossology\Lib\Dao;
 
 use Fossology\Lib\Data\AgentRef;
 use Fossology\Lib\Db\DbManager;
-use Fossology\Lib\Util\Object;
+use Fossology\Lib\Util\ObjectType;
 use Monolog\Logger;
 
 /**
  * Class AgentDao
  * @package Fossology\Lib\Dao
  */
-class AgentDao extends Object
+class AgentDao extends ObjectType
 {
   const ARS_TABLE_SUFFIX = "_ars";
 

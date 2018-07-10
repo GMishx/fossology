@@ -19,9 +19,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 namespace Fossology\Lib\Html;
 
 
-use Fossology\Lib\Util\Object;
+use Fossology\Lib\Util\ObjectType;
 
-class SimpleHtmlElement extends Object implements HtmlElement
+class SimpleHtmlElement extends ObjectType implements HtmlElement
 {
 
   private $name;

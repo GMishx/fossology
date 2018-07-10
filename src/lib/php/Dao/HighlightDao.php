@@ -22,10 +22,10 @@ namespace Fossology\Lib\Dao;
 use Fossology\Lib\Data\Highlight;
 use Fossology\Lib\Data\Tree\ItemTreeBounds;
 use Fossology\Lib\Db\DbManager;
-use Fossology\Lib\Util\Object;
+use Fossology\Lib\Util\ObjectType;
 use Monolog\Logger;
 
-class HighlightDao extends Object
+class HighlightDao extends ObjectType
 {
   /**
    * @var DbManager

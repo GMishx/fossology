@@ -19,9 +19,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 namespace Fossology\Lib\Data;
 
-use Fossology\Lib\Util\Object;
+use Fossology\Lib\Util\ObjectType;
 
-class AgentRef extends Object
+class AgentRef extends ObjectType
 {
   /**
    * @var int

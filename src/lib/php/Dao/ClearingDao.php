@@ -30,10 +30,10 @@ use Fossology\Lib\Data\LicenseRef;
 use Fossology\Lib\Data\Tree\ItemTreeBounds;
 use Fossology\Lib\Db\DbManager;
 use Fossology\Lib\Proxy\UploadTreeProxy;
-use Fossology\Lib\Util\Object;
+use Fossology\Lib\Util\ObjectType;
 use Monolog\Logger;
 
-class ClearingDao extends Object
+class ClearingDao extends ObjectType
 {
   /** @var DbManager */
   private $dbManager;

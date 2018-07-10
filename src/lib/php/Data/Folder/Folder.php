@@ -19,9 +19,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 namespace Fossology\Lib\Data\Folder;
 
 
-use Fossology\Lib\Util\Object;
+use Fossology\Lib\Util\ObjectType;
 
-class Folder extends Object {
+class Folder extends ObjectType {
 
   /** @var int */
   private $id;

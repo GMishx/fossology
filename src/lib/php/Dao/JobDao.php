@@ -19,10 +19,10 @@
 namespace Fossology\Lib\Dao;
 
 use Fossology\Lib\Db\DbManager;
-use Fossology\Lib\Util\Object;
+use Fossology\Lib\Util\ObjectType;
 use Monolog\Logger;
 
-class JobDao extends Object
+class JobDao extends ObjectType
 {
   /** @var DbManager */
   private $dbManager;

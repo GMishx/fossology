@@ -21,9 +21,9 @@ namespace Fossology\Lib\Data\Clearing;
 
 use Fossology\Lib\Data\LicenseRef;
 use Fossology\Lib\Data\Clearing\ClearingEventTypes;
-use Fossology\Lib\Util\Object;
+use Fossology\Lib\Util\ObjectType;
 
-class ClearingEventBuilder extends Object
+class ClearingEventBuilder extends ObjectType
 {
   /** @var int */
   private $eventId;

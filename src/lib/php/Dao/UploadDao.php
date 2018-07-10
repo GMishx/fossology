@@ -27,12 +27,12 @@ use Fossology\Lib\Db\DbManager;
 use Fossology\Lib\Exception;
 use Fossology\Lib\Proxy\UploadTreeProxy;
 use Fossology\Lib\Proxy\UploadTreeViewProxy;
-use Fossology\Lib\Util\Object;
+use Fossology\Lib\Util\ObjectType;
 use Monolog\Logger;
 
 require_once(dirname(dirname(__FILE__)) . "/common-dir.php");
 
-class UploadDao extends Object
+class UploadDao extends ObjectType
 {
 
   const REUSE_NONE = 0;

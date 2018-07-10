@@ -19,9 +19,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 namespace Fossology\Lib\View;
 
 use Fossology\Lib\Data\LicenseRef;
-use Fossology\Lib\Util\Object;
+use Fossology\Lib\Util\ObjectType;
 
-class UrlBuilder extends Object {
+class UrlBuilder extends ObjectType {
 
   /**
    * @param LicenseRef $licenseRef

@@ -27,10 +27,10 @@ use Fossology\Lib\Data\LicenseRef;
 use Fossology\Lib\Data\Tree\ItemTreeBounds;
 use Fossology\Lib\Db\DbManager;
 use Fossology\Lib\Proxy\LicenseViewProxy;
-use Fossology\Lib\Util\Object;
+use Fossology\Lib\Util\ObjectType;
 use Monolog\Logger;
 
-class LicenseDao extends Object
+class LicenseDao extends ObjectType
 {
   const NO_LICENSE_FOUND = 'No_license_found';
 
