@@ -4,11 +4,11 @@
 # build FOSSology on Travis CI - https://travis-ci.org/
 
 language: php
-dist: trusty
+dist: xenial
 php:
   - '5.6'
 addons:
- - postgresql: "9.3"
+ - postgresql: "9.4"
 cache:
  - apt
 
@@ -25,14 +25,15 @@ install:
  - apt-cache --names-only search '^(gcc|clang)-[0-9.]+$'
  - sudo apt-get install -q -y debhelper libglib2.0-dev libmagic-dev libxml2-dev
                               libtext-template-perl librpm-dev  rpm libpcre3-dev libssl-dev
-                              apache2 libapache2-mod-php5 php5-pgsql php-pear php5-cli
+                              apache2 libapache2-mod-php php-pgsql php-pear php-cli
                               binutils bzip2 cabextract cpio sleuthkit genisoimage poppler-utils
                               rpm upx-ucl unrar-free unzip p7zip-full p7zip wget git-core subversion
-                              libpq-dev libcunit1-dev libcppunit-dev
+                              libpq-dev libcunit1-dev libcppunit-dev php-sqlite3
                               libboost-regex-dev libboost-program-options-dev
                               liblocal-lib-perl libspreadsheet-writeexcel-perl libdbd-sqlite3-perl
  - sudo apt-get install -q -y --allow-unauthenticated $CXX $CC || sudo apt-get install -q -y --allow-unauthenticated $CC
  - sudo apt-get install -q -y cppcheck
+ - sudo ./utils/fo-installdeps -y -e
  - composer self-update
  - ( cd src && composer install --dev )
  - install/scripts/install-spdx-tools.sh
@@ -43,6 +44,11 @@ before_script:
  - sudo chown $(whoami) /var/local/cache/fossology
  - sudo mkdir -p /srv/fossologyTestRepo
  - sudo chown $(whoami) /srv/fossologyTestRepo
+ - set +e
+ - sudo service postgresql restart
+ - sudo journalctl -xe
+ - sudo service postgresql status
+ - set -e
  - psql -c "CREATE USER fossy WITH PASSWORD 'fossy' CREATEDB;" -U postgres
  - psql -c "create database fossology;" -U postgres
  - psql -c "CREATE USER fossologytest WITH CREATEDB LOGIN PASSWORD 'fossologytest';" -U postgres
