@@ -46,6 +46,7 @@ RUN /usr/local/lib/fossology/fo-postinstall --agent --common --scheduler-only --
 # configure apache
 RUN cp /fossology/install/src-install-apache-example.conf /etc/apache2/conf-available/fossology.conf \
  && ln -s /etc/apache2/conf-available/fossology.conf /etc/apache2/conf-enabled/fossology.conf \
+ && a2enmod rewrite \
  && mkdir -p /var/log/apache2/ \
  && ln -sf /proc/self/fd/1 /var/log/apache2/access.log \
  && ln -sf /proc/self/fd/1 /var/log/apache2/error.log
