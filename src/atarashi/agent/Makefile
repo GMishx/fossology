@@ -9,11 +9,12 @@ TOP = ../../..
 VARS = $(TOP)/Makefile.conf
 include $(VARS)
 
-DEF = -DDATADIR='"$(MODDIR)"'
-CXXFLAGS_LOCAL = $(FO_CXXFLAGS) -I. -Wall -fopenmp
-CXXFLAGS_LINK = $(FO_CXXLDFLAGS) -fopenmp
 
-EXE = ninka
+DEF = -DDATADIR='"$(MODDIR)"'
+CXXFLAGS_LOCAL = $(FO_CXXFLAGS) -I. -Wall -fopenmp $(shell pkg-config --cflags jsoncpp) 
+CXXFLAGS_LINK = $(FO_CXXLDFLAGS) -fopenmp $(shell pkg-config --libs jsoncpp)
+
+EXE = atarashiWrapper
 
 OBJECTS = databasehandler.o licensematch.o ninka.o ninkawrapper.o state.o utils.o
 COVERAGE = $(OBJECTS:%.o=%_cov.o)
@@ -54,7 +55,7 @@ $(COVERAGE): %_cov.o: %.cc %.hpp
 #######################
 
 install: $(EXE)
-	$(INSTALL_PROGRAM) $(EXE) $(DESTDIR)$(MODDIR)/$(EXE)/agent/$(EXE)
+	$(INSTALL_PROGRAM) $(EXE) $(DESTDIR)$(MODDIR)/agent/$(EXE)
 
 uninstall:
 	rm -rf $(DESTDIR)$(MODDIR)/$(EXE)/agent
