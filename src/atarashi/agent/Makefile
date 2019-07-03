@@ -9,7 +9,7 @@ TOP = ../../..
 VARS = $(TOP)/Makefile.conf
 include $(VARS)
 
-
+MOD_NAME = atarashiWrapper
 DEF = -DDATADIR='"$(MODDIR)"'
 CXXFLAGS_LOCAL = $(FO_CXXFLAGS) -I. -Wall -fopenmp $(shell pkg-config --cflags jsoncpp) 
 CXXFLAGS_LINK = $(FO_CXXLDFLAGS) -fopenmp $(shell pkg-config --libs jsoncpp)
@@ -55,10 +55,10 @@ $(COVERAGE): %_cov.o: %.cc %.hpp
 #######################
 
 install: $(EXE)
-	$(INSTALL_PROGRAM) $(EXE) $(DESTDIR)$(MODDIR)/agent/$(EXE)
+	$(INSTALL_PROGRAM) $(EXE) $(DESTDIR)$(MODDIR)/$(MOD_NAME)/agent/$(EXE)
 
 uninstall:
-	rm -rf $(DESTDIR)$(MODDIR)/$(EXE)/agent
+	rm -rf $(DESTDIR)$(MODDIR)/$(MOD_NAME)/$(EXE)/agent
 
 clean:
 	rm -f $(EXE) *.o *.a *.gcno *.gcda core
