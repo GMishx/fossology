@@ -16,37 +16,37 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  ***********************************************************/
 
-namespace Fossology\Ninka\Ui;
+namespace Fossology\Atarashi\Ui;
 
 use Fossology\Lib\Plugin\AgentPlugin;
 
-class NinkaAgentPlugin extends AgentPlugin
+class AtarashiAgentPlugin extends AgentPlugin
 {
   public function __construct() {
-    $this->Name = "agent_ninka";
-    $this->Title =  _("Ninka License Analysis");
-    $this->AgentName = "ninka";
+    $this->Name = "agent_atarashi";
+    $this->Title =  _("atarashi License Analysis");
+    $this->AgentName = "atarashi";
 
     parent::__construct();
   }
 
   function AgentHasResults($uploadId=0)
   {
-    return CheckARS($uploadId, $this->AgentName, "ninka agent", "ninka_ars");
+    return CheckARS($uploadId, $this->AgentName, "atarashi agent", "atarashi_ars");
   }
   
   function preInstall()
   {
-    if ($this->isNinkaInstalled()) {
+    if ($this->isAtarashiInstalled()) {
       menu_insert("Agents::" . $this->Title, 0, $this->Name);
     }
   }
   
-  public function isNinkaInstalled()
+  public function isAtarashiInstalled()
   {
-    exec('which ninka', $lines, $returnVar);
+    exec('which atarashi', $lines, $returnVar);
     return (0==$returnVar);
   }
 }
 
-register_plugin(new NinkaAgentPlugin());
+register_plugin(new AtarashiAgentPlugin());
