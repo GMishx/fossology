@@ -16,7 +16,7 @@ CXXFLAGS_LINK = $(FO_CXXLDFLAGS) -fopenmp $(shell pkg-config --libs jsoncpp)
 
 EXE = atarashiWrapper
 
-OBJECTS = databasehandler.o licensematch.o ninka.o ninkawrapper.o state.o utils.o
+OBJECTS = databasehandler.o licensematch.o atarashi.o atarashiwrapper.o state.o utils.o
 COVERAGE = $(OBJECTS:%.o=%_cov.o)
 
 all: $(CXXFOLIB) $(EXE)
@@ -34,10 +34,10 @@ $(EXE)_cov: $(CXXFOLIB) $(VARS) $(COVERAGE)
 $(CXXFOLIB):
 	$(MAKE) -C $(CXXFOLIBDIR)
 
-libninka.a: $(OBJECTS)
+libatarashi.a: $(OBJECTS)
 	ar cvr $@ $(OBJECTS)
 
-libninka_cov.a: $(COVERAGE)
+libatarashi_cov.a: $(COVERAGE)
 	ar cvr $@ $(COVERAGE)
 
 ######################

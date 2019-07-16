@@ -15,15 +15,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef NINKA_AGENT_NINKA_WRAPPER_HPP
-#define NINKA_AGENT_NINKA_WRAPPER_HPP
-
-#define AGENT_NAME "atarashi"
-#define AGENT_DESC "atarashi agent"
-#define AGENT_ARS  "atarashi_ars"
+#ifndef ATARASHI_AGENT_ATARASHI_WRAPPER_HPP
+#define ATARASHI_AGENT_ATARASHI_WRAPPER_HPP
 
 #include <string>
 #include <vector>
+#include <jsoncpp/json/json.h>
+
 #include "files.hpp"
 #include "licensematch.hpp"
 #include "state.hpp"
@@ -31,12 +29,5 @@
 using namespace std;
 
 string scanFileWithAtarashi(const State& state, const fo::File& file);
-/* 
-vector<string> extractLicensesFromNinkaResult(string ninkaResult);
-string extractLicensePartFromNinkaResult(string ninkaResult);
-vector<string> splitLicensePart(string licensePart);
-vector<LicenseMatch> createMatches(vector<string> ninkaLicenseNames);
-string mapLicenseFromNinkaToFossology(string name);
-bool isLicenseCollection(string ninkaLicenseName,vector<LicenseMatch>& matches);
-*/ 
-#endif // NINKA_AGENT_NINKA_WRAPPER_HPP
+vector<LicenseMatch> extractLicensesFromAtarashiResult(string atarashiResult);
+#endif // ATARASHI_AGENT_ATARASHI_WRAPPER_HPP

@@ -15,12 +15,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef NINKA_AGENT_UTILS_HPP
-#define NINKA_AGENT_UTILS_HPP
+#ifndef ATARASHI_AGENT_UTILS_HPP
+#define ATARASHI_AGENT_UTILS_HPP
 
-#define AGENT_NAME "ninka"
-#define AGENT_DESC "ninka agent"
-#define AGENT_ARS  "ninka_ars"
+#define AGENT_NAME "atarashiWrapper"
+#define AGENT_DESC "atarashi agent"
+#define AGENT_ARS  "atarashiWrapper_ars"
 
 #include <string>
 #include <vector>
@@ -44,4 +44,4 @@ bool matchPFileWithLicenses(const State& state, unsigned long pFileId, AtarashiD
 bool matchFileWithLicenses(const State& state, const fo::File& file, AtarashiDatabaseHandler& databaseHandler);
 bool saveLicenseMatchesToDatabase(const State& state, const vector<LicenseMatch>& matches, unsigned long pFileId, AtarashiDatabaseHandler& databaseHandler);
 
-#endif // NINKA_AGENT_UTILS_HPP
+#endif // ATARASHI_AGENT_UTILS_HPP

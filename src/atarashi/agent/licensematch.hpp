@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef NINKA_AGENT_LICENSE_MATCH_HPP
-#define NINKA_AGENT_LICENSE_MATCH_HPP
+#ifndef ATARASHI_AGENT_LICENSE_MATCH_HPP
+#define ATARASHI_AGENT_LICENSE_MATCH_HPP
 
 #include <string>
 
@@ -36,4 +36,4 @@ private:
   unsigned percentage;
 };
 
-#endif // NINKA_AGENT_LICENSE_MATCH_HPP
+#endif // ATARASHI_AGENT_LICENSE_MATCH_HPP

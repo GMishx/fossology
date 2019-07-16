@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef NINKA_AGENT_NINKA_HPP
-#define NINKA_AGENT_NINKA_HPP
+#ifndef ATARASHI_AGENT_ATARASHI_HPP
+#define ATARASHI_AGENT_ATARASHI_HPP
 
 #include "utils.hpp"
 
@@ -24,4 +24,4 @@ extern "C" {
 #include "libfossagent.h"
 }
 
-#endif // NINKA_AGENT_NINKA_HPP
+#endif // ATARASHI_AGENT_ATARASHI_HPP

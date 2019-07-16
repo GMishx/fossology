@@ -16,11 +16,10 @@ TESTDIR = agent_tests
 
 DIR_LOOP = @set -e; for dir in $(DIRS); do $(MAKE) -s -C $$dir $(1); done
 
-all: VERSIONFILE ninka-all
+all: VERSIONFILE
 	$(call DIR_LOOP, )
 
 test: all
-	$(TOP)/install/scripts/install-ninka.sh
 	$(MAKE) -C $(TESTDIR) test
 
 coverage: all
@@ -48,4 +47,3 @@ clean:
 	rm -f VERSION
 
 .PHONY: all test coverage VERSIONFILE install uninstall clean
-.PHONY: ninka-all ninka-install ninka-uninstall ninka-clean ninka-Makefile

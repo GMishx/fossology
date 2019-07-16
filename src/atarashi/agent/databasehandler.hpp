@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef NINKA_AGENT_DATABASE_HANDLER_HPP
-#define NINKA_AGENT_DATABASE_HANDLER_HPP
+#ifndef ATARASHI_AGENT_DATABASE_HANDLER_HPP
+#define ATARASHI_AGENT_DATABASE_HANDLER_HPP
 
 #include <string>
 #include <vector>
@@ -43,4 +43,4 @@ private:
   std::unordered_map<std::string,long> licenseRefCache;
 };
 
-#endif // NINKA_AGENT_DATABASE_HANDLER_HPP
+#endif // ATARASHI_AGENT_DATABASE_HANDLER_HPP
