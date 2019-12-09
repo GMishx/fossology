@@ -47,6 +47,7 @@ addons:
       - sleuthkit
       - unrar-free
       - upx-ucl
+      - libgcrypt20-dev
 
 services: postgresql
 

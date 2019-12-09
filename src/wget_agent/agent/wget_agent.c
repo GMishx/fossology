@@ -94,44 +94,30 @@ void DBLoadGold()
   char SQL[MAXCMD];
   long PfileKey;
   char *Path;
-  char SHA256[65], command[PATH_MAX + 13];
+  char SHA256[65];
   FILE *Fin;
-  int rc = -1, i;
+  int rc = -1;
   PGresult *result;
-  int read = 0;
-
   memset(SHA256, '\0', sizeof(SHA256));
 
   LOG_VERBOSE0("Processing %s",GlobalTempFile);
   Fin = fopen(GlobalTempFile,"rb");
-
-  // Calculate sha256 value
-  snprintf(command, PATH_MAX + 13, "sha256sum '%s'", GlobalTempFile);
-  FILE* file = popen(command, "r");
-
   if (!Fin)
   {
     LOG_FATAL("upload %ld Unable to open temp file %s from %s",
         GlobalUploadKey,GlobalTempFile,GlobalURL);
     SafeExit(1);
   }
-  if (file != (FILE*) NULL)
-  {
-    read = fscanf(file, "%64s", SHA256);
-    rc = WEXITSTATUS(pclose(file));
-  }
-  if (file == (FILE*) NULL || rc != 0 || read != 1)
+  Sum = SumComputeFile(Fin);
+  fclose(Fin);
+
+  // Calculate sha256 value
+  rc = calc_sha256sum(GlobalTempFile, SHA256);
+  if (rc != 0)
   {
     LOG_FATAL("Unable to calculate SHA256 of %s\n", GlobalTempFile);
     SafeExit(56);
   }
-  // Change SHA256 to upper case like other checksums
-  for (i = 0; i < 65; i++)
-  {
-    SHA256[i] = toupper(SHA256[i]);
-  }
-  Sum = SumComputeFile(Fin);
-  fclose(Fin);
   if ((int)ForceGroup > 0)
   {
     rc = chown(GlobalTempFile,-1,ForceGroup);
