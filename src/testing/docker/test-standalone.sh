@@ -10,11 +10,13 @@ readonly CONTAINER_ID="$(docker run --rm -p 127.0.0.1::80 -d fossology)"
 #### is container running?
 docker inspect -f "{{.State.Running}}" "${CONTAINER_ID}" | grep -q true
 
-#### fossology needs up to 15 seconds to startup
-sleep 15
+#### fossology needs up to 20 seconds to startup
+sleep 20
 
 readonly HOST="$(docker port "${CONTAINER_ID}" 80)"
 
+curl --location "http://${HOST}/repo/"
+docker logs "${CONTAINER_ID}"
 #### is fossology reachable? --> check title
 curl --silent --location "http://${HOST}/repo/" | grep -q "<title>Getting Started with FOSSology</title>"
 
