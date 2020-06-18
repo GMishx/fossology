@@ -15,7 +15,11 @@ openapi: 3.0.2
 info:
   title: FOSSology API
   description: Automate your fossology instance using REST API
+<<<<<<< HEAD
   version: 1.2.1
+=======
+  version: 1.1.0
+>>>>>>> d3ebbda52 (feat(rest): Get file info from hash)
   contact:
     email: fossology@fossology.org
   license:
@@ -180,6 +184,17 @@ paths:
         - Upload
         - Organize
       summary: Delete upload by id
+<<<<<<< HEAD
+=======
+      parameters:
+        - name: groupName
+          description: The group name to chose while deleting the package
+          in: header
+          required: false
+          schema:
+            type: string
+            description: Group name, from last login if not provided
+>>>>>>> d3ebbda52 (feat(rest): Get file info from hash)
       responses:
         '202':
           description: Upload will be deleted
@@ -345,6 +360,16 @@ paths:
           schema:
             type: boolean
             default: false
+<<<<<<< HEAD
+=======
+        - name: groupName
+          description: The group name to chose while uploading the package
+          in: header
+          required: false
+          schema:
+            type: string
+            description: Group name, from last login if not provided
+>>>>>>> d3ebbda52 (feat(rest): Get file info from hash)
         - name: uploadType
           description: >
             Type of upload done. Required for VCS, URL and server uploads
@@ -671,6 +696,7 @@ paths:
     post:
       tags:
         - Job
+<<<<<<< HEAD
       summary: Schedule an Analysis
       description:  Schedule an Analysis of an existing upload
       parameters:
@@ -682,6 +708,71 @@ paths:
             type: integer
         - name: uploadId
           in: header
+=======
+        summary: Gets all jobs
+        description: Returns all jobs with their status
+        parameters:
+          - name: limit
+            required: false
+            schema:
+              type: integer
+              minimum: 1
+            in: header
+          - name: page
+            required: false
+            schema:
+              type: integer
+              minimum: 1
+            in: header
+          - name: upload
+            required: false
+            schema:
+              type: integer
+            in: query
+            description: Return jobs for the given upload id only
+        responses:
+          '200':
+            description: OK
+            headers:
+              X-Total-Pages:
+                description: Total number of pages which can be generated based on limit
+                schema:
+                  type: integer
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Job'
+          default:
+            $ref: '#/components/responses/defaultResponse'
+      post:
+        tags:
+          - Job
+        summary: Schedule an Analysis
+        description:  Schedule an Analysis of an existing upload
+        parameters:
+          # This could also be omitted, because there are no real folders
+          - name: folderId
+            in: header
+            required: true
+            schema:
+              type: integer
+          - name: uploadId
+            in: header
+            required: true
+            schema:
+              type: integer
+          - name: groupName
+            description: The group name to chose while scheduling jobs
+            in: header
+            required: false
+            schema:
+              type: string
+              description: Group name, from last login if not provided
+        requestBody:
+          description: Agents to be scheduled with the job
+>>>>>>> d3ebbda52 (feat(rest): Get file info from hash)
           required: true
           schema:
             type: integer
@@ -1061,6 +1152,7 @@ paths:
                   $ref: '#/components/schemas/File'
         default:
             $ref: '#/components/responses/defaultResponse'
+<<<<<<< HEAD
 
   /license:
     get:
@@ -1089,6 +1181,8 @@ paths:
                 $ref: '#/components/schemas/Info'
         default:
             $ref: '#/components/responses/defaultResponse'
+=======
+>>>>>>> d3ebbda52 (feat(rest): Get file info from hash)
 
 components:
   securitySchemes:
@@ -1519,6 +1613,7 @@ components:
           example:
             - "MIT"
             - "GPL-2.0"
+<<<<<<< HEAD
         copyright:
           description: >
             Copyright findings for the file
@@ -1560,6 +1655,8 @@ components:
           nullable: true
           example:
             3
+=======
+>>>>>>> d3ebbda52 (feat(rest): Get file info from hash)
   responses:
     defaultResponse:
       description: Some error occured. Check the "message"

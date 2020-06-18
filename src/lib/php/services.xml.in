@@ -198,6 +198,9 @@ without any warranty.
         <service id="helper.fileHelper" class="Fossology\UI\Api\Helper\FileHelper">
             <argument type="service" id="dao.pfile"/>
         </service>
+        <service id="helper.fileHelper" class="Fossology\UI\Api\Helper\FileHelper">
+            <argument type="service" id="dao.pfile"/>
+        </service>
 
         <service id="helper.authHelper" class="Fossology\UI\Api\Helper\AuthHelper">
             <argument type="service" id="dao.user"/>

@@ -99,6 +99,7 @@ class FileHelper
   {
     return $this->pfileDao->getUploadForPackage($pfileId);
   }
+<<<<<<< HEAD
 
   /**
    * Get the copyright for given pfile
@@ -111,4 +112,6 @@ class FileHelper
   {
     return $this->pfileDao->getCopyright($pfileId);
   }
+=======
+>>>>>>> d3ebbda52 (feat(rest): Get file info from hash)
 }
