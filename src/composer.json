@@ -39,8 +39,7 @@
         "php-coveralls/php-coveralls" : "v2.4.2",
         "phpunit/phpunit" : "5.7.27 || 6.5.14",
         "sebastian/phpcpd" : "v3.0.1",
-        "squizlabs/php_codesniffer" : "v3.5.8",
-        "phpstan/phpstan" : "v0.9.3"
+        "squizlabs/php_codesniffer" : "v3.5.8"
     },
     "autoload" : {
         "psr-4" : {

@@ -1,15 +1,43 @@
-name: Greet Everyone
-# This workflow is triggered on pushes to the repository.
-on: [push]
+# Copyright Siemens AG, 2021
+# SPDX-License-Identifier: GPL-2.0
+
+# Do a static code analysis using PHPStan
+
+name: PHP Static Code test
+
+on: [push, pull_request]
 
 jobs:
-  build:
-    # Job name is Greeting
-    name: Greeting
-    # This job runs on Linux
+  test:
+
     runs-on: ubuntu-latest
+    container: ghcr.io/phpstan/phpstan:0.12
+
     steps:
-      - uses: actions/checkout@v1
-      # This step prints the time.
-      - run: echo The time was ${{ steps.hello.outputs.time }}
-      - run: make
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+
+    - name: Get Composer Cache Directory
+      id: composer-cache
+      run: |
+        echo "::set-output name=dir::$(composer config cache-files-dir)"
+    - uses: actions/cache@v2
+      with:
+        path: |
+          ${{ steps.composer-cache.outputs.dir }}
+          src/stancache
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-composer-
+
+    - name: Setup composer
+      run: |
+        apk add --no-cache gettext-dev
+        docker-php-ext-install gettext
+        composer install --working-dir src
+
+    - name: Test
+      run: phpstan analyse --error-format=github --configuration=phpstan.neon.dist
+      working-directory: ./src
+      continue-on-error: true
