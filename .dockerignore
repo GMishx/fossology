@@ -9,7 +9,7 @@
 LICENSE
 NOTICES
 NOTICES.spdx
-Dockerfile
+*Dockerfile*
 docker-compose.yml
 
 Vagrantfile

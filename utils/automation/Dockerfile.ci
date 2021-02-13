@@ -1,4 +1,4 @@
-# FOSSologyNG CI Dockerfile
+# fossology CI Dockerfile
 # Copyright Siemens AG 2020, anupam.ghosh@siemens.com, gaurav.mishra@siemens.com
 #
 # Copying and distribution of this file, with or without modification,
@@ -11,7 +11,7 @@
 
 FROM debian:buster-slim as builder
 
-WORKDIR /fossologyng
+WORKDIR /fossology
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
@@ -28,11 +28,11 @@ COPY ./src/nomos/mod_deps ./src/nomos/
 COPY ./src/ojo/mod_deps ./src/ojo/
 COPY ./src/copyright/mod_deps ./src/copyright/
 
-RUN mkdir -p /fossologyng/dependencies-for-runtime \
- && cp -R /fossologyng/src /fossologyng/utils /fossologyng/dependencies-for-runtime/
+RUN mkdir -p /fossology/dependencies-for-runtime \
+ && cp -R /fossology/src /fossology/utils /fossology/dependencies-for-runtime/
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update \
- && DEBIAN_FRONTEND=noninteractive /fossologyng/utils/fo-installdeps --build --offline -y \
+ && DEBIAN_FRONTEND=noninteractive /fossology/utils/fo-installdeps --build --offline -y \
  && rm -rf /var/lib/apt/lists/*
 
 COPY . .
@@ -55,13 +55,13 @@ FROM debian:buster-slim
 
 LABEL maintainer="Fossology <fossology@fossology.org>"
 
-COPY --from=builder /fossologyng/src/nomos/agent/nomossa /bin/nomossa
-COPY --from=builder /fossologyng/src/ojo/agent/ojo /bin/ojo
-COPY --from=builder /fossologyng/src/copyright/agent/copyright /bin/copyright
-COPY --from=builder /fossologyng/src/copyright/agent/copyright.conf /usr/local/share/fossology/copyright/agent/copyright.conf
-COPY --from=builder /fossologyng/src/copyright/agent/keyword /bin/keyword
-COPY --from=builder /fossologyng/src/copyright/agent/keyword.conf /usr/local/share/fossology/keyword/agent/keyword.conf
-COPY --from=builder /fossologyng/run-deps /opt/run-deps
+COPY --from=builder /fossology/src/nomos/agent/nomossa /bin/nomossa
+COPY --from=builder /fossology/src/ojo/agent/ojo /bin/ojo
+COPY --from=builder /fossology/src/copyright/agent/copyright /bin/copyright
+COPY --from=builder /fossology/src/copyright/agent/copyright.conf /usr/local/share/fossology/copyright/agent/copyright.conf
+COPY --from=builder /fossology/src/copyright/agent/keyword /bin/keyword
+COPY --from=builder /fossology/src/copyright/agent/keyword.conf /usr/local/share/fossology/keyword/agent/keyword.conf
+COPY --from=builder /fossology/run-deps /opt/run-deps
 
 COPY ./utils/automation/fossologyscanner.py /bin/fossologyscanner
 

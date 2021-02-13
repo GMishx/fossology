@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright Siemens AG 2020, anupam.ghosh@siemens.com, gaurav.mishra@siemens.com
+# Copyright Siemens AG 2021, anupam.ghosh@siemens.com, gaurav.mishra@siemens.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -20,6 +20,7 @@ import multiprocessing
 import urllib.request
 import tempfile
 import fnmatch
+import base64
 import json
 import ssl
 import sys
@@ -33,6 +34,10 @@ API_URL = None
 PROJECT_ID = None
 MR_IID = None
 API_TOKEN = None
+GITHUB_ACTIONS_API = None
+GITHUB_ACTIONS_REPO = None
+GITHUB_ACTIONS_BASE = None
+GITHUB_ACTIONS_HEAD = None
 
 
 def get_ci_name():
@@ -46,6 +51,10 @@ def get_ci_name():
   global PROJECT_ID
   global MR_IID
   global API_TOKEN
+  global GITHUB_ACTIONS_API
+  global GITHUB_ACTIONS_REPO
+  global GITHUB_ACTIONS_BASE
+  global GITHUB_ACTIONS_HEAD
 
   if 'GITLAB_CI' in os.environ:
     RUNNING_ON = 'GITLAB'
@@ -57,6 +66,13 @@ def get_ci_name():
     RUNNING_ON = 'TRAVIS'
     TRAVIS_REPO_SLUG = os.environ['TRAVIS_REPO_SLUG']
     TRAVIS_PULL_REQUEST = os.environ['TRAVIS_PULL_REQUEST']
+  elif 'GITHUB_ACTIONS' in os.environ and os.environ['GITHUB_ACTIONS'] == 'true':
+    RUNNING_ON = 'GITHUB_ACTIONS'
+    API_URL = os.environ['INPUT_API_URL']
+    GITHUB_ACTIONS_REPO = os.environ['INPUT_REPOSITORY']
+    GITHUB_ACTIONS_BASE = os.environ['INPUT_BASE_REF']
+    GITHUB_ACTIONS_HEAD = os.environ['INPUT_HEAD_REF']
+    API_TOKEN = os.environ['API_TOKEN'] if 'API_TOKEN' in os.environ else None
 
 class CliOptions(object):
   '''
@@ -151,10 +167,19 @@ class RepoSetup:
       headers = {'Private-Token': API_TOKEN}
       path_key = "new_path"
       change_key = "diff"
-    else:
+    elif RUNNING_ON == "TRAVIS":
       api_req_url = f"https://api.github.com/repos/{TRAVIS_REPO_SLUG}" + \
         f"/pulls/{TRAVIS_PULL_REQUEST}/files"
       headers = {}
+      path_key = "filename"
+      change_key = "patch"
+    elif RUNNING_ON == "GITHUB_ACTIONS":
+      api_req_url = f"{API_URL}/repos/{GITHUB_ACTIONS_REPO}/compare/" + \
+        f"{GITHUB_ACTIONS_BASE}...{GITHUB_ACTIONS_HEAD}"
+      headers = {}
+      if API_TOKEN is not None:
+        token = base64.b64encode(f"{API_TOKEN}:x-oauth-basic".encode("UTF-8"))
+        headers = {"Authorization": f"Basic {token}"}
       path_key = "filename"
       change_key = "patch"
 
@@ -173,6 +198,8 @@ class RepoSetup:
     change_response = json.loads(change_response)
     if RUNNING_ON == "GITLAB":
       changes = change_response['changes']
+    elif RUNNING_ON == "GITHUB_ACTIONS":
+      changes = change_response['files']
     else:
       changes = change_response
 
@@ -181,7 +208,7 @@ class RepoSetup:
     for change in changes:
       if change[path_key] is not None:
         path_to_be_excluded = self.__is_excluded_path(change[path_key])
-        if path_to_be_excluded == False:
+        if path_to_be_excluded is False:
           curr_file = os.path.join(self.temp_dir.name, change[path_key])
           curr_dir = os.path.dirname(curr_file)
           if curr_dir != self.temp_dir.name:
@@ -247,9 +274,9 @@ class Scanners:
     :rtype: string
     """
     path = path.replace(f"{self.cli_options.diff_dir}/", '')
-    if self.cli_options.repo == True:
+    if self.cli_options.repo is True:
       path_is_excluded = self.__is_excluded_path(path)
-      if path_is_excluded == True:
+      if path_is_excluded is True:
         return False
     return path
 
@@ -313,9 +340,9 @@ class Scanners:
     copyright_list = list()
     for result in copyright_results:
       path = self.__normalize_path(result['file'])
-      if path == False:
+      if path is False:
         continue
-      if result['results'] != None and result['results'] != "Unable to read file":
+      if result['results'] is not None and result['results'] != "Unable to read file":
         contents = list()
         for finding in result['results']:
           if finding is not None and finding['type'] == "statement":
@@ -342,9 +369,9 @@ class Scanners:
     keyword_list = list()
     for result in keyword_results:
       path = self.__normalize_path(result['file'])
-      if path == False:
+      if path is False:
         continue
-      if result['results'] != None and result['results'] != "Unable to read file":
+      if result['results'] is not None and result['results'] != "Unable to read file":
         contents = list()
         for finding in result['results']:
           if finding is not None:
@@ -373,7 +400,7 @@ class Scanners:
       path = self.__normalize_path(result['file'])
       if path == False:
         continue
-      if result['licenses'] != None and result['licenses'][0] != 'No_license_found':
+      if result['licenses'] is not None and result['licenses'][0] != 'No_license_found':
         licenses = set()
         for license in result['licenses']:
           if license not in self.cli_options.whitelist['licenses'] and license != 'No_license_found':
@@ -396,12 +423,12 @@ class Scanners:
     failed_licenses = list()
     for result in ojo_result:
       path = self.__normalize_path(result['file'])
-      if path == False:
+      if path is False:
         continue
-      if result['results'] != None and result['results'] != 'Unable to read file':
+      if result['results'] is not None and result['results'] != 'Unable to read file':
         licenses = set()
         for finding in result['results']:
-          if finding['license'] not in self.cli_options.whitelist['licenses'] and finding['license'] != None:
+          if finding['license'] not in self.cli_options.whitelist['licenses'] and finding['license'] is not None:
             licenses.add(finding['license'].strip())
         if len(licenses) > 0:
           failed_licenses.append({
@@ -444,11 +471,11 @@ class Scanners:
     failed_licenses = None
     if self.cli_options.nomos:
       nomos_licenses = self.__get_non_whitelisted_license_nomos()
-      if self.cli_options.ojo == False:
+      if self.cli_options.ojo is False:
         failed_licenses = nomos_licenses
     if self.cli_options.ojo:
       ojo_licenses = self.__get_non_whitelisted_license_ojo()
-      if self.cli_options.nomos == False:
+      if self.cli_options.nomos is False:
         failed_licenses = ojo_licenses
       else:
         failed_licenses = self.__merge_nomos_ojo(nomos_licenses,
@@ -465,18 +492,19 @@ def parse_argv(argv):
   :return: CliOptions object
   :rtype: CliOptions
   """
+  args = " ".join(argv) # Normalize arguments
   cli_options = CliOptions
-  if "nomos" in argv:
+  if "nomos" in args:
     cli_options.nomos = True
-  if "copyright" in argv:
+  if "copyright" in args:
     cli_options.copyright = True
-  if "keyword" in argv:
+  if "keyword" in args:
     cli_options.keyword = True
-  if "ojo" in argv:
+  if "ojo" in args:
     cli_options.ojo = True
-  if "repo" in argv:
+  if "repo" in args:
     cli_options.repo = True
-  if cli_options.nomos == False and cli_options.ojo == False and cli_options.copyright == False and cli_options.keyword == False:
+  if cli_options.nomos is False and cli_options.ojo is False and cli_options.copyright is False and cli_options.keyword is False:
     cli_options.nomos = True
     cli_options.ojo = True
     cli_options.copyright = True
@@ -496,15 +524,15 @@ def print_results(name, failed_results, result_file):
   :type result_file: TextIOWrapper
   """
   for files in failed_results:
-    print(f"File: {files['file']}")
-    result_file.write(f"File: {files['file']}\n")
-    plural = ""
-    if len(files['result']) > 1:
-      plural = "s"
-    print(f"{name}{plural}:")
-    result_file.write(f"{name}{plural}:\n")
+    plural = "s" if len(files['result']) > 1 else ""
+    if RUNNING_ON == "GITHUB_ACTIONS":
+      print(f"::error file={files['file']}::" + ",".join(files['result']))
+    else:
+      print(f"File: {files['file']}\n{name}{plural}:")
+    result_file.write(f"File: {files['file']}\n{name}{plural}:\n")
     for result in files['result']:
-      print("\t" + result)
+      if RUNNING_ON != "GITHUB_ACTIONS":
+        print("\t" + result)
       result_file.write("\t" + result + "\n")
 
 
@@ -519,7 +547,7 @@ def main(argv):
           "Continuing without it.", file=sys.stderr)
 
   repo_setup = RepoSetup(cli_options)
-  if cli_options.repo == False:
+  if cli_options.repo is False:
     cli_options.diff_dir = repo_setup.get_diff_dir()
 
   scanner = Scanners(cli_options)
@@ -532,7 +560,7 @@ def main(argv):
   if cli_options.nomos or cli_options.ojo:
     license_file = open(f"{result_dir}/licenses.txt", 'w')
     failed_licenses = scanner.results_are_whitelisted()
-    if failed_licenses != True:
+    if failed_licenses is not True:
       print("\u2718 Following licenses found which are not whitelisted:")
       license_file.write("Following licenses found which are not whitelisted:\n")
       print_results("License", failed_licenses, license_file)
@@ -545,7 +573,7 @@ def main(argv):
   if cli_options.copyright:
     copyright_file = open(f"{result_dir}/copyrights.txt", 'w')
     copyright_results = scanner.get_copyright_list()
-    if copyright_results != False:
+    if copyright_results is not False:
       print("\u2718 Following copyrights found:")
       copyright_file.write("Following copyrights found:\n")
       print_results("Copyright", copyright_results, copyright_file)
@@ -558,7 +586,7 @@ def main(argv):
   if cli_options.keyword:
     keyword_file = open(f"{result_dir}/keywords.txt", 'w')
     keyword_results = scanner.get_keyword_list()
-    if keyword_results != False:
+    if keyword_results is not False:
       print("\u2718 Following keywords found:")
       keyword_file.write("Following keywords found:\n")
       print_results("Keyword", keyword_results, keyword_file)
