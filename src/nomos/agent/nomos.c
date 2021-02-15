@@ -424,7 +424,7 @@ int main(int argc, char **argv)
       {
         initializeJson();
         printf("{\n\"results\":[\n");
-        fflush(0);
+        fflush(stdout);
       }
       pFile = malloc(process_count*(sizeof(FILE*)));
       pTempFileName = malloc(process_count*sizeof(char[50]));
@@ -501,7 +501,7 @@ int main(int argc, char **argv)
       {
         initializeJson();
         printf("{\n\"results\":[\n");
-        fflush(0);
+        fflush(stdout);
       }
       for (i = 0; i < file_count; i++) {
         initializeCurScan(&cur);
