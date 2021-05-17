@@ -3,18 +3,8 @@
  Copyright (C) 2020 Siemens AG
  Author: Gaurav Mishra <mishra.gaurav@siemens.com>
 
- This program is free software; you can redistribute it and/or
- modify it under the terms of the GNU General Public License
- version 2 as published by the Free Software Foundation.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License along
- with this program; if not, write to the Free Software Foundation, Inc.,
- 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ Licensed to the Apache Software Foundation (ASF) under one or more contributor
+ license agreements; and to You under the Apache License, Version 2.0.
  ***************************************************************/
 
 namespace Fossology\Lib\Dao;
@@ -151,7 +141,11 @@ WHERE rnk = 1 AND removed = false AND decision_type = " .
       natcasesort($licenses);
       return array_values($licenses);
     } else {
+<<<<<<< HEAD
       return ["NONE"];
+=======
+      return [];
+>>>>>>> d3ebbda52 (feat(rest): Get file info from hash)
     }
   }
 
@@ -176,6 +170,7 @@ WHERE rnk = 1 AND removed = false AND decision_type = " .
       return null;
     }
   }
+<<<<<<< HEAD
 
   /**
    * Check if pfile have at least one clearing decision
@@ -223,5 +218,7 @@ WHERE rnk = 1 AND removed = false AND decision_type = " .
       return [];
     }
   }
+=======
+>>>>>>> d3ebbda52 (feat(rest): Get file info from hash)
 }
 

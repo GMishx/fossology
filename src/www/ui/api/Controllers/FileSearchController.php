@@ -3,18 +3,7 @@
  Copyright (C) 2020 Siemens AG
  Author: Gaurav Mishra <mishra.gaurav@siemens.com>
 
- This program is free software; you can redistribute it and/or
- modify it under the terms of the GNU General Public License
- version 2 as published by the Free Software Foundation.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License along
- with this program; if not, write to the Free Software Foundation, Inc.,
- 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ SPDX-License-Identifier: OSL-3.0
  ***************************************************************/
 /**
  * @file
@@ -141,17 +130,26 @@ class FileSearchController extends RestController
       $uploads = $this->getPackageUpload($pfileId);
       if (! empty($uploads)) {
         $scannerFindings = [];
+<<<<<<< HEAD
         $copyright = [];
+=======
+>>>>>>> d3ebbda52 (feat(rest): Get file info from hash)
         $conclusions = $this->getMainLicenses($uploads);
       } else {
         $scannerFindings = $this->getFileFindings($pfileId);
         $conclusions = $this->getFileConclusions($pfileId);
+<<<<<<< HEAD
         $copyright = $this->getFileCopyright($pfileId);
+=======
+>>>>>>> d3ebbda52 (feat(rest): Get file info from hash)
       }
       $findings = new Findings();
       $findings->setScanner($scannerFindings);
       $findings->setConclusion($conclusions);
+<<<<<<< HEAD
       $findings->setCopyright($copyright);
+=======
+>>>>>>> d3ebbda52 (feat(rest): Get file info from hash)
       $inputFileList[$pfileId]->setFindings($findings);
       $inputFileList[$pfileId]->setUploads($uploads);
     }
@@ -179,6 +177,7 @@ class FileSearchController extends RestController
   }
 
   /**
+<<<<<<< HEAD
    * Get the copyright for given pfile id
    * @param integer $pfileId
    * @sa Fossology::UI::Api::Helper::FileHelper::pfileCopyright()
@@ -189,6 +188,8 @@ class FileSearchController extends RestController
   }
 
   /**
+=======
+>>>>>>> d3ebbda52 (feat(rest): Get file info from hash)
    * Get the upload ids where the file has been uploaded as the source package
    * @param integer $pfileId
    */

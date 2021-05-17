@@ -3,18 +3,8 @@
  Copyright (C) 2020 Siemens AG
  Author: Gaurav Mishra <mishra.gaurav@siemens.com>
 
- This program is free software; you can redistribute it and/or
- modify it under the terms of the GNU General Public License
- version 2 as published by the Free Software Foundation.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License along
- with this program; if not, write to the Free Software Foundation, Inc.,
- 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ Licensed to the Apache Software Foundation (ASF) under one or more contributor
+ license agreements; and to You under the Apache License, Version 2.0.
  ***************************************************************/
 
 namespace Fossology\Lib\Dao;
@@ -210,17 +200,25 @@ class PfileDaoTest extends \PHPUnit\Framework\TestCase
 
     $expectedLocalConclusion = ['lic A'];
     $expectedGlobalConclusion = ['lic B'];
+<<<<<<< HEAD
     $expectedAllRemoval = ["NONE"];
     $expectedNoConclusion = ["NOASSERTION"];
+=======
+    $expectedNoConclusion = [];
+>>>>>>> d3ebbda52 (feat(rest): Get file info from hash)
 
     $actualLocalConclusion = $this->pfileDao->getConclusions(2, 2);
     $actualGlobalConclusion = $this->pfileDao->getConclusions(4, 3);
     $actualNoConclusions = $this->pfileDao->getConclusions(2, 7);
+<<<<<<< HEAD
     $actualAllRemoval = $this->pfileDao->getConclusions(2, 6);
+=======
+>>>>>>> d3ebbda52 (feat(rest): Get file info from hash)
 
     $this->assertEquals($expectedLocalConclusion, $actualLocalConclusion);
     $this->assertEquals($expectedGlobalConclusion, $actualGlobalConclusion);
     $this->assertEquals($expectedNoConclusion, $actualNoConclusions);
+<<<<<<< HEAD
     $this->assertEquals($expectedAllRemoval, $actualAllRemoval);
   }
 
@@ -265,5 +263,7 @@ reserved. permission is hereby granted to copy and distribute this
     $this->assertEquals($expectedSecondFinding, $actualSecondFinding);
     $this->assertEquals($expectedThirdFinding, $actualThirdFinding);
     $this->assertEquals($expectedNoFinding, $actualNoFinding);
+=======
+>>>>>>> d3ebbda52 (feat(rest): Get file info from hash)
   }
 }
