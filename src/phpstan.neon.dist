@@ -1,0 +1,17 @@
+parameters:
+  phpVersion: 70100 # PHP 7.1.0
+  level: 0
+#  ignoreErrors:
+#    - '#Constant [A-Z_]+ not found.#'
+  tmpDir: stancache
+  paths:
+    - lib/php
+    - www/ui
+    - decider
+    - deciderjob
+    - readmeoss
+    - reuser
+    - softwareHeritage
+    - spasht
+    - spdx2
+    - unifiedreport
