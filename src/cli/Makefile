@@ -10,7 +10,7 @@ include $(VARS)
 WRAP = cp2foss \
 	fossjobs schema-export exportLicenseRefUsingSPDX \
 	fo_monk_license_list fo_nomos_license_list fo_ninka_license_list \
-	fo_copyright_list fo_bucket_list \
+	fo_copyright_list fo_bucket_list fo_dump_to_mongodb \
 	fossupload_status fo_usergroup fo_import_licenses fo_chmod fo_folder
 COPY = $(WRAP:=.php)
 
