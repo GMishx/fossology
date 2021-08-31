@@ -40,6 +40,13 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
+      
+    # Install dependencies
+    - name: Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y sudo lsb-release
+        sudo ./utils/fo-installdeps --everything
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
