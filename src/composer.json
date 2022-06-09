@@ -26,7 +26,7 @@
         "symfony/yaml" : "v3.4.46",
         "twig/twig" : "v2.12.5",
         "twig/extensions" : "v1.5.4",
-        "guzzlehttp/guzzle": "v6.5.5",
+        "guzzlehttp/guzzle": "v6.5.7",
         "container-interop/container-interop": "v1.2.0",
         "phpoffice/phpspreadsheet": "^1",
         "twbs/bootstrap": "4.0.0"
