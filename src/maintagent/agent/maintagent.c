@@ -37,8 +37,11 @@
  -p|Verify file permissions (report only)
  -P|Verify and fix file permissions|
  -R|Remove uploads with no pfiles|
+ -t #|Remove personal access tokens expired # days ago.|
  -T|Remove orphaned temp tables|
  -L|Remove orphaned log files from file systems|
+ -o <yyyy-mm-dd>|Remove gold files older than given date (slow)|
+ -l #|Remove log files older than given date|
  -U|Process expired uploads (slow)|
  -Z|Remove orphaned files from the repository (slow)|
  -i|Initialize the database, then exit|
@@ -98,9 +101,15 @@ int main(int argc, char **argv)
   int reIndexAllTablesExe = 0;
   int removeOrphanedRowsExe = 0;
   int removeOrphanedLogs = 0;
+  int removeExpiredTokensExe = 0;
+  int tokenRetentionPeriod = 30;
+  int removeOldGoldExe = 0;
+  int removeOldLogsExe = 0;
+  char goldOlder[11];
+  char oldLogsDate[11] = {};
 
   /* command line options */
-  while ((cmdopt = getopt(argc, argv, "aAc:DEFghiILNpPRTUvVZ")) != -1)
+  while ((cmdopt = getopt(argc, argv, "aAc:DEFghiIl:LNo:pPRt:TUvVZ")) != -1)
   {
     switch (cmdopt)
     {
@@ -225,6 +234,14 @@ int main(int argc, char **argv)
           normalizeUploadPrioritiesExe = 1;
         }
         break;
+      case 'o': /* Gold files older than given date */
+        if (removeOldGoldExe == 0)
+        {
+          strncpy(goldOlder, optarg, 10);
+          deleteOldGold(goldOlder);
+          removeOldGoldExe = 1;
+        }
+        break;
       case 'p': /* Verify file permissions */
         verifyFilePerms(0);
         break;
@@ -240,6 +257,14 @@ int main(int argc, char **argv)
         {
           removeUploads();
           removeUploadsExe = 1;
+        }
+        break;
+      case 't': /* Remove expired personal access token */
+        if (removeExpiredTokensExe == 0)
+        {
+          tokenRetentionPeriod = atol(optarg);
+          removeExpiredTokens(tokenRetentionPeriod);
+          removeExpiredTokensExe = 1;
         }
         break;
       case 'T': /* Remove orphaned temp tables */
@@ -275,6 +300,14 @@ int main(int argc, char **argv)
         {
           removeOrphanedRows();
           removeOrphanedRowsExe = 1;
+        }
+        break;
+      case 'l': /* Remove old log files */
+        if (removeOldLogsExe == 0)
+        {
+          strncpy(oldLogsDate, optarg, 10);
+          removeOldLogFiles(oldLogsDate);
+          removeOldLogsExe = 1;
         }
         break;
       case 'L': /* Remove orphaned log files from file system */

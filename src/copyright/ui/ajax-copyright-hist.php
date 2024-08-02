@@ -245,6 +245,7 @@ class CopyrightHistogramProcessPost extends FO_Plugin
     $limit = GetParm('iDisplayLength', PARM_INTEGER);
 
     $tableName = $this->getTableName($type);
+    $tableNameEvent = $tableName.'_event';
     $orderString = $this->getOrderString();
 
     list($left, $right) = $this->uploadDao->getLeftAndRight($item, $uploadTreeTableName);
@@ -257,7 +258,7 @@ class CopyrightHistogramProcessPost extends FO_Plugin
     $sql_upload = "";
     if ('uploadtree_a' == $uploadTreeTableName)
     {
-      $sql_upload = " AND UT.upload_fk=$upload_pk ";
+      $sql_upload = " AND UT.upload_fk=$5 ";
     }
 
     $join = "";
@@ -272,29 +273,39 @@ class CopyrightHistogramProcessPost extends FO_Plugin
     {
       // No filter, nothing to do
     }
-    $params = array($left, $right, $type, $agentId);
+    $params = array($left, $right, $type, $agentId, $upload_pk);
 
     $filterParms = $params;
     $searchFilter = $this->addSearchFilter($filterParms);
+
+    $activatedClause = "ce.is_enabled = 'false'";
+    if ($activated) {
+      $activatedClause = "ce.is_enabled IS NULL OR ce.is_enabled = 'true'";
+    }
     $unorderedQuery = "FROM $tableName AS cp " .
         "INNER JOIN $uploadTreeTableName AS UT ON cp.pfile_fk = UT.pfile_fk " .
+        "LEFT JOIN $tableNameEvent AS ce ON ce.".$tableName."_fk = cp.".$tableName."_pk " .
+        "AND ce.upload_fk = $5 AND ce.uploadtree_fk = UT.uploadtree_pk " .
         $join .
         "WHERE cp.content!='' " .
         "AND ( UT.lft  BETWEEN  $1 AND  $2 ) " .
         "AND cp.type = $3 " .
         "AND cp.agent_fk= $4 " .
-        "AND cp.is_enabled=" . ($activated ? 'true' : 'false') .
+        "AND ($activatedClause)" .
         $sql_upload;
-    $totalFilter = $filterQuery . " " . $searchFilter;
+    $grouping = " GROUP BY mcontent ";
 
-    $grouping = " GROUP BY content ";
-
-    $countQuery = "SELECT count(*) FROM (SELECT content, count(*) $unorderedQuery $totalFilter $grouping) as K";
+    $countQuery = "SELECT count(*) FROM (
+  SELECT mcontent AS content FROM (SELECT
+    (CASE WHEN (ce.content IS NULL OR ce.content = '') THEN cp.content ELSE ce.content END) AS mcontent
+    $unorderedQuery $filterQuery $grouping) AS k $searchFilter) AS cx";
     $iTotalDisplayRecordsRow = $this->dbManager->getSingleRow($countQuery,
         $filterParms, __METHOD__.$tableName . ".count" . ($activated ? '' : '_deactivated'));
     $iTotalDisplayRecords = $iTotalDisplayRecordsRow['count'];
 
-    $countAllQuery = "SELECT count(*) FROM (SELECT content, count(*) $unorderedQuery$grouping) as K";
+    $countAllQuery = "SELECT count(*) FROM (SELECT
+(CASE WHEN (ce.content IS NULL OR ce.content = '') THEN cp.content ELSE ce.content END) AS mcontent
+$unorderedQuery$grouping) as K";
     $iTotalRecordsRow = $this->dbManager->getSingleRow($countAllQuery, $params, __METHOD__,$tableName . "count.all" . ($activated ? '' : '_deactivated'));
     $iTotalRecords = $iTotalRecordsRow['count'];
 
@@ -304,13 +315,13 @@ class CopyrightHistogramProcessPost extends FO_Plugin
     $filterParms[] = $limit;
     $range .= ' LIMIT $' . count($filterParms);
 
-    $sql = "SELECT content, hash, count(*) as copyright_count  " .
-        $unorderedQuery . $totalFilter . " GROUP BY content, hash " . $orderString . $range;
+    $sql = "SELECT mcontent AS content, mhash AS hash, copyright_count FROM (SELECT
+(CASE WHEN (ce.content IS NULL OR ce.content = '') THEN cp.content ELSE ce.content END) AS mcontent,
+(CASE WHEN (ce.hash IS NULL OR ce.hash = '') THEN cp.hash ELSE ce.hash END) AS mhash,
+count(*) AS copyright_count " .
+      "$unorderedQuery $filterQuery GROUP BY mcontent, mhash) AS k $searchFilter $orderString $range";
     $statement = __METHOD__ . $filter.$tableName . $uploadTreeTableName . ($activated ? '' : '_deactivated');
-    $this->dbManager->prepare($statement, $sql);
-    $result = $this->dbManager->execute($statement, $filterParms);
-    $rows = $this->dbManager->fetchAll($result);
-    $this->dbManager->freeResult($result);
+    $rows = $this->dbManager->getRows($sql, $filterParms, $statement);
 
     return array($rows, $iTotalDisplayRecords, $iTotalRecords);
   }
@@ -371,7 +382,7 @@ class CopyrightHistogramProcessPost extends FO_Plugin
       return '';
     }
     $filterParams[] = "%$searchPattern%";
-    return ' AND CP.content ilike $'.count($filterParams).' ';
+    return 'WHERE mcontent ilike $'.count($filterParams).' ';
   }
 
   /**
@@ -428,6 +439,13 @@ class CopyrightHistogramProcessPost extends FO_Plugin
     $link = "<a href='";
     $link .= Traceback_uri();
     $urlArgs = "?mod=".$listPage."&agent=$agentId&item=$uploadTreeId&hash=$hash&type=$type";
+    if ((empty($filter) || $filter == "all")) {
+      if ($activated) {
+        $filter = "active";
+      } else {
+        $filter = "inactive";
+      }
+    }
     if (!empty($filter)) {
       $urlArgs .= "&filter=$filter";
     }
@@ -441,7 +459,7 @@ class CopyrightHistogramProcessPost extends FO_Plugin
     }
     else
     {
-        $output['3'] = "";
+        $output['3'] = "<input type='checkbox' class='undoBySelect$type' id='undoBySelect$type$hash' value='".$upload.",".$uploadTreeId.",".$hash.",".$type."'>";
     }
     return $output;
   }

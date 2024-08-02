@@ -326,6 +326,7 @@ class FO_Plugin implements Plugin
 
     $metadata = "<meta name='description' content='The study of Open Source'>\n";
     $metadata .= "<meta http-equiv='Content-Type' content='text/html;charset=UTF-8'>\n";
+    $metadata .= "<meta name='viewport' content='width=device-width,initial-scale=1.0'>\n";
 
     $this->vars['metadata'] = $metadata;
 
@@ -337,6 +338,7 @@ class FO_Plugin implements Plugin
     $styles .= "<link rel='stylesheet' href='css/select2.min.css'>\n";
     $styles .= "<link rel='stylesheet' href='css/jquery.dataTables.css'>\n";
     $styles .= "<link rel='stylesheet' href='css/fossology.css'>\n";
+    $styles .= "<link rel='stylesheet' href='css/bootstrap/bootstrap.min.css'>\n";
     $styles .= "<link rel='icon' type='image/x-icon' href='favicon.ico'>\n";
     $styles .= "<link rel='shortcut icon' type='image/x-icon' href='favicon.ico'>\n";
 

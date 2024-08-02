@@ -9,7 +9,7 @@
 #
 # Description: Docker container image recipe
 
-FROM debian:stretch-slim as builder
+FROM debian:buster-slim as builder
 LABEL maintainer="Fossology <fossology@fossology.org>"
 
 WORKDIR /fossology
@@ -18,7 +18,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
       git \
       lsb-release \
-      php7.0-cli \
+      php7.3-cli \
       sudo \
  && rm -rf /var/lib/apt/lists/*
 
@@ -43,12 +43,11 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
 
 COPY . .
 
-RUN /fossology/utils/install_composer.sh
+RUN make clean install \
+ && make clean
 
-RUN make clean install clean
 
-
-FROM debian:stretch-slim
+FROM debian:buster-slim
 
 LABEL maintainer="Fossology <fossology@fossology.org>"
 
@@ -60,7 +59,7 @@ WORKDIR /fossology
 # Fix for Postgres and other packages in slim variant
 # Note: cron, python, python-psycopg2 are installed
 #       specifically for metrics reporting
-RUN mkdir /usr/share/man/man1 /usr/share/man/man7 \
+RUN mkdir -p /usr/share/man/man1 /usr/share/man/man7 \
  && DEBIAN_FRONTEND=noninteractive apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get upgrade -y \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \

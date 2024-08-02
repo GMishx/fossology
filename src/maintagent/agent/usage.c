@@ -36,11 +36,13 @@ FUNCTION void usage(char *name)
   printf("  -F   :: Validate folder contents.\n");
   printf("  -g   :: Delete orphan gold files.\n");
   printf("  -h   :: Print help (usage).\n");
+  printf("  -l # :: Remove log from file system older than # in YYYY-MM-DD.\n");
   printf("  -L   :: Remove orphaned logs from file system.\n");
   printf("  -N   :: Normalize the (internal) priority numbers.\n");
   printf("  -p   :: Verify file permissions (report only).\n");
   printf("  -P   :: Verify and fix file permissions.\n");
   printf("  -R   :: Remove uploads with no pfiles.\n");
+  printf("  -t # :: Remove personal access tokens expired # days ago.\n");
   printf("  -T   :: Remove orphaned temp tables.\n");
   printf("  -U   :: Process expired uploads (slow).\n");
   printf("  -Z   :: Remove orphaned files from the repository (slow).\n");

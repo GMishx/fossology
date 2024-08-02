@@ -217,7 +217,11 @@ class ClearingView extends FO_Plugin
     $lastItem = GetParm("lastItem", PARM_INTEGER);
 
     if (!empty($lastItem)) {
-      $this->updateLastItem($userId, $groupId, $lastItem, $uploadTreeId);
+      $currentUploadtreeId = $lastItem;
+      if ($lastItem == $uploadTreeId) {
+        $currentUploadtreeId = $uploadTreeId;
+      }
+      $this->updateLastItem($userId, $groupId, $lastItem, $currentUploadtreeId);
     }
 
     $uploadTreeTableName = $this->uploadDao->getUploadtreeTableName($uploadId);
@@ -298,7 +302,7 @@ class ClearingView extends FO_Plugin
     $this->vars['clearingTypes'] = $this->decisionTypes->getMap();
     $this->vars['selectedClearingType'] = $selectedClearingType;
     $this->vars['selectedClearingScope'] = $selectedClearingScope;
-    $this->vars['tmpClearingType'] = $this->clearingDao->isDecisionWip($uploadTreeId, $groupId);
+    $this->vars['tmpClearingType'] = $this->clearingDao->isDecisionCheck($uploadTreeId, $groupId, DecisionTypes::WIP);
     $this->vars['bulkHistory'] = $bulkHistory;
 
     $noLicenseUploadTreeView = new UploadTreeProxy($uploadId,
@@ -317,6 +321,9 @@ class ClearingView extends FO_Plugin
 
     $filesAlreadyCleared = $filesOfInterest - $filesToBeCleared;
     $this->vars['message'] = _("Cleared").": $filesAlreadyCleared/$filesOfInterest";
+    $percentage = ($filesAlreadyCleared / $filesOfInterest) * 100;
+    $percentage = ($percentage > 11) ? $percentage : 11;
+    $this->vars['progressBar'] = "width:".$percentage."%";
 
     return $this->render("ui-clearing-view.html.twig");
   }
@@ -350,8 +357,19 @@ class ClearingView extends FO_Plugin
     $global = GetParm("globalDecision", PARM_STRING) === "on" ? 1 : 0;
     $uploadTreeTableName = $this->uploadDao->getUploadtreeTableName($lastItem);
     $itemBounds = $this->uploadDao->getItemTreeBounds($lastItem, $uploadTreeTableName);
-    $isDecisionWip = $this->clearingDao->isDecisionWip($currentUploadtreeId, $groupId);
-    if ($isDecisionWip || !$global) {
+    if ($global) {
+      $isDecisionWip = $this->clearingDao->isDecisionCheck($currentUploadtreeId, $groupId, DecisionTypes::WIP);
+      $hasChangedClearingType = $this->clearingDao->isDecisionCheck($currentUploadtreeId, $groupId, '');
+      if ($isDecisionWip) {
+        $this->clearingDecisionEventProcessor->makeDecisionFromLastEvents($itemBounds, $userId, $groupId, $type, $global);
+      } else if (empty($hasChangedClearingType['scope'])
+             || ($hasChangedClearingType['decision_type'] != $type)
+           ) {
+        $this->clearingDecisionEventProcessor->makeDecisionFromLastEvents($itemBounds, $userId, $groupId, $type, $global);
+      } else {
+        return;
+      }
+    } else {
       $this->clearingDecisionEventProcessor->makeDecisionFromLastEvents($itemBounds, $userId, $groupId, $type, $global);
     }
   }

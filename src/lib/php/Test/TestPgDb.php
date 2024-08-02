@@ -21,6 +21,7 @@ namespace Fossology\Lib\Test;
 // setup autoloading
 require_once(dirname(dirname(dirname(dirname(__FILE__)))) . "/vendor/autoload.php");
 require_once(__DIR__ . "/../../../testing/db/TestDbFactory.php");
+require (dirname(dirname(__FILE__)).'/common-sysconfig.php');
 
 use Fossology\Lib\Db\Driver\Postgres;
 use Monolog\Handler\StreamHandler;
@@ -178,7 +179,7 @@ class TestPgDb extends TestAbstractDb
   {
     $table = 'license_candidate';
     if ((empty($tableList) || in_array($table, $tableList)) && !$this->dbManager->existsTable($table)) {
-      $this->dbManager->queryOnce("CREATE TABLE $table (group_fk integer) INHERITS (license_ref)");
+      $this->dbManager->queryOnce("CREATE TABLE $table (group_fk integer,rf_creationdate timestamptz,rf_lastmodified timestamptz,rf_user_fk_created integer,rf_user_fk_modified integer) INHERITS (license_ref)");
     }
     $coreSchemaFile = $this->dirnameRec(__FILE__, 4) . '/www/ui/core-schema.dat';
     $Schema = array();
@@ -200,5 +201,15 @@ class TestPgDb extends TestAbstractDb
         $this->dbManager->queryOnce("create table " . $agent . "_ars() inherits(ars_master)");
       }
     }
+  }
+
+  /**
+   * Populate sysconfig table.
+   */
+  public function setupSysconfig()
+  {
+    $this->createPlainTables(['sysconfig'], false);
+    $this->createSequences(['sysconfig_sysconfig_pk_seq'], false);
+    Populate_sysconfig();
   }
 }

@@ -48,6 +48,8 @@ typedef struct {
   int userId;
   int groupId;
   char* refText;
+  bool ignoreIrre;
+  char* delimiters;
   BulkAction** actions;
 } BulkArguments;
 

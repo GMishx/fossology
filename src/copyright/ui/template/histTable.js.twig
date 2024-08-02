@@ -24,7 +24,8 @@ function createTableBase{{ table.type }}(activated) {
     var id = '#copyright{{ table.type }}deactivated';
     var action = 'getDeactivatedData'
     aoColumns = aoColumns.concat([
-      { "sTitle": "", "sClass": "center read_only", "sWidth": "10%", "bSortable": false }
+      { "sTitle": "", "sClass": "center read_only", "sWidth": "10%", "bSortable": false },
+      { "sTitle": "<input type='checkbox' name='selectUndo{{ table.type }}' id='selectUndo{{ table.type }}' style='margin-left:11px'>", "sClass": "center read_only", "sWidth": "5%", "bSortable": false }
     ]);
   }
 
@@ -88,6 +89,18 @@ function createTable{{ table.type }}() {
     });
   });
 
+  $('#selectUndo{{ table.type }}').change(function () {
+    $('.undoBySelect{{ table.type }}').prop('checked', $(this).prop("checked"));
+  });
+
+  $('#undoSelected{{ table.type }}').click(function () {
+    $("input:checkbox[class=undoBySelect{{ table.type }}]:checked").each(function () {
+      currentValue = $(this).val();
+      var currUploadData = currentValue.split(',');
+      undo{{ table.type }}(currUploadData[0], currUploadData[1], currUploadData[2], currUploadData[3]);
+    });
+  });
+
   $('#replaceSelected{{ table.type }}').click(function () {
     var replaceText = $('#replaceText{{ table.type }}').val().trim();
     var replaceIsValid = (replaceText) && !(/^\s*$/.test(replaceText));
@@ -134,6 +147,9 @@ function createPlaneTableBase{{ table.type }}(activated) {
   {
     var id = '#copyright{{ table.type }}deactivated';
     var action = 'getDeactivatedData'
+    aoColumns = aoColumns.concat([
+      { "sTitle": "<input type='checkbox' name='selectUndo{{ table.type }}' id='selectUndo{{ table.type }}' style='margin-left:11px'>", "sClass": "center read_only", "sWidth": "5%", "bSortable": false }
+    ]);
   }
 
   return $(id).dataTable({
@@ -176,6 +192,18 @@ function createPlainTable{{ table.type }}() {
     });
   });
 
+  $('#selectUndo{{ table.type }}').change(function () {
+    $('.undoBySelect{{ table.type }}').prop('checked', $(this).prop("checked"));
+  });
+
+  $('#undoSelected{{ table.type }}').click(function () {
+    $("input:checkbox[class=undoBySelect{{ table.type }}]:checked").each(function () {
+      currentValue = $(this).val();
+      var currUploadData = currentValue.split(',');
+      undoHashDecision(currUploadData[0], currUploadData[1], currUploadData[2]);
+    });
+  });
+
   $('#searchReplaceTable{{ table.type }}').remove();
   $('#testVal{{ table.type }}').remove();
   $('#testReplacement{{ table.type }}').remove();
@@ -209,7 +237,7 @@ function delete{{ table.type }}(upload, item, hash, kind) {
     data: { id : upload + ',' + item + ',' + hash + ',' + kind },
       success: function(data) {
         $("#delete{{ table.type }}" + hash).hide();
-        $("#update{{ table.type }}" + hash).show();
+        $("#update{{ table.type }}" + hash).attr("style","display:inline !important;");
       },
       error: function(errorResponse) {
         alert(errorResponse.responseText);

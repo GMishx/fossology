@@ -60,7 +60,7 @@ class LicenseDao
     $statementName = __METHOD__ . ".$uploadTreeTableName.$usageId";
     $params = array($itemTreeBounds->getUploadId(), $itemTreeBounds->getLeft(), $itemTreeBounds->getRight());
     if ($usageId==LicenseMap::TRIVIAL) {
-      $licenseJoin = "ONLY license_ref mlr ON license_file.rf_fk = mlr.rf_pk";
+      $licenseJoin = "license_ref mlr ON license_file.rf_fk = mlr.rf_pk";
     } else {
       $params[] = $usageId;
       $licenseMapCte = LicenseMap::getMappedLicenseRefView('$4');
@@ -361,7 +361,7 @@ ORDER BY lft asc
     $pathStack = array($row['ufile_name']);
     $rgtStack = array($row['rgt']);
     $lastLft = $row['lft'];
-    $path = implode($pathStack,'/');
+    $path = implode('/', $pathStack);
     $this->addToLicensesPerFileName($licensesPerFileName, $path, $row, $ignore, $clearingDecisionsForLicList);
     while ($row = $this->dbManager->fetchArray($result)) {
       if (!empty($excluding) && false!==strpos("/$row[ufile_name]/", $excluding)) {
@@ -373,7 +373,7 @@ ORDER BY lft asc
       }
 
       $this->updateStackState($pathStack, $rgtStack, $lastLft, $row);
-      $path = implode($pathStack,'/');
+      $path = implode('/', $pathStack);
       $this->addToLicensesPerFileName($licensesPerFileName, $path, $row, $ignore, $clearingDecisionsForLicList);
     }
     $this->dbManager->freeResult($result);
@@ -550,15 +550,25 @@ ORDER BY lft asc
    * @param int $uploadTreeId
    * @param bool[] $licenseRemovals
    * @param string $refText
+   * @param bool $ignoreIrrelevant Ignore irrelevant files while scanning
+   * @param string $delimiters Delimiters for bulk scan,
+   *                           null or "DEFAULT" for default values
    * @return int lrp_pk on success or -1 on fail
    */
-  public function insertBulkLicense($userId, $groupId, $uploadTreeId, $licenseRemovals, $refText)
+  public function insertBulkLicense($userId, $groupId, $uploadTreeId, $licenseRemovals, $refText, $ignoreIrrelevant=true, $delimiters=null)
   {
+    if (strcasecmp($delimiters, "DEFAULT") === 0) {
+      $delimiters = null;
+    } elseif ($delimiters !== null) {
+      $delimiters = StringOperation::replaceUnicodeControlChar($delimiters);
+    }
     $licenseRefBulkIdResult = $this->dbManager->getSingleRow(
-        "INSERT INTO license_ref_bulk (user_fk, group_fk, uploadtree_fk, rf_text)
-      VALUES ($1,$2,$3,$4) RETURNING lrb_pk",
+        "INSERT INTO license_ref_bulk (user_fk, group_fk, uploadtree_fk, rf_text, ignore_irrelevant, bulk_delimiters)
+      VALUES ($1,$2,$3,$4,$5,$6) RETURNING lrb_pk",
         array($userId, $groupId, $uploadTreeId,
-          StringOperation::replaceUnicodeControlChar($refText)),
+          StringOperation::replaceUnicodeControlChar($refText),
+          $this->dbManager->booleanToDb($ignoreIrrelevant),
+          $delimiters),
         __METHOD__ . '.getLrb'
     );
     if ($licenseRefBulkIdResult === false) {
@@ -614,12 +624,12 @@ ORDER BY lft asc
    * @param string $refText
    * @return int Id of license candidate
    */
-  public function insertUploadLicense($newShortname, $refText, $groupId)
+  public function insertUploadLicense($newShortname, $refText, $groupId, $userId)
   {
-    $sql = 'INSERT INTO license_candidate (group_fk,rf_shortname,rf_fullname,rf_text,rf_md5,rf_detector_type) VALUES ($1,$2,$2,$3,md5($3),1) RETURNING rf_pk';
+    $sql = 'INSERT INTO license_candidate (group_fk,rf_shortname,rf_fullname,rf_text,rf_md5,rf_detector_type,rf_user_fk_created) VALUES ($1,$2,$2,$3,md5($3),1,$4) RETURNING rf_pk';
     $refArray = $this->dbManager->getSingleRow($sql, array($groupId,
       StringOperation::replaceUnicodeControlChar($newShortname),
-      StringOperation::replaceUnicodeControlChar($refText)), __METHOD__);
+      StringOperation::replaceUnicodeControlChar($refText), $userId), __METHOD__);
     return $refArray['rf_pk'];
   }
 
@@ -641,14 +651,14 @@ ORDER BY lft asc
    * @param string $readyformerge
    * @param int $riskLvl
    */
-  public function updateCandidate($rf_pk, $shortname, $fullname, $rfText, $url, $rfNotes, $readyformerge, $riskLvl)
+  public function updateCandidate($rf_pk, $shortname, $fullname, $rfText, $url, $rfNotes, $lastmodified, $userIdmodified, $readyformerge, $riskLvl)
   {
     $marydone = $this->dbManager->booleanToDb($readyformerge);
-    $this->dbManager->getSingleRow('UPDATE license_candidate SET rf_shortname=$2, rf_fullname=$3, rf_text=$4, rf_url=$5, rf_notes=$6, marydone=$7, rf_risk=$8 WHERE rf_pk=$1',
+    $this->dbManager->getSingleRow('UPDATE license_candidate SET rf_shortname=$2, rf_fullname=$3, rf_text=$4, rf_url=$5, rf_notes=$6, rf_lastmodified=$7, rf_user_fk_modified=$8, marydone=$9, rf_risk=$10 WHERE rf_pk=$1',
       array($rf_pk, StringOperation::replaceUnicodeControlChar($shortname),
         StringOperation::replaceUnicodeControlChar($fullname),
         StringOperation::replaceUnicodeControlChar($rfText), $url,
-        StringOperation::replaceUnicodeControlChar($rfNotes), $marydone,
+        StringOperation::replaceUnicodeControlChar($rfNotes), $lastmodified, $userIdmodified, $marydone,
         $riskLvl), __METHOD__);
   }
 
@@ -677,6 +687,7 @@ ORDER BY lft asc
       if ($candidate) {
         $tableName='obligation_candidate_map';
         $sql = "SELECT ob_pk, ob_topic, ob_text, ob_active, rf_fk, " .
+          "ob_type, ob_classification, ob_comment, " .
           "rf_shortname FROM obligation_ref " .
           "JOIN $tableName ON $tableName.ob_fk = obligation_ref.ob_pk " .
           "JOIN license_ref ON $tableName.rf_fk = license_ref.rf_pk " .
@@ -686,6 +697,7 @@ ORDER BY lft asc
         $conclusionmapCte = LicenseMap::getMappedLicenseRefView('$2');
         $sql = "WITH conclusionmap AS (" . $conclusionmapCte . ") " .
           "SELECT ob_pk, ob_topic, ob_text, ob_active, rf_origin AS rf_fk, " .
+          "ob_type, ob_classification, ob_comment, " .
           "lr.rf_shortname FROM obligation_ref " .
           "JOIN $tableName ON $tableName.ob_fk = obligation_ref.ob_pk " .
           "JOIN conclusionmap ON $tableName.rf_fk = conclusionmap.rf_pk " .

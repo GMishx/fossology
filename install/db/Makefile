@@ -36,6 +36,7 @@ install: all
 	$(INSTALL_DATA) dbmigrate_3.5-3.6.php $(DESTDIR)$(LIBEXECDIR)/dbmigrate_3.5-3.6.php
 	$(INSTALL_DATA) dbmigrate_3.6-3.7.php $(DESTDIR)$(LIBEXECDIR)/dbmigrate_3.6-3.7.php
 	$(INSTALL_DATA) dbmigrate_3.7-3.8.php $(DESTDIR)$(LIBEXECDIR)/dbmigrate_3.7-3.8.php
+	$(INSTALL_DATA) dbmigrate_copyright-event.php $(DESTDIR)$(LIBEXECDIR)/dbmigrate_copyright-event.php
 	$(INSTALL_DATA) dbmigrate_clearing-event.php $(DESTDIR)$(LIBEXECDIR)/dbmigrate_clearing-event.php
 	$(INSTALL_DATA) dbmigrate_real-parent.php $(DESTDIR)$(LIBEXECDIR)/dbmigrate_real-parent.php
 	$(INSTALL_DATA) dbmigrate_bulk_license.php $(DESTDIR)$(LIBEXECDIR)/dbmigrate_bulk_license.php
@@ -53,12 +54,12 @@ install: all
 
 	$(INSTALL_PROGRAM) export_license_ref.php $(DESTDIR)$(LIBEXECDIR)/export_license_ref.php
 	$(INSTALL_PROGRAM) dbcreate $(DESTDIR)$(LIBEXECDIR)/dbcreate
-	@if [ ! -f "$(DESTDIR)/etc/cron.d/fossology" -o "$(OVERWRITE)" ]; then \
-		mkdir -p $(DESTDIR)/etc/cron.d/; \
-		echo "NOTE: using default version for $(DESTDIR)/etc/cron.d/fossology"; \
-		$(INSTALL_DATA) db.cron $(DESTDIR)/etc/cron.d/fossology; \
+	@if [ ! -f "$(DESTDIR)$(INITDIR)/cron.d/fossology" -o "$(OVERWRITE)" ]; then \
+		mkdir -p $(DESTDIR)$(INITDIR)/cron.d/; \
+		echo "NOTE: using default version for $(DESTDIR)$(INITDIR)/cron.d/fossology"; \
+		$(INSTALL_DATA) db.cron $(DESTDIR)$(INITDIR)/cron.d/fossology; \
 	else \
-		echo "WARNING: $(DESTDIR)/etc/cron.d/fossology already exists."; \
+		echo "WARNING: $(DESTDIR)$(INITDIR)/cron.d/fossology already exists."; \
 		echo "  Not overwriting, consider checking it by hand or use the OVERWRITE option."; \
 	fi
 
@@ -76,6 +77,7 @@ uninstall:
 	rm -f $(DESTDIR)$(LIBEXECDIR)/dbmigrate_3.5-3.6.php
 	rm -f $(DESTDIR)$(LIBEXECDIR)/dbmigrate_3.6-3.7.php
 	rm -f $(DESTDIR)$(LIBEXECDIR)/dbmigrate_3.7-3.8.php
+	rm -f $(DESTDIR)$(LIBEXECDIR)/dbmigrate_copyright-event.php
 	rm -f $(DESTDIR)$(LIBEXECDIR)/dbmigrate_clearing-event.php
 	rm -f $(DESTDIR)$(LIBEXECDIR)/dbmigrate_real-parent.php
 	rm -f $(DESTDIR)$(LIBEXECDIR)/dbmigrate_bulk_license.php
@@ -96,7 +98,7 @@ uninstall:
 	fi
 
 	@echo "WARNING: Cowardly refusing to remove the following"
-	@echo "      $(DESTDIR)/etc/cron.d/fossology"
+	@echo "      $(DESTDIR)$(INITDIR)/cron.d/fossology"
 	@echo "  Remove by hand if you desire."
 
 clean:

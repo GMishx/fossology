@@ -1,6 +1,8 @@
 <?php
 /***********************************************************
  Copyright (C) 2014 Hewlett-Packard Development Company, L.P.
+ Copyright (c) 2021-2022 Orange
+ Contributors: Piotr Pszczola, Bartlomiej Drozdz
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -109,7 +111,13 @@ class UserEditPage extends DefaultPlugin
 
         /* Reread the user record as update verification */
         $UserRec = $this->CreateUserRec($request, $UserRec['user_pk']);
+        if ($user_pk == $user_pk_to_modify) {
+          $_SESSION['User'] = $UserRec['user_name'];
+        }
       } else {
+        if (empty($UserRec['user_name']) || $_SESSION['User'] != $UserRec['user_name']) {
+          $UserRec = $this->CreateUserRec($request, $UserRec['user_pk']);
+        }
         $vars['message'] = $rv;
       }
     } else {
@@ -146,8 +154,11 @@ class UserEditPage extends DefaultPlugin
    */
   private function DisplayForm($UserRec, $SessionIsAdmin)
   {
+    global $SysConf;
+
     $vars = array('isSessionAdmin' => $SessionIsAdmin,
                   'userId' => $UserRec['user_pk']);
+    $vars['userDescReadOnly'] = $SysConf['SYSCONFIG']['UserDescReadOnly'];
 
     /* For Admins, get the list of all users
      * For non-admins, only show themself
@@ -180,15 +191,26 @@ class UserEditPage extends DefaultPlugin
         );
       $vars['accessLevel'] = $UserRec['user_perm'];
 
+      $vars['allUserStatuses'] = array(
+        "active" => _("Active"),
+        "inactive" => _("Inactive")
+      );
+
+      $vars['userStatus'] = $UserRec['user_status'];
+
       $SelectedFolderPk = $UserRec['root_folder_fk'];
       $vars['folderListOption'] = FolderListOption($ParentFolder = -1, $Depth = 0, $IncludeTop = 1, $SelectedFolderPk);
+
     }
+      $SelectedDefaultFolderPk = $UserRec['default_folder_fk'];
+      $vars['folderListOption2'] = FolderListOption($ParentFolder = $UserRec['root_folder_fk'], $Depth = 0, $IncludeTop = 1, $SelectedDefaultFolderPk);
 
     $vars['isBlankPassword'] = ($UserRec['_blank_pass'] == 'on');
     $vars['agentSelector'] = AgentCheckBoxMake(-1, array("agent_unpack",
       "agent_adj2nest", "wget_agent"), $UserRec['user_name']);
     $vars['bucketPool'] = SelectBucketPool($UserRec["default_bucketpool_fk"]);
     $vars['defaultGroupOption'] = $this->getUserGroupSelect($UserRec);
+    $vars['uploadVisibility'] = $UserRec['upload_visibility'];
 
     return $vars;
   }
@@ -263,6 +285,11 @@ class UserEditPage extends DefaultPlugin
       }
     }
 
+    /* Make sure only admin can change the username */
+    if ((!Auth::isAdmin()) && ($UserRec['user_name'] != $_SESSION['User'])) {
+      $Errors .= "<li>" . _("Only admin can change the username.") . "</li>";
+    }
+
     /* If we have any errors, return them */
     if (!empty($Errors)) {
       return _("Errors") . ":<ol>$Errors </ol>";
@@ -286,10 +313,9 @@ class UserEditPage extends DefaultPlugin
       if ($key[0] == '_' || $key == "user_pk") {
         continue;
       }
-      if (!$SessionIsAdmin && ($key == "user_perm" || $key == "root_folder_fk")) {
+      if (!$SessionIsAdmin && ($key == "user_perm" || $key == "root_folder_fk" || $key == "user_status")) {
         continue;
       }
-
       if (!$first) {
         $sql .= ",";
       }
@@ -357,6 +383,8 @@ class UserEditPage extends DefaultPlugin
       $UserRec['user_pk'] = intval($request->get('user_pk'));
       $UserRec['user_name'] = stripslashes($request->get('user_name'));
       $UserRec['root_folder_fk'] = intval($request->get('root_folder_fk'));
+      $UserRec['upload_visibility'] = stripslashes($request->get('public'));
+      $UserRec['default_folder_fk'] = intval($request->get('default_folder_fk'));
       $UserRec['user_desc'] = stripslashes($request->get('user_desc'));
       $defaultGroup = $request->get('default_group_fk', null);
       if ($defaultGroup !== null) {
@@ -381,6 +409,7 @@ class UserEditPage extends DefaultPlugin
       }
 
       $UserRec['user_perm'] = intval($request->get('user_perm'));
+      $UserRec['user_status'] = stripslashes($request->get('user_status'));
       $UserRec['user_email'] = stripslashes($request->get('user_email'));
       $UserRec['email_notify'] = stripslashes($request->get('email_notify'));
       if (!empty($UserRec['email_notify'])) {

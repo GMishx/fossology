@@ -34,19 +34,15 @@
   border-style: none none dotted none;
 }
 
+hr.menu {
+  border: 1px solid #d1ecf1;
+  padding: 0px;
+  margin: 3px;
+}
+
 table { border-spacing:0; }
 
 th { background:lightsteelblue; }
-
-a, a:visited, a:link
-{
-  text-decoration:none;
-  color:blue;
-}
-a:active, a:hover
-{
-  color:red;
-}
 
 div
 {
@@ -140,14 +136,6 @@ html, body
   background-color: #bebebe;
 }
 
-.modal {
-  padding: 20px 40px;
-  color: #000000;
-  background-color: #E6E6E6;
-  border-radius: 10px;
-  display: none;
-}
-
 .icon-small {
   width: 16px;
   height: 16px;
@@ -160,7 +148,6 @@ html, body
 .boxnew {
   background-color: #ffffff;
   border: 5px solid #f2f2f2;
-  display: inline-block;
   float: left;
   height: 700px;
   overflow: auto;
@@ -183,20 +170,9 @@ html, body
   overflow: auto;
 }
 
-.scrollable {
-  /*overflow: auto;*/
-  /*max-height: 20%;*/
-}
-
-.scrollable2 {
-  /*overflow: auto;*/
-  /*max-height: 30%;*/
-}
-
 .headerBox {
   width: 99%;
   background-color: #ffffff;
-  display: inline-block;
   float: right;
   height: 700px;
   overflow: auto;
@@ -213,7 +189,6 @@ img.delete, img.add, img.deleted, img.added {
   height: 16px;
   width: 16px;
   margin: 0 auto;
-  padding: 0 auto;
 }
 
 img.add, img.delete {
@@ -250,13 +225,19 @@ img.deleted {
   margin-left: 3px;
   width: 11px;
 }
+
+.view-license-rc-size {
+  width:1.10rem;
+  height:1.10rem;
+}
+
 .nobreaktext {
   white-space: nowrap;
 }
 
 .browse-upload-checkbox {
-  vertical-align: bottom;
-  margin:0px;
+  vertical-align: middle;
+  margin:1px;
 }
 
 .ui-button-text .browse-upload-all-off {
@@ -289,7 +270,6 @@ tr.classic {
 
 td.dashboard {
   vertical-align: top;
-  horiz-align: center;
   padding-right: 10%;
 }
 
