@@ -2,18 +2,7 @@
 /***************************************************************
  * Copyright (C) 2020 Siemens AG
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * version 2 as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * SPDX-License-Identifier: OSL-3.0
  ***************************************************************/
 /**
  * @file
@@ -41,16 +30,20 @@ class Findings
   private $conclusion;
 
   /**
+<<<<<<< HEAD
    * @var array $copyright
    * List of copyright
    */
   private $copyright;
 
   /**
+=======
+>>>>>>> d3ebbda52 (feat(rest): Get file info from hash)
    * Findings constructor.
    *
    * @param array $scanner    Licenses found by scanners
    * @param array $conclusion Licenses concluded by users
+<<<<<<< HEAD
    * @param array $copyright  Copyright for the file
    */
   public function __construct($scanner = null, $conclusion = null, $copyright = null)
@@ -58,6 +51,13 @@ class Findings
     $this->setScanner($scanner);
     $this->setConclusion($conclusion);
     $this->setCopyright($copyright);
+=======
+   */
+  public function __construct($scanner = null, $conclusion = null)
+  {
+    $this->setScanner($scanner);
+    $this->setConclusion($conclusion);
+>>>>>>> d3ebbda52 (feat(rest): Get file info from hash)
   }
 
   /**
@@ -77,6 +77,7 @@ class Findings
   }
 
   /**
+<<<<<<< HEAD
    * @return array
    */
   public function getCopyright()
@@ -85,6 +86,8 @@ class Findings
   }
 
   /**
+=======
+>>>>>>> d3ebbda52 (feat(rest): Get file info from hash)
    * @param array $scanner
    */
   public function setScanner($scanner)
@@ -113,6 +116,7 @@ class Findings
   }
 
   /**
+<<<<<<< HEAD
    * @param array $copyrights
    */
   public function setCopyright($copyright)
@@ -127,6 +131,8 @@ class Findings
   }
 
   /**
+=======
+>>>>>>> d3ebbda52 (feat(rest): Get file info from hash)
    * Get the object as associative array
    *
    * @return array
@@ -135,8 +141,12 @@ class Findings
   {
     return [
       'scanner'     => $this->getScanner(),
+<<<<<<< HEAD
       'conclusion'  => $this->getConclusion(),
       'copyright'  => $this->getCopyright()
+=======
+      'conclusion'  => $this->getConclusion()
+>>>>>>> d3ebbda52 (feat(rest): Get file info from hash)
     ];
   }
 }

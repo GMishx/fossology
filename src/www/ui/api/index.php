@@ -211,6 +211,7 @@ $app->group(VERSION_1 . 'filesearch',
     $this->any('/{params:.*}', BadRequestController::class);
   });
 
+<<<<<<< HEAD
 /////////////////////////LICENSE SEARCH/////////////////
 $app->group(VERSION_1 . 'license',
   function (){
@@ -221,12 +222,17 @@ $app->group(VERSION_1 . 'license',
     $this->any('/{params:.*}', BadRequestController::class);
   });
 
+<<<<<<< HEAD
+=======
+>>>>>>> d3ebbda52 (feat(rest): Get file info from hash)
+=======
 // Catch all routes
 $app->map(['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], '/{routes:.+}', function($req, $res) {
   $handler = $this->get('notFoundHandler');
   return $handler($req, $res);
 });
 
+>>>>>>> gmishx/master
 $app->run();
 
 $GLOBALS['container']->get("db.manager")->flushStats();

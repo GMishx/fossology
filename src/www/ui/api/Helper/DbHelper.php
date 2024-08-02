@@ -34,7 +34,10 @@ use Fossology\UI\Api\Models\InfoType;
 use Fossology\UI\Api\Models\Job;
 use Fossology\UI\Api\Models\Upload;
 use Fossology\UI\Api\Models\User;
+<<<<<<< HEAD
 use Fossology\Lib\Dao\FolderDao;
+=======
+>>>>>>> d3ebbda52 (feat(rest): Get file info from hash)
 use Fossology\Lib\Db\DbManager;
 use Fossology\Lib\Auth\Auth;
 use Fossology\Lib\Proxy\UploadBrowseProxy;
@@ -99,6 +102,7 @@ class DbHelper
   public function getUploads($userId, $groupId, $limit, $page = 1,
     $uploadId = null, $options = null, $recursive = true)
   {
+<<<<<<< HEAD
     $uploadProxy = new UploadBrowseProxy($groupId, 0, $this->dbManager);
     $folderId = $options["folderId"];
     if ($folderId === null) {
@@ -119,6 +123,35 @@ class DbHelper
       $folders = array_map(function ($folder) {
         return $folder[$this->folderDao::FOLDER_KEY]->getId();
       }, $tree);
+=======
+    if ($uploadId == null) {
+      $sql = "SELECT
+upload.upload_pk, upload.upload_desc, upload.upload_ts, upload.upload_filename,
+folder.folder_pk, folder.folder_name, pfile.pfile_size, pfile.pfile_sha1,
+pfile.pfile_md5, pfile.pfile_sha256
+FROM upload
+INNER JOIN folderlist ON folderlist.upload_pk = upload.upload_pk
+INNER JOIN folder ON folder.folder_pk = folderlist.parent
+INNER JOIN pfile ON pfile.pfile_pk = upload.pfile_fk
+WHERE upload.user_fk = $1
+ORDER BY upload.upload_pk;";
+      $statementName = __METHOD__ . ".getAllUploads";
+      $params = [$userId];
+    } else {
+      $sql = "SELECT
+upload.upload_pk, upload.upload_desc, upload.upload_ts, upload.upload_filename,
+folder.folder_pk, folder.folder_name, pfile.pfile_size, pfile.pfile_sha1,
+pfile.pfile_md5, pfile.pfile_sha256
+FROM upload
+INNER JOIN folderlist ON folderlist.upload_pk = upload.upload_pk
+INNER JOIN folder ON folder.folder_pk = folderlist.parent
+INNER JOIN pfile ON pfile.pfile_pk = upload.pfile_fk
+WHERE upload.user_fk = $1
+AND upload.upload_pk = $2
+ORDER BY upload.upload_pk;";
+      $statementName = __METHOD__ . ".getSpecificUpload";
+      $params = [$userId,$uploadId];
+>>>>>>> d3ebbda52 (feat(rest): Get file info from hash)
     }
 
     $params = [$folders];
@@ -172,6 +205,7 @@ FROM $partialQuery $where ORDER BY upload_pk ASC LIMIT $limit OFFSET $" .
       count($params) . ";";
     $results = $this->dbManager->getRows($sql, $params, $statementGet);
     $uploads = [];
+<<<<<<< HEAD
     foreach ($results as $row) {
       $uploadId = $row["upload_pk"];
       $pfile_size = null;
@@ -195,7 +229,19 @@ FROM $partialQuery $where ORDER BY upload_pk ASC LIMIT $limit OFFSET $" .
 
       $hash = new Hash($pfile_sha1, $pfile_md5, $pfile_sha256, $pfile_size);
       $upload = new Upload($folderId, $folderName, $uploadId,
+<<<<<<< HEAD
+        $row["upload_desc"], $row["upload_filename"], $row["upload_ts"], $hash);
+=======
+    foreach ($result as $row) {
+      $hash = new Hash($row['pfile_sha1'], $row['pfile_md5'],
+        $row['pfile_sha256'], $row['pfile_size']);
+      $upload = new Upload($row["folder_pk"], $row["folder_name"],
+        $row["upload_pk"], $row["upload_desc"], $row["upload_filename"],
+        $row["upload_ts"], $hash);
+>>>>>>> d3ebbda52 (feat(rest): Get file info from hash)
+=======
         $row["upload_desc"], $row["upload_filename"], $row["upload_ts"], $row["assignee"], $hash);
+>>>>>>> gmishx/master
       array_push($uploads, $upload->getArray());
     }
     return [$totalResult, $uploads];
