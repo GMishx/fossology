@@ -222,3 +222,4 @@ cmake-build-debug
 
 #pycache
 **/__pycache__/
+utils/automation/pkg_downloads

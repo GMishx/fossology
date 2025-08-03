@@ -272,7 +272,7 @@ def bom_report(cli_options: CliOptions, result_dir: str, return_val: int,
   :param return_val: Return value
   :param scanner: Scanner object
   :param api_config: API config options
-  :param: format_results : FormatResult FormatResult object
+  :param format_results: FormatResult object
   :return: Program's return value
   """
   report_obj = SpdxReport(cli_options, api_config)
@@ -330,6 +330,7 @@ def main(parsed_args):
   api_config = get_api_config()
   cli_options = CliOptions()
   cli_options.update_args(parsed_args)
+  save_dir = 'pkg_downloads'
   try:
     if cli_options.allowlist_path:
       allowlist_path = cli_options.allowlist_path
@@ -354,26 +355,25 @@ def main(parsed_args):
   valid_comps_exist = False
   if (cli_options.scan_only_deps or cli_options.repo) and cli_options.sbom_path != '':
     download_list = []
-    save_dir = 'pkg_downloads'
     sbom_file_path = cli_options.sbom_path
-    parser = Parser(sbom_file_path)
-    parser.classify_components()
-    valid_comps_exist = ( parser.python_components != [] or
-                        parser.php_components != [] or
-                        parser.npm_components != [] )
+    cli_options.parser = Parser(sbom_file_path)
+    cli_options.parser.classify_components(save_dir)
+    valid_comps_exist = ( cli_options.parser.python_components != [] or
+                          cli_options.parser.php_components != [] or
+                          cli_options.parser.npm_components != [] )
 
-    if parser.python_components:
+    if cli_options.parser.python_components:
       python_parser = PythonParser()
-      python_list = python_parser.parse_components(parser.python_components)
+      python_list = python_parser.parse_components(cli_options.parser.python_components)
       download_list += python_list
 
-    if parser.npm_components:
+    if cli_options.parser.npm_components:
       npm_parser = NPMParser()
-      npm_list = npm_parser.parse_components(parser.npm_components)
+      npm_list = npm_parser.parse_components(cli_options.parser.npm_components)
       download_list += npm_list
 
-    if parser.unsupported_components:
-      for comp in parser.unsupported_components:
+    if cli_options.parser.unsupported_components:
+      for comp in cli_options.parser.unsupported_components:
         print(f'The purl {comp["purl"]} is not supported. Package will not be downloaded.')
 
     try:
@@ -382,13 +382,12 @@ def main(parsed_args):
     except Exception as e:
       print("Something went wrong while downloading the dependencies..")
 
-  repo_setup = RepoSetup(cli_options, api_config)
-
   if cli_options.scan_only_deps and valid_comps_exist:
     cli_options.diff_dir = save_dir
   elif cli_options.scan_dir:
     cli_options.diff_dir = cli_options.dir_path
   elif cli_options.repo is False:
+    repo_setup = RepoSetup(cli_options, api_config)
     cli_options.diff_dir = repo_setup.get_diff_dir()
 
   scanner = Scanners(cli_options)

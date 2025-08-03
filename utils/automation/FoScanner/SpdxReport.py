@@ -93,6 +93,7 @@ class SpdxReport:
                                           RelationshipType.DESCRIBES,
                                           "SPDXRef-Package")
     self.document.relationships = [describes_relationship]
+    self.dependent_packages: Dict[str, Package] = {}
 
   def add_license_file(self, scan_result: ScanResult):
     """
@@ -119,6 +120,13 @@ class SpdxReport:
     file.license_info_in_file = [
       get_spdx_licensing().parse(lic) for lic in scan_result.result
     ]
+    if self.cli_options.scan_only_deps:
+      package = self.__get_package_from_scan_result(scan_result)
+      contains_relationship = Relationship(package.spdx_id,
+                                           RelationshipType.CONTAINS,
+                                           file.spdx_id)
+      self.document.relationships += [contains_relationship]
+
     self.report_files[spdx_id] = file
     self.license_package_set.update(scan_result.result)
 
@@ -190,6 +198,17 @@ class SpdxReport:
       scan_result.file.encode()).hexdigest()
     return spdx_id
 
+  @staticmethod
+  def __get_package_spdx_id(component: dict) -> str:
+    """
+    Generate SPDX ID for a package/component.
+
+    :param component: Package/component to get SPDX ID for.
+    :return: SPDX ID for the package.
+    """
+    return "SPDXRef-Package-" + hashlib.md5(
+      f"{component['name']}_{component['version']}".encode()).hexdigest()
+
   def write_report(self, file_name: str):
     """
     Validate the document and write the SPDX file.
@@ -210,11 +229,19 @@ class SpdxReport:
     At the same time, add all the licenses from files to the package and
     calculate the verification code, without the excluded files.
     """
+    self.document.packages += list(self.dependent_packages.values())
     for spdx_id, file in self.report_files.items():
-      contains_relationship = Relationship("SPDXRef-Package",
-                                           RelationshipType.CONTAINS, spdx_id)
-      self.document.relationships += [contains_relationship]
+      if not self.cli_options.scan_only_deps:
+        contains_relationship = Relationship("SPDXRef-Package",
+                                             RelationshipType.CONTAINS, spdx_id)
+        self.document.relationships += [contains_relationship]
       self.document.files += [file]
+
+    for spdx_id, package in self.dependent_packages.items():
+      depends_on_relationship = Relationship("SPDXRef-Package",
+                                             RelationshipType.DEPENDS_ON,
+                                             spdx_id)
+      self.document.relationships += [depends_on_relationship]
 
     self.package.license_info_from_files = [
       get_spdx_licensing().parse(lic) for lic in self.license_package_set
@@ -263,3 +290,25 @@ class SpdxReport:
     """
     for result in copyright_results:
       self.add_copyright_file(result)
+
+  def __get_package_from_scan_result(self, scan_result: ScanResult) -> Package | None:
+    """
+    Get the package name based on file path in scan result from the parser.
+
+    :param scan_result: Result to get package from.
+    :return: Create or get existing package from scan result.
+    """
+    for component in self.cli_options.parser.npm_components + \
+                     self.cli_options.parser.python_components:
+      if component['download_dir'] in scan_result.path:
+        pkg_spdx_id = self.__get_package_spdx_id(component)
+        if pkg_spdx_id not in self.dependent_packages:
+          self.dependent_packages[pkg_spdx_id] = Package(
+            spdx_id=pkg_spdx_id,
+            name=component['name'],
+            version=component['version'],
+            download_location=component['fossology_download_url'] if 'fossology_download_url' in component else SpdxNoAssertion(),
+            files_analyzed=True
+          )
+        return self.dependent_packages[pkg_spdx_id]
+    return None

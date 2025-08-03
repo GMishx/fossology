@@ -41,6 +41,7 @@ class CliOptions(object):
   :ivar report_format: Report format to use
   :ivar scan_only_deps: Scan only dependencies
   :ivar sbom_path: Path to sbom file
+  :ivar parser: Parser instance to hold list of parsed components
   """
   nomos: bool = False
   ojo: bool = False
@@ -60,7 +61,8 @@ class CliOptions(object):
   }
   report_format: ReportFormat = ReportFormat.TEXT
   scan_only_deps: bool = False
-  sbom_path : str = ''
+  sbom_path: str = ''
+  parser = None
 
   def update_args(self, args: Namespace):
     """

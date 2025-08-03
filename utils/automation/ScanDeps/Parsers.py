@@ -4,9 +4,11 @@
 
 # SPDX-License-Identifier: GPL-2.0-only
 
+import os
 import requests
 import json
 from typing import Dict, Union
+from packageurl import PackageURL
 from packageurl.contrib import purl2url
 
 
@@ -29,19 +31,22 @@ class Parser:
         self.php_components = []
         self.unsupported_components = []
     
-    def classify_components(self):
+    def classify_components(self, root_download_dir: str):
         """
         Classify components based on it's type
+
+        :param root_download_dir: Download dir prefix. Will be used to create download dir.
         """
         for component in self.sbom_data.get('components',[]):
-            purl = component.get('purl')
-            if not purl:
+            purl = component.get('purl', '')
+            if not purl or len(purl) == 0:
                 continue
-            type = self._extract_type(purl)
+            comp_type = self._extract_type(purl)
+            component['download_dir'] = os.path.join(root_download_dir, comp_type, component['name'], component['version'])
 
-            if type == 'pypi':
+            if comp_type == 'pypi':
                 self.python_components.append(component)
-            elif type == 'npm':
+            elif comp_type == 'npm':
                 self.npm_components.append(component)
             # elif type == 'composer':
             #     self.php_components.append(component)
@@ -61,8 +66,8 @@ class Parser:
         # purl format: pkg:type/namespace/name@version?qualifiers#subpath
         try:
             if purl.startswith("pkg:"):
-                purl_type = purl.split(':')[1].split('/')[0]
-                return purl_type
+              parsed_purl = PackageURL.from_string(purl)
+              return parsed_purl.type
             return None
         except Exception:
             return None
@@ -74,39 +79,30 @@ class PythonParser:
     cyclonedx format sbom files.
     """
 
-    def _process_components(self, components : list[Dict]) -> list[str,str]:
-        """
-        Returns list of package name and version from SBOM component.
-        Args:
-            components: list[Dict]
-        Return:
-            list[str, str]: Name and versions of packages from sbom file
-        """
-        return [(comp['name'], comp['version']) for comp in components]
-
     def _generate_api_endpoint(self, package_name: str, version: str) -> str:
         """
         Generate JSON REST API Endpoint to fetch download url.
         Args:
             package_name: str Name of package
-            version: str Version of paclage
+            version: str Version of package
         Return:
             JSON REST API endpoint tp fetch metadata of package
         """
         return f"https://pypi.org/pypi/{package_name}/{version}/json"
 
-    def parse_components(self, components: list[Dict]) -> Union[list[tuple[str,str]],None]:
+    def parse_components(self, components: list[Dict]) -> Union[list[tuple[dict,str]],None]:
         """
         Parse SBOM file for package name and download url of package.
         Args:
-            sbom_file: str Path to sbom_file
+            components: list[Dict] components to parse
         Return:
             list of tuples with package_name and download_url of that package
         """
         download_urls = []
-        packages = self._process_components(components)
-        
-        for package_name, version in packages:
+
+        for component in components:
+            package_name = component['name']
+            version = component['version']
             api_endpoint = self._generate_api_endpoint(package_name, version)
             print(f"API endpoint for {package_name} : {api_endpoint}")            
             response = requests.get(api_endpoint)
@@ -125,7 +121,8 @@ class PythonParser:
                 # Prefer sdist, fallback to wheel if sdist is not available
                 download_url = sdist_url if sdist_url else wheel_url
                 if download_url:
-                    download_urls.append((package_name, download_url))
+                    component['fossology_download_url'] = download_url
+                    download_urls.append((component, download_url))
                 else:
                     print(f"No suitable download URL found for {package_name} {version}")
             else:
@@ -150,7 +147,7 @@ class NPMParser:
         """
         return purl2url.get_download_url(purl)
     
-    def parse_components(self, components: list[Dict]) -> Union[list[tuple[str,str]],None]:
+    def parse_components(self, components: list[Dict]) -> Union[list[tuple[dict,str]],None]:
         """
         Parse the components to extract the tuple of (<package_name>, <download_url>)
         Args:
@@ -164,7 +161,8 @@ class NPMParser:
             purl = comp['purl']
             try:
                 download_url = self._get_download_url(purl)
-                download_urls.append((name, download_url))
+                comp['fossology_download_url'] = download_url
+                download_urls.append((comp, download_url))
             except Exception as e:
                 print(f"Invalid Download URL for NPM package: {name} :: {e}")
         

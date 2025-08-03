@@ -17,10 +17,10 @@ class Downloader:
     Class for parallely downloading dependencies from download urls.
     """
     
-    def __download_package(self, package_name: str, download_url: str,\
-                         save_dir: str) -> str:
+    def __download_package(self, component: dict, download_url: str) -> str:
+        package_name = component['name']
         response = requests.get(download_url)
-        package_folder = os.path.join(save_dir, package_name)
+        package_folder = component['download_dir']
         if not os.path.exists(package_folder):
             os.makedirs(package_folder)
 
@@ -49,15 +49,15 @@ class Downloader:
         
         return file_path
 
-    def download_concurrently(self, download_list: list[tuple[str,str]], \
+    def download_concurrently(self, download_list: list[tuple[dict, str]], \
                               save_dir: str):
         """
         Download files concurrently from a list of urls
         """
         with concurrent.futures.ThreadPoolExecutor() as executor:
             futures = [
-                executor.submit(self.__download_package, name, url, save_dir)
-                for name, url in download_list
+                executor.submit(self.__download_package, comp, url)
+                for comp, url in download_list
             ]
             
             for future in concurrent.futures.as_completed(futures):
