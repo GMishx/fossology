@@ -85,3 +85,5 @@ RUN echo 'APT::Install-Recommends "0" ; APT::Install-Suggests "0" ;' >> /etc/apt
 ENV PYTHONUNBUFFERED=1
 
 CMD [ "bash", "-c" ]
+
+ENTRYPOINT [ "bash", "-c" ]
