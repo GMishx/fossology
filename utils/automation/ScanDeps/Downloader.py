@@ -47,7 +47,7 @@ class Downloader:
         os.remove(file_path)
         print(f"Exported {package_name} to {package_folder}")
         
-        return file_path
+        return package_folder
 
     def download_concurrently(self, download_list: list[tuple[dict, str]], \
                               save_dir: str):

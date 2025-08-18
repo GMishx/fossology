@@ -26,6 +26,7 @@ class Parser:
         """
         with open(sbom_file, 'r') as file:
             self.sbom_data = json.load(file)
+        self.root_component_name = None
         self.python_components = []
         self.npm_components = []
         self.php_components = []
@@ -37,6 +38,8 @@ class Parser:
 
         :param root_download_dir: Download dir prefix. Will be used to create download dir.
         """
+        self.root_component_name = (self.sbom_data.get('metadata', {})
+                                    .get('component', {}).get('name', None))
         for component in self.sbom_data.get('components',[]):
             purl = component.get('purl', '')
             if not purl or len(purl) == 0:
@@ -79,6 +82,11 @@ class PythonParser:
     cyclonedx format sbom files.
     """
 
+    PYPI_SOURCE_FIELD = 'Source'
+    PYPI_HOME_FIELD = 'Homepage'
+    PYPI_BINARY_DIST_WHEEL = 'bdist_wheel'
+    PYPI_SOURCE_DIST = 'sdist'
+
     def _generate_api_endpoint(self, package_name: str, version: str) -> str:
         """
         Generate JSON REST API Endpoint to fetch download url.
@@ -113,9 +121,9 @@ class PythonParser:
                 wheel_url = None
 
                 for url_info in data.get('urls', []):
-                    if url_info.get('packagetype') == 'sdist':
+                    if url_info.get('packagetype') == self.PYPI_SOURCE_DIST:
                         sdist_url = url_info.get('url')
-                    elif url_info.get('packagetype') == 'bdist_wheel':
+                    elif url_info.get('packagetype') == self.PYPI_BINARY_DIST_WHEEL:
                         wheel_url = url_info.get('url')
 
                 # Prefer sdist, fallback to wheel if sdist is not available
@@ -125,6 +133,8 @@ class PythonParser:
                     download_urls.append((component, download_url))
                 else:
                     print(f"No suitable download URL found for {package_name} {version}")
+                component['vcs_url'] = data.get('info', {}).get('project_urls', {}).get(self.PYPI_SOURCE_FIELD, None)
+                component['homepage_url'] = data.get('info', {}).get('project_urls', {}).get(self.PYPI_HOME_FIELD, None)
             else:
                 print(f"Failed to retrieve data for {package_name} {version}")
 

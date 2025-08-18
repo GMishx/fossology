@@ -24,7 +24,7 @@ from spdx_tools.spdx.model import (
   PackageVerificationCode,
   Relationship,
   RelationshipType,
-  SpdxNoAssertion
+  SpdxNoAssertion, ExternalPackageRef, ExternalPackageRefCategory
 )
 from spdx_tools.spdx.validation.document_validator import \
   validate_full_spdx_document
@@ -68,8 +68,14 @@ class SpdxReport:
     )
     self.document: Document = Document(self.creation_info)
 
+    project_name = api_config.project_name.strip()
+    if project_name is None or project_name == "":
+      project_name = self.cli_options.parser.root_component_name
+    if project_name is None:
+      project_name = ""
+
     self.package: Package = Package(
-      name=api_config.project_name,
+      name=project_name,
       spdx_id="SPDXRef-Package",
       files_analyzed=True,
       download_location=SpdxNoAssertion(),
@@ -126,6 +132,9 @@ class SpdxReport:
                                            RelationshipType.CONTAINS,
                                            file.spdx_id)
       self.document.relationships += [contains_relationship]
+      # Update licenses found in the files of the package
+      package.license_info_from_files = list(
+        set(package.license_info_from_files) | set(file.license_info_in_file))
 
     self.report_files[spdx_id] = file
     self.license_package_set.update(scan_result.result)
@@ -308,7 +317,29 @@ class SpdxReport:
             name=component['name'],
             version=component['version'],
             download_location=component['fossology_download_url'] if 'fossology_download_url' in component else SpdxNoAssertion(),
+            license_info_from_files=[],
+            license_concluded=SpdxNoAssertion(),
             files_analyzed=True
           )
+          purl_ref = ExternalPackageRef(
+            category=ExternalPackageRefCategory.PACKAGE_MANAGER,
+            reference_type='purl',
+            locator=component.get('purl')
+          )
+          self.dependent_packages[pkg_spdx_id].external_references.append(purl_ref)
+          if component.get('vcs_url', None) is not None:
+            vcs_ref = ExternalPackageRef(
+              category=ExternalPackageRefCategory.OTHER,
+              reference_type='vcs',
+              locator=component.get('vcs_url')
+            )
+            self.dependent_packages[pkg_spdx_id].external_references.append(vcs_ref)
+          if component.get('homepage_url', None) is not None:
+            homepage_ref = ExternalPackageRef(
+              category=ExternalPackageRefCategory.OTHER,
+              reference_type='homepage',
+              locator=component.get('homepage_url')
+            )
+            self.dependent_packages[pkg_spdx_id].external_references.append(homepage_ref)
         return self.dependent_packages[pkg_spdx_id]
     return None
