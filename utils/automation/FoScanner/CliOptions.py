@@ -42,6 +42,7 @@ class CliOptions(object):
   :ivar scan_only_deps: Scan only dependencies
   :ivar sbom_path: Path to sbom file
   :ivar parser: Parser instance to hold list of parsed components
+  :ivar ignore_spdx: Ignore SPDX warnings
   """
   nomos: bool = False
   ojo: bool = False
@@ -63,6 +64,7 @@ class CliOptions(object):
   scan_only_deps: bool = False
   sbom_path: str = ''
   parser = None
+  ignore_spdx: bool = False
   
   def update_args(self, args: Namespace):
     """
@@ -107,3 +109,5 @@ class CliOptions(object):
       self.keyword_conf_file_path = args.keyword_conf
     if (self.scan_only_deps or self.repo) and args.sbom_path:
       self.sbom_path = args.sbom_path
+    if args.ignore_spdx:
+      self.ignore_spdx = args.ignore_spdx

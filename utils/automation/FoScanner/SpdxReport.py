@@ -261,7 +261,8 @@ class SpdxReport:
     for message in validation_messages:
       logging.warning(message.validation_message)
       logging.warning(message.context)
-    assert validation_messages == []
+    if not self.cli_options.ignore_spdx:
+      assert validation_messages == []
     write_file(self.document, file_name)
 
   def finalize_document(self):

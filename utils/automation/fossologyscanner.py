@@ -480,7 +480,6 @@ if __name__ == "__main__":
   parser.add_argument(
     '--dir-path', type=str, help='Path to directory for scanning.'
     )
-
   parser.add_argument(
     "--allowlist-path", type=str,
     help="Pass allowlist.json to allowlist dependencies."
@@ -488,6 +487,9 @@ if __name__ == "__main__":
   parser.add_argument(
     "--sbom-path", type=str,
     help="Path to SBOM file for downloading dependencies."
+  )
+  parser.add_argument(
+    "--ignore-spdx", type=bool, help="Ignore SPDX warnings."
   )
 
   args = parser.parse_args()
