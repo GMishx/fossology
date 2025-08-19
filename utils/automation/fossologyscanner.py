@@ -237,46 +237,10 @@ def text_report(cli_options: CliOptions, result_dir: str, return_val: int,
   :param: format_results : FormatResult FormatResult object
   :return: Program's return value
   """
-  if cli_options.nomos or cli_options.ojo:
-    failed_licenses = scanner.results_are_allow_listed()
-    scan_results_with_line_number = format_license_results_with_line_numbers(
-      scanner=scanner, format_results=format_results)
-    print_log_message(f"{result_dir}/licenses.txt", failed_licenses, True,
-                      "Following licenses found which are not allow listed",
-                      "No license violation found", "License", return_val,
-                      scan_results_with_line_number)
-  if cli_options.copyright:
-    copyright_results = scanner.get_copyright_list()
-    scan_results_with_line_number = format_copyright_results_with_line_numbers(
-      scanner=scanner, format_results=format_results)
-    print_log_message(f"{result_dir}/copyrights.txt", copyright_results, False,
-                      "Following copyrights found",
-                      "No copyright violation found", "Copyright", return_val,
-                      scan_results_with_line_number)
-  if cli_options.keyword:
-    keyword_results = scanner.get_keyword_list()
-    scan_results_with_line_number = format_keyword_results_with_line_numbers(
-      scanner=scanner, format_results=format_results)
-    print_log_message(f"{result_dir}/keywords.txt", keyword_results, False,
-                      "Following keywords found",
-                      "No keyword violation found", "Keyword", return_val,
-                      scan_results_with_line_number)
-  return return_val
+  return perform_scans(cli_options, format_results, result_dir, return_val, scanner)
 
 
-def bom_report(cli_options: CliOptions, result_dir: str, return_val: int,
-               scanner: Scanners, format_results: FormatResult) -> int:
-  """
-  Run scanners and print results as an SBOM.
-
-  :param cli_options: CLI options
-  :param result_dir: Result directory location
-  :param return_val: Return value
-  :param scanner: Scanner object
-  :param format_results: FormatResult object
-  :return: Program's return value
-  """
-  report_obj = SpdxReport(cli_options, scanner)
+def perform_scans(cli_options, format_results, result_dir, return_val, scanner):
   if cli_options.nomos or cli_options.ojo:
     print("Scanning for licenses...")
     scanner.set_scanner_results(whole=True)
@@ -307,6 +271,23 @@ def bom_report(cli_options: CliOptions, result_dir: str, return_val: int,
     return_val = print_log_message(f"{result_dir}/keywords.txt",
                                    keyword_results, False, "Following keywords found",
                                    "No keyword violation found", "Keyword", return_val, scan_results_with_line_number)
+  return return_val
+
+
+def bom_report(cli_options: CliOptions, result_dir: str, return_val: int,
+               scanner: Scanners, format_results: FormatResult) -> int:
+  """
+  Run scanners and print results as an SBOM.
+
+  :param cli_options: CLI options
+  :param result_dir: Result directory location
+  :param return_val: Return value
+  :param scanner: Scanner object
+  :param format_results: FormatResult object
+  :return: Program's return value
+  """
+  report_obj = SpdxReport(cli_options, scanner)
+  return_val = perform_scans(cli_options, format_results, result_dir, return_val, scanner)
   print("Finalizing reports...")
   report_obj.finalize_document()
   report_name = f"{result_dir}/sbom_"
