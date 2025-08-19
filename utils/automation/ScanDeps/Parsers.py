@@ -100,8 +100,6 @@ class PythonParser:
   cyclonedx format sbom files.
   """
 
-  PYPI_SOURCE_FIELD = 'Source'
-  PYPI_HOME_FIELD = 'Homepage'
   PYPI_BINARY_DIST_WHEEL = 'bdist_wheel'
   PYPI_SOURCE_DIST = 'sdist'
 
@@ -148,14 +146,11 @@ class PythonParser:
           component[DOWNLOAD_URL_KEY] = download_url
         else:
           print(f"No suitable download URL found for {package_name} {version}")
-        component['vcs_url'] = data.get('info', {}).get('project_urls', {}).get(
-          self.PYPI_SOURCE_FIELD, None
-          )
-        component['homepage_url'] = data.get('info', {}).get(
-          'project_urls', {}
-          ).get(
-          self.PYPI_HOME_FIELD, None
-          )
+        for key, value in data.get('info', {}).get('project_urls', {}).items():
+          if "source" in key.lower():
+            component['vcs_url'] = value
+          if "homepage" in key.lower():
+            component['homepage_url'] = value
       else:
         print(f"Failed to retrieve data for {package_name} {version}")
 

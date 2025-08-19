@@ -25,7 +25,7 @@ from spdx_tools.spdx.model import (
   PackageVerificationCode,
   Relationship,
   RelationshipType,
-  SpdxNoAssertion, ExternalPackageRef, ExternalPackageRefCategory
+  SpdxNoAssertion, ExternalPackageRef, ExternalPackageRefCategory, SpdxNone
 )
 from spdx_tools.spdx.validation.document_validator import \
   validate_full_spdx_document
@@ -137,6 +137,13 @@ class SpdxReport:
     package.license_info_from_files = list(
       set(package.license_info_from_files) | set(file.license_info_in_file)
     )
+    if file.license_concluded != SpdxNoAssertion():
+      if (package.license_concluded == SpdxNoAssertion() or
+        package.license_concluded == SpdxNone()):
+        package.license_concluded = file.license_concluded
+      else:
+        package.license_concluded = (package.license_concluded &
+                                     file.license_concluded).simplify()
 
   def __get_spdx_file(
     self, scan_result: ScanResultList, package: Package) -> File:
@@ -285,9 +292,8 @@ class SpdxReport:
       )
     self.document.relationships.append(describes_relationship)
 
-    for purl, component in self.scanner.get_scan_packages(
-
-    ).dependencies.items():
+    for purl, component in (self.scanner.get_scan_packages().
+      dependencies.items()):
       package = self.__get_package_for_component(component)
       self.document.packages.append(package)
       depends_on_relationship = Relationship(
@@ -314,7 +320,7 @@ class SpdxReport:
           'fossology_download_url'] if 'fossology_download_url' in component
         else SpdxNoAssertion(),
         license_info_from_files=[],
-        license_concluded=SpdxNoAssertion(),
+        license_concluded=SpdxNone(),
         files_analyzed=True
       )
       purl_ref = ExternalPackageRef(
