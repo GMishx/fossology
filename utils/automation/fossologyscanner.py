@@ -17,6 +17,7 @@ from typing import List, Union, IO
 from FoScanner.ApiConfig import (ApiConfig, Runner)
 from FoScanner.CliOptions import (CliOptions, ReportFormat)
 from FoScanner.FormatResults import FormatResult
+from FoScanner.Packages import Packages
 from FoScanner.RepoSetup import RepoSetup
 from FoScanner.Scanners import (Scanners, ScanResult)
 from FoScanner.SpdxReport import SpdxReport
@@ -25,7 +26,6 @@ from FoScanner.Utils import (
 )
 from ScanDeps.Downloader import Downloader
 from ScanDeps.Parsers import Parser, PythonParser, NPMParser
-from utils.automation.FoScanner.Packages import Packages
 
 
 def get_api_config() -> ApiConfig:

@@ -13,7 +13,7 @@ import zipfile
 
 import requests
 
-from utils.automation.ScanDeps.Parsers import DOWNLOAD_URL_KEY, Parser
+from .Parsers import DOWNLOAD_URL_KEY, Parser
 
 
 class Downloader:
