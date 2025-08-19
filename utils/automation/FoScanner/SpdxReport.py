@@ -32,9 +32,8 @@ from spdx_tools.spdx.validation.document_validator import \
 from spdx_tools.spdx.validation.validation_message import ValidationMessage
 from spdx_tools.spdx.writer.write_anything import write_file
 
-from .ApiConfig import ApiConfig
 from .CliOptions import CliOptions
-from .Scanners import ScanResult, Scanners
+from .Scanners import Scanners, ScanResultList
 
 
 class SpdxReport:
@@ -50,10 +49,9 @@ class SpdxReport:
   :ivar scanner: Scanners object
   """
 
-  def __init__(self, cli_options: CliOptions, api_config: ApiConfig, scanner: Scanners):
+  def __init__(self, cli_options: CliOptions, scanner: Scanners):
     """
     :param cli_options: CliOptions to use
-    :param api_config:  ApiConfig to use
     :param scanner:     Scanners to use
     """
     self.cli_options = cli_options
@@ -103,31 +101,31 @@ class SpdxReport:
 
     self.dependent_packages: Dict[str, Package] = {}
 
-  def __add_license_file(self, package: Package, scan_result: ScanResult):
+  def __add_license_file(self, package: Package, scan_result: ScanResultList):
     """
     Add scan result from license scanner to report.
 
     :param package: Package to which the file belongs.
     :param scan_result: Scan result from license scanner.
     """
-    all_allowed_licenses = all([lic in self.cli_options.allowlist['licenses']
+    all_allowed_licenses = all([lic['license'] in self.cli_options.allowlist['licenses']
                                 for lic in scan_result.result]) is True
     file = self.__get_spdx_file(scan_result, package)
 
     if all_allowed_licenses:
       file.license_concluded = get_spdx_licensing().parse(" AND ".join([
-        lic for lic in scan_result.result
+        lic['license'] for lic in scan_result.result
       ]))
     else:
       file.license_concluded = SpdxNoAssertion()
     file.license_info_in_file = [
-      get_spdx_licensing().parse(lic) for lic in scan_result.result
+      get_spdx_licensing().parse(lic['license']) for lic in scan_result.result
     ]
     # Update licenses found in the files of the package
     package.license_info_from_files = list(
       set(package.license_info_from_files) | set(file.license_info_in_file))
 
-  def __get_spdx_file(self, scan_result: ScanResult, package: Package) -> File:
+  def __get_spdx_file(self, scan_result: ScanResultList, package: Package) -> File:
     """
     Create a new SPDX File for given scan result and populate common fields.
 
@@ -165,7 +163,7 @@ class SpdxReport:
 
     return self.report_files[file_spdx_id]
 
-  def __add_copyright_file(self, package: Package, copyright_result: ScanResult):
+  def __add_copyright_file(self, package: Package, copyright_result: ScanResultList):
     """
     Add scan result from copyright agent. If the file does not exist, creates a
     new one.
@@ -174,11 +172,11 @@ class SpdxReport:
     """
     file = self.__get_spdx_file(copyright_result, package)
     file.copyright_text = "\n".join([
-      cpy for cpy in copyright_result.result
+      cpy['content'] for cpy in copyright_result.result
     ])
 
   @staticmethod
-  def __get_file_info(scan_result: ScanResult) -> Tuple:
+  def __get_file_info(scan_result: ScanResultList) -> Tuple:
     """
     Get different hash for the file in scan result.
 
@@ -196,7 +194,7 @@ class SpdxReport:
     return md5_hash, sha1_hash, sha256_hash
 
   @staticmethod
-  def __get_file_spdx_id(scan_result: ScanResult) -> str:
+  def __get_file_spdx_id(scan_result: ScanResultList) -> str:
     """
     Generate SPDX ID for file in scan result.
 

@@ -8,7 +8,6 @@
 import fnmatch
 import json
 import os
-import re
 import ssl
 import urllib.request
 from tempfile import TemporaryDirectory

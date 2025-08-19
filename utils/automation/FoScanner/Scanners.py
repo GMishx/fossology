@@ -321,7 +321,7 @@ class Scanners:
 
   def __process_single_keyword_package(
     self, component: dict, is_parent: bool, whole:bool = False
-  ) -> Union[List[ScanResult],List[ScanResultList],bool]:
+  ) -> Union[List[ScanResult],List[ScanResultList]]:
     if is_parent:
       dir_to_scan = self.cli_options.diff_dir
     else:
@@ -350,9 +350,7 @@ class Scanners:
           keyword_list.append(ScanResultList(path, result['file'], json_keyword_info))
         elif not whole and len(contents) > 0:
           keyword_list.append(ScanResult(path, result['file'], contents))
-    if len(keyword_list) > 0:
-      return keyword_list
-    return False
+    return keyword_list
 
   def __set_license_nomos(self, whole: bool = False) -> None:
     """
@@ -518,23 +516,41 @@ class Scanners:
           final_results.append(ScanResult(row.file, row.path, failed_licenses))
     return final_results
 
-  def get_non_allow_listed_copyrights(self,
-                                      copyright_results: List[ScanResult]) \
-      -> List[ScanResult]:
+  def get_non_allow_listed_copyrights(self) -> List[ScanResult]:
     """
     Get copyrights from files which are not allow listed.
 
-    :param copyright_results: Copyright results from copyright agent
     :return: List of scan results where copyrights found.
     """
+    copyright_results = self.get_copyright_results()
     return [
       row for row in copyright_results if self.cli_options.repo is True and
                                           self.is_excluded_path(row.file) is
                                           False
     ]
 
-  def results_are_allow_listed(self, whole:bool = False) \
-    -> Union[List[ScanResult],List[ScanResultList],bool]:
+  def get_copyright_results(self) -> list[ScanResultList]:
+    copyright_results = []
+    copyright_results.extend(self.scan_packages.parent_package.get('COPYRIGHT_RESULT', []))
+    for dep in self.scan_packages.dependencies.values():
+      copyright_results.extend(dep.get('COPYRIGHT_RESULT', []))
+    return copyright_results
+
+  def get_keyword_results(self) -> list[ScanResultList]:
+    keyword_results = []
+    keyword_results.extend(self.scan_packages.parent_package.get('KEYWORD_RESULT', []))
+    for dep in self.scan_packages.dependencies.values():
+      keyword_results.extend(dep.get('KEYWORD_RESULT', []))
+    return keyword_results
+
+  def get_license_results(self) -> list[ScanResultList]:
+    scanner_results = []
+    scanner_results.extend(self.scan_packages.parent_package.get('SCANNER_RESULTS', []))
+    for dep in self.scan_packages.dependencies.values():
+      scanner_results.extend(dep.get('SCANNER_RESULTS', []))
+    return scanner_results
+
+  def results_are_allow_listed(self, whole: bool = False) -> Union[List[ScanResult],List[ScanResultList]]:
     """
     Get the formatted list of license scanner findings
 
@@ -543,31 +559,20 @@ class Scanners:
 
     :param: whole: return whole content from scanner
     :return: merged list of scanner findings
-    :rtype: List[ScanResult] | List[ScanResultList] | bool
+    :rtype: List[ScanResult] | List[ScanResultList]
     """
-    failed_licenses = None
-    nomos_licenses = []
+    scanner_results = self.get_license_results()
 
-    if self.cli_options.nomos:
-      nomos_licenses = self.__get_license_nomos(whole=whole)
-      if self.cli_options.ojo is False:
-        failed_licenses = self.get_non_allow_listed_results(
-          scan_results_whole=nomos_licenses, whole=whole)
-    if self.cli_options.ojo:
-      ojo_licenses = self.__get_license_ojo(whole=whole)
-      if self.cli_options.nomos is False:
-        failed_licenses = self.get_non_allow_listed_results(
-          scan_results_whole=ojo_licenses, whole=whole)
-      else:
-        if whole is True:
-          failed_licenses = self.get_non_allow_listed_results(
-            scan_results_whole=nomos_licenses + ojo_licenses, whole=True)
-        else:
-          failed_licenses = self.get_non_allow_listed_results(
-            scan_results=self.__merge_nomos_ojo(nomos_licenses, ojo_licenses))
-    if len(failed_licenses) > 0:
+    failed_licenses = self.get_non_allow_listed_results(
+      scan_results_whole=scanner_results, whole=True)
+
+    if whole:
       return failed_licenses
-    return True
+    else:
+      return [
+        ScanResult(item.file, item.path, {res['license'] for res in item.result})
+        for item in failed_licenses
+      ]
 
   def set_scanner_results(self, whole:bool = False) -> None:
     """

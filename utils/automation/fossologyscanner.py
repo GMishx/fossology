@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# SPDX-FileCopyrightText: © 2020,2023 Siemens AG
+# SPDX-FileCopyrightText: © 2020,2023,2025 Siemens AG
 # SPDX-FileCopyrightText: © anupam.ghosh@siemens.com
 # SPDX-FileCopyrightText: © mishra.gaurav@siemens.com
 
@@ -96,7 +96,7 @@ def get_allow_list(path: str = '') -> dict:
 
 
 def print_results(name: str, failed_results: List[ScanResult],
-                  scan_results_with_line_number:List[dict],
+                  scan_results_with_line_number: List[dict],
                   result_file: IO):
   """
   Print the formatted scanner results
@@ -117,7 +117,7 @@ def print_results(name: str, failed_results: List[ScanResult],
     for result in files.result:
       for item in scan_results_with_line_number:
         for scanned_word, lines in item.items():
-          if len(lines) > 1 :
+          if len(lines) > 1:
             plural = "s"
           else:
             plural = ""
@@ -132,7 +132,7 @@ def print_log_message(filename: str,
                       failed_list: Union[bool, List[ScanResult]],
                       check_value: bool, failure_text: str,
                       acceptance_text: str, scan_type: str,
-                      return_val: int, scan_results_with_line_number:List[dict] ) -> int:
+                      return_val: int, scan_results_with_line_number: List[dict]) -> int:
   """
   Common helper function to print scan results.
 
@@ -151,7 +151,7 @@ def print_log_message(filename: str,
       (isinstance(failed_list, list) and len(failed_list) != 0):
     print(f"\u2718 {failure_text}:")
     report_file.write(f"{failure_text}:\n")
-    print_results(scan_type, failed_list, scan_results_with_line_number,report_file)
+    print_results(scan_type, failed_list, scan_results_with_line_number, report_file)
     if scan_type == "License":
       return_val = return_val | 2
     elif scan_type == "Copyright":
@@ -165,7 +165,8 @@ def print_log_message(filename: str,
   report_file.close()
   return return_val
 
-def format_keyword_results_with_line_numbers(scanner:Scanners,format_results:FormatResult) \
+
+def format_keyword_results_with_line_numbers(scanner: Scanners, format_results: FormatResult) \
   -> List[dict]:
   """
   Format the keyword results with line numbers
@@ -174,18 +175,17 @@ def format_keyword_results_with_line_numbers(scanner:Scanners,format_results:For
   :param: format_results : FormatResult FormatResult object
   :return: list of dicts with key as word and value as list of line numbers of the words
   """
-  keyword_results = scanner.get_keyword_list(whole=True)
-  if keyword_results is False:
-    return []
+  keyword_results = scanner.get_keyword_results()
   formatted_list_of_keyword_line_numbers = list()
   for keyword_result in keyword_results:
     list_of_scan_results = list(keyword_result.result)
     words_with_line_numbers = format_results.find_word_line_numbers(keyword_result.path,
-    list_of_scan_results, key='content')
+                                                                    list_of_scan_results, key='content')
     formatted_list_of_keyword_line_numbers.append(words_with_line_numbers)
   return formatted_list_of_keyword_line_numbers
 
-def format_copyright_results_with_line_numbers(scanner:Scanners,format_results:FormatResult) \
+
+def format_copyright_results_with_line_numbers(scanner: Scanners, format_results: FormatResult) \
   -> List[dict]:
   """
   Format the copyright results with line numbers
@@ -194,18 +194,17 @@ def format_copyright_results_with_line_numbers(scanner:Scanners,format_results:F
   :param: format_results : FormatResult FormatResult object
   :return: list of dicts with key as word and value as list of line numbers of the words
   """
-  copyright_results = scanner.get_copyright_list(whole=True)
-  if copyright_results is False:
-    copyright_results = []
+  copyright_results = scanner.get_copyright_results()
   formatted_list_of_copyright_line_numbers = list()
   for copyright_result in copyright_results:
     list_of_scan_results = list(copyright_result.result)
     words_with_line_numbers = format_results.find_word_line_numbers(
-      copyright_result.path,list_of_scan_results, key='content')
+      copyright_result.path, list_of_scan_results, key='content')
     formatted_list_of_copyright_line_numbers.append(words_with_line_numbers)
   return formatted_list_of_copyright_line_numbers
 
-def format_license_results_with_line_numbers(scanner:Scanners,format_results:FormatResult) \
+
+def format_license_results_with_line_numbers(scanner: Scanners, format_results: FormatResult) \
   -> List[dict]:
   """
   Format the licenses results with line numbers
@@ -221,12 +220,13 @@ def format_license_results_with_line_numbers(scanner:Scanners,format_results:For
   for license_result in license_results:
     list_of_scan_results = list(license_result.result)
     words_with_line_numbers = format_results.find_word_line_numbers(
-      license_result.path,list_of_scan_results, key='license')
+      license_result.path, list_of_scan_results, key='license')
     formatted_list_of_license_line_numbers.append(words_with_line_numbers)
   return formatted_list_of_license_line_numbers
 
+
 def text_report(cli_options: CliOptions, result_dir: str, return_val: int,
-                scanner: Scanners, format_results : FormatResult) -> int:
+                scanner: Scanners, format_results: FormatResult) -> int:
   """
   Run scanners and print results in text format.
 
@@ -240,7 +240,7 @@ def text_report(cli_options: CliOptions, result_dir: str, return_val: int,
   if cli_options.nomos or cli_options.ojo:
     failed_licenses = scanner.results_are_allow_listed()
     scan_results_with_line_number = format_license_results_with_line_numbers(
-    scanner=scanner,format_results=format_results)
+      scanner=scanner, format_results=format_results)
     print_log_message(f"{result_dir}/licenses.txt", failed_licenses, True,
                       "Following licenses found which are not allow listed",
                       "No license violation found", "License", return_val,
@@ -248,7 +248,7 @@ def text_report(cli_options: CliOptions, result_dir: str, return_val: int,
   if cli_options.copyright:
     copyright_results = scanner.get_copyright_list()
     scan_results_with_line_number = format_copyright_results_with_line_numbers(
-    scanner=scanner, format_results=format_results)
+      scanner=scanner, format_results=format_results)
     print_log_message(f"{result_dir}/copyrights.txt", copyright_results, False,
                       "Following copyrights found",
                       "No copyright violation found", "Copyright", return_val,
@@ -256,7 +256,7 @@ def text_report(cli_options: CliOptions, result_dir: str, return_val: int,
   if cli_options.keyword:
     keyword_results = scanner.get_keyword_list()
     scan_results_with_line_number = format_keyword_results_with_line_numbers(
-    scanner=scanner, format_results=format_results)
+      scanner=scanner, format_results=format_results)
     print_log_message(f"{result_dir}/keywords.txt", keyword_results, False,
                       "Following keywords found",
                       "No keyword violation found", "Keyword", return_val,
@@ -265,7 +265,7 @@ def text_report(cli_options: CliOptions, result_dir: str, return_val: int,
 
 
 def bom_report(cli_options: CliOptions, result_dir: str, return_val: int,
-               scanner: Scanners, api_config: ApiConfig, format_results: FormatResult) -> int:
+               scanner: Scanners, format_results: FormatResult) -> int:
   """
   Run scanners and print results as an SBOM.
 
@@ -273,39 +273,40 @@ def bom_report(cli_options: CliOptions, result_dir: str, return_val: int,
   :param result_dir: Result directory location
   :param return_val: Return value
   :param scanner: Scanner object
-  :param api_config: API config options
   :param format_results: FormatResult object
   :return: Program's return value
   """
-  report_obj = SpdxReport(cli_options, api_config, scanner)
+  report_obj = SpdxReport(cli_options, scanner)
   if cli_options.nomos or cli_options.ojo:
     print("Scanning for licenses...")
-    scanner.set_scanner_results()
-    # scan_results_with_line_number = format_license_results_with_line_numbers(
-    # scanner=scanner, format_results=format_results)
-    # failed_licenses = scanner.get_non_allow_listed_results(scan_results)
-    # return_val = print_log_message(f"{result_dir}/licenses.txt",
-    #     failed_licenses, True, "Following licenses found which are not allow "
-    #                            "listed", "No license violation found",
-    #     "License", return_val, scan_results_with_line_number)
+    scanner.set_scanner_results(whole=True)
+    scan_results_with_line_number = format_license_results_with_line_numbers(
+      scanner=scanner, format_results=format_results)
+    failed_licenses = scanner.results_are_allow_listed()
+    return_val = print_log_message(
+      f"{result_dir}/licenses.txt",
+      failed_licenses, True, "Following licenses found which are not allow "
+                             "listed", "No license violation found",
+      "License", return_val, scan_results_with_line_number)
   if cli_options.copyright:
     print("Scanning for copyrights...")
-    scanner.set_copyright_list(all_results=True)
-    # failed_copyrights = scanner.get_non_allow_listed_copyrights(
-    #   copyright_results)
-    # scan_results_with_line_number = format_copyright_results_with_line_numbers(
-    # scanner=scanner, format_results=format_results)
-    # return_val = print_log_message(f"{result_dir}/copyrights.txt",
-    #     failed_copyrights, False, "Following copyrights found",
-    #     "No copyright violation found", "Copyright", return_val,scan_results_with_line_number)
+    scanner.set_copyright_list(all_results=True, whole=True)
+    failed_copyrights = scanner.get_non_allow_listed_copyrights()
+    scan_results_with_line_number = format_copyright_results_with_line_numbers(
+      scanner=scanner, format_results=format_results)
+    return_val = print_log_message(f"{result_dir}/copyrights.txt",
+                                   failed_copyrights, False, "Following copyrights found",
+                                   "No copyright violation found", "Copyright", return_val,
+                                   scan_results_with_line_number)
   if cli_options.keyword:
     print("Scanning keywords...")
-    scanner.set_keyword_list()
-    # scan_results_with_line_number = format_keyword_results_with_line_numbers(
-    # scanner=scanner, format_results=format_results)
-    # return_val = print_log_message(f"{result_dir}/keywords.txt",
-    #     keyword_results, False, "Following keywords found",
-    #     "No keyword violation found", "Keyword", return_val, scan_results_with_line_number)
+    scanner.set_keyword_list(whole=True)
+    scan_results_with_line_number = format_keyword_results_with_line_numbers(
+      scanner=scanner, format_results=format_results)
+    keyword_results = [r.result['content'] for r in scanner.get_keyword_results()]
+    return_val = print_log_message(f"{result_dir}/keywords.txt",
+                                   keyword_results, False, "Following keywords found",
+                                   "No keyword violation found", "Keyword", return_val, scan_results_with_line_number)
   print("Finalizing reports...")
   report_obj.finalize_document()
   report_name = f"{result_dir}/sbom_"
@@ -360,10 +361,10 @@ def main(parsed_args):
   if cli_options.keyword and cli_options.keyword_conf_file_path:
     keyword_conf_file_path = cli_options.keyword_conf_file_path
     destination_path = '/usr/local/share/fossology/keyword/agent/keyword.conf'
-    is_valid,message = validate_keyword_conf_file(keyword_conf_file_path)
+    is_valid, message = validate_keyword_conf_file(keyword_conf_file_path)
     if is_valid:
       print(f"Validation of keyword file successful: {message}")
-      copy_keyword_file_to_destination(keyword_conf_file_path,destination_path)
+      copy_keyword_file_to_destination(keyword_conf_file_path, destination_path)
     else:
       print(f"Could not validate keyword file: {message}")
 
@@ -412,10 +413,10 @@ def main(parsed_args):
   print("Preparing scan reports...")
   if cli_options.report_format == ReportFormat.TEXT:
     return_val = text_report(cli_options, result_dir, return_val, scanner,
-                            format_results)
+                             format_results)
   else:
     return_val = bom_report(cli_options, result_dir, return_val, scanner,
-                            api_config, format_results)
+                            format_results)
   return return_val
 
 
@@ -429,15 +430,15 @@ if __name__ == "__main__":
   )
   parser.add_argument(
     "--tags", type=str, nargs=2, help="Tags for differential scan. Required if 'differential'" \
-     "is specified."
+                                      "is specified."
   )
   parser.add_argument(
     "--report", type=str, help="Type of report to generate. Default 'TEXT'.",
     choices=[member.name for member in ReportFormat], default=ReportFormat.TEXT.name
   )
   parser.add_argument('--keyword-conf', type=str, help='Path to the keyword configuration file.' \
-  'Use only when keyword argument is true'
-  )
+                                                       'Use only when keyword argument is true'
+                      )
   parser.add_argument('--dir-path', type=str, help='Path to directory for scanning.')
 
   parser.add_argument(

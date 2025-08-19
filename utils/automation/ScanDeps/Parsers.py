@@ -4,10 +4,11 @@
 
 # SPDX-License-Identifier: GPL-2.0-only
 
-import os
-import requests
 import json
-from typing import Dict, Union
+import os
+from typing import Union
+
+import requests
 from packageurl import PackageURL
 from packageurl.contrib import purl2url
 
