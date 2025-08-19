@@ -55,7 +55,10 @@ class Downloader:
         elif file_extension in [".tar.gz", ".tgz", ".tar"]:
             with tarfile.open(file_path, 'r:*') as tar_ref:
                 tar_ref.extractall(package_folder)
-                base_dir = os.path.dirname(tar_ref.getmembers()[0].path)
+                if tar_ref.getmembers()[0].isdir():
+                  base_dir = tar_ref.getmembers()[0].path
+                else:
+                  base_dir = os.path.dirname(tar_ref.getmembers()[0].path)
 
                 purl = component['purl']
                 with self.lock:

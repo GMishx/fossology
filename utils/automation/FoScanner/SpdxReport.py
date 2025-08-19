@@ -7,6 +7,7 @@
 
 import hashlib
 import logging
+import re
 from datetime import datetime
 from typing import List, Set, Dict, Tuple
 
@@ -46,16 +47,20 @@ class SpdxReport:
   :ivar creation_info: Report creation info
   :ivar document: Report document
   :ivar package: Report package
+  :ivar scanner: Scanners object
   """
 
-  def __init__(self, cli_options: CliOptions, api_config: ApiConfig):
+  def __init__(self, cli_options: CliOptions, api_config: ApiConfig, scanner: Scanners):
     """
     :param cli_options: CliOptions to use
     :param api_config:  ApiConfig to use
+    :param scanner:     Scanners to use
     """
     self.cli_options = cli_options
+    self.scanner = scanner
     self.report_files: Dict[str, File] = {}
     self.license_package_set: Set[str] = set()
+    self.package_verification_set: dict[str, dict[str, list[str]]] = {}
     self.creation_info: CreationInfo = CreationInfo(
       spdx_version="SPDX-2.3",
       spdx_id="SPDXRef-DOCUMENT",
@@ -68,7 +73,8 @@ class SpdxReport:
     )
     self.document: Document = Document(self.creation_info)
 
-    project_name = api_config.project_name.strip()
+    parent_package = self.scanner.get_scan_packages().parent_package
+    project_name = parent_package['name'].strip()
     if project_name is None or project_name == "":
       project_name = self.cli_options.parser.root_component_name
     if project_name is None:
@@ -81,42 +87,33 @@ class SpdxReport:
       download_location=SpdxNoAssertion(),
       release_date=datetime.now(),
     )
-    if api_config.project_desc is not None:
-      self.package.description = api_config.project_desc
-    if api_config.project_orig is not None and api_config.project_orig != "":
+    if parent_package['description'] is not None:
+      self.package.description = parent_package['description']
+    if parent_package['author'] is not None and parent_package['author'] != "":
       self.package.originator = Actor(ActorType.ORGANIZATION,
-                                      api_config.project_orig)
+                                      parent_package['author'])
     else:
       self.package.originator = SpdxNoAssertion()
-    if api_config.project_url is not None and api_config.project_url != "":
-      self.package.download_location = api_config.project_url
+    if parent_package['url'] is not None and parent_package['url'] != "":
+      self.package.download_location = parent_package['url']
     else:
       self.package.download_location = SpdxNoAssertion()
 
     self.document.packages = [self.package]
 
-    describes_relationship = Relationship("SPDXRef-DOCUMENT",
-                                          RelationshipType.DESCRIBES,
-                                          "SPDXRef-Package")
-    self.document.relationships = [describes_relationship]
     self.dependent_packages: Dict[str, Package] = {}
 
-  def add_license_file(self, scan_result: ScanResult):
+  def __add_license_file(self, package: Package, scan_result: ScanResult):
     """
     Add scan result from license scanner to report.
 
+    :param package: Package to which the file belongs.
     :param scan_result: Scan result from license scanner.
     """
     all_allowed_licenses = all([lic in self.cli_options.allowlist['licenses']
                                 for lic in scan_result.result]) is True
-    spdx_id = self.__get_file_spdx_id(scan_result)
+    file = self.__get_spdx_file(scan_result, package)
 
-    if spdx_id in self.report_files:
-      file = self.report_files[spdx_id]
-    else:
-      file = self.__get_new_spdx_file(scan_result, spdx_id)
-
-    file.file_types = [FileType.SOURCE]
     if all_allowed_licenses:
       file.license_concluded = get_spdx_licensing().parse(" AND ".join([
         lic for lic in scan_result.result
@@ -126,53 +123,56 @@ class SpdxReport:
     file.license_info_in_file = [
       get_spdx_licensing().parse(lic) for lic in scan_result.result
     ]
-    if self.cli_options.scan_only_deps:
-      package = self.__get_package_from_scan_result(scan_result)
-      contains_relationship = Relationship(package.spdx_id,
-                                           RelationshipType.CONTAINS,
-                                           file.spdx_id)
-      self.document.relationships += [contains_relationship]
-      # Update licenses found in the files of the package
-      package.license_info_from_files = list(
-        set(package.license_info_from_files) | set(file.license_info_in_file))
+    # Update licenses found in the files of the package
+    package.license_info_from_files = list(
+      set(package.license_info_from_files) | set(file.license_info_in_file))
 
-    self.report_files[spdx_id] = file
-    self.license_package_set.update(scan_result.result)
-
-  def __get_new_spdx_file(self, scan_result: ScanResult, spdx_id: str) -> File:
+  def __get_spdx_file(self, scan_result: ScanResult, package: Package) -> File:
     """
     Create a new SPDX File for given scan result and populate common fields.
 
     :param scan_result: Scan result from scanner.
-    :param spdx_id: SPDX ID to use for file.
+    :param package: Package to which the file belongs.
     :return: New SPDX File
     """
-    md5_hash, sha1_hash, sha256_hash = self.__get_file_info(scan_result)
-    file = File(
-      name=scan_result.file,
-      spdx_id=spdx_id,
-      checksums=[
-        Checksum(ChecksumAlgorithm.MD5, md5_hash.hexdigest()),
-        Checksum(ChecksumAlgorithm.SHA1, sha1_hash.hexdigest()),
-        Checksum(ChecksumAlgorithm.SHA256, sha256_hash.hexdigest()),
-      ],
-      file_types=[FileType.SOURCE],
-      license_concluded=SpdxNoAssertion()
-    )
-    return file
+    file_spdx_id = self.__get_file_spdx_id(scan_result)
+    if file_spdx_id not in self.report_files:
+      md5_hash, sha1_hash, sha256_hash = self.__get_file_info(scan_result)
+      spdx_file = File(
+        name=scan_result.file,
+        spdx_id=file_spdx_id,
+        checksums=[
+          Checksum(ChecksumAlgorithm.MD5, md5_hash.hexdigest()),
+          Checksum(ChecksumAlgorithm.SHA1, sha1_hash.hexdigest()),
+          Checksum(ChecksumAlgorithm.SHA256, sha256_hash.hexdigest()),
+        ],
+        file_types=[FileType.SOURCE],
+        license_concluded=SpdxNoAssertion()
+      )
+      self.report_files[file_spdx_id] = spdx_file
+      contains_relationship = Relationship(package.spdx_id,
+                                           RelationshipType.CONTAINS,
+                                           file_spdx_id)
+      self.document.relationships.append(contains_relationship)
 
-  def add_copyright_file(self, copyright_result: ScanResult):
+      if package.spdx_id not in self.package_verification_set:
+        self.package_verification_set[package.spdx_id] = {'checksums': [], 'excluded_files': []}
+
+      if self.scanner.is_excluded_path(spdx_file.name):
+        self.package_verification_set[package.spdx_id]['excluded_files'].append(spdx_file.name)
+      else:
+        self.package_verification_set[package.spdx_id]['checksums'].append(sha1_hash.hexdigest())
+
+    return self.report_files[file_spdx_id]
+
+  def __add_copyright_file(self, package: Package, copyright_result: ScanResult):
     """
     Add scan result from copyright agent. If the file does not exist, creates a
     new one.
 
     :param copyright_result: Scan result from copyright scanner.
     """
-    spdx_id = self.__get_file_spdx_id(copyright_result)
-    if spdx_id in self.report_files:
-      file = self.report_files[spdx_id]
-    else:
-      file = self.__get_new_spdx_file(copyright_result, spdx_id)
+    file = self.__get_spdx_file(copyright_result, package)
     file.copyright_text = "\n".join([
       cpy for cpy in copyright_result.result
     ])
@@ -203,8 +203,8 @@ class SpdxReport:
     :param scan_result: Scan result from scanner.
     :return: SPDX ID for the file.
     """
-    spdx_id = "SPDXRef-File" + hashlib.md5(
-      scan_result.file.encode()).hexdigest()
+    spdx_id = "SPDXRef-File-" + hashlib.md5(
+      scan_result.path.encode()).hexdigest()
     return spdx_id
 
   @staticmethod
@@ -238,108 +238,115 @@ class SpdxReport:
     At the same time, add all the licenses from files to the package and
     calculate the verification code, without the excluded files.
     """
-    self.document.packages += list(self.dependent_packages.values())
-    for spdx_id, file in self.report_files.items():
-      if not self.cli_options.scan_only_deps:
-        contains_relationship = Relationship("SPDXRef-Package",
-                                             RelationshipType.CONTAINS, spdx_id)
-        self.document.relationships += [contains_relationship]
-      self.document.files += [file]
+    self.__create_packages()
+    self.__create_license_files()
+    self.__create_copyright_files()
+    self.__add_files_to_document()
+    self.__update_package_verification_code()
 
-    for spdx_id, package in self.dependent_packages.items():
-      depends_on_relationship = Relationship("SPDXRef-Package",
+  def __create_packages(self) -> None:
+    parent_name = self.scanner.get_scan_packages().parent_package.get('name', '')
+    if parent_name is not None and parent_name != '':
+      self.package.spdx_id = re.sub(
+        r'[^A-Za-z0-9\-_.]', '-',
+        f"SPDXRef-Package-{parent_name}"
+      )
+    describes_relationship = Relationship("SPDXRef-DOCUMENT",
+                                          RelationshipType.DESCRIBES,
+                                          self.package.spdx_id)
+    self.document.relationships.append(describes_relationship)
+
+    for purl, component in self.scanner.get_scan_packages().dependencies.items():
+      package = self.__get_package_for_component(component)
+      self.document.packages.append(package)
+      depends_on_relationship = Relationship(self.package.spdx_id,
                                              RelationshipType.DEPENDS_ON,
-                                             spdx_id)
-      self.document.relationships += [depends_on_relationship]
+                                             package.spdx_id)
+      self.document.relationships.append(depends_on_relationship)
 
-    self.package.license_info_from_files = [
-      get_spdx_licensing().parse(lic) for lic in self.license_package_set
-    ]
+  def __get_package_for_component(self, component: dict) -> Package:
+    """
+    For a given component, create a package and add it to the list.
 
-    all_allowed_licenses = all([lic in self.cli_options.allowlist['licenses']
-                                for lic in self.license_package_set]) is True
-    if all_allowed_licenses:
-      self.package.license_concluded = get_spdx_licensing().parse(" AND ".join([
-        lic for lic in self.license_package_set
-      ]))
-    else:
-      self.package.license_concluded = SpdxNoAssertion()
-    templist = []
-    scanner_obj = Scanners(self.cli_options)
-    excluded_files: list[str] = []
-    for f in self.document.files:
-      if scanner_obj.is_excluded_path(f.name):
-        excluded_files.append(f.name)
-      else:
-        for sum in f.checksums:
-          if sum.algorithm == ChecksumAlgorithm.SHA1:
-            templist.append(sum.value)
-            break
-    templist.sort()
-    verificationcode = hashlib.sha1("".join(templist).encode()).hexdigest()
+    :param component: Component to create package for.
+    :return: Create or get existing package.
+    """
+    pkg_spdx_id = self.__get_package_spdx_id(component)
+    if pkg_spdx_id not in self.dependent_packages:
+      self.dependent_packages[pkg_spdx_id] = Package(
+        spdx_id=pkg_spdx_id,
+        name=component['name'],
+        version=component['version'],
+        download_location=component['fossology_download_url'] if 'fossology_download_url' in component else SpdxNoAssertion(),
+        license_info_from_files=[],
+        license_concluded=SpdxNoAssertion(),
+        files_analyzed=True
+      )
+      purl_ref = ExternalPackageRef(
+        category=ExternalPackageRefCategory.PACKAGE_MANAGER,
+        reference_type='purl',
+        locator=component.get('purl')
+      )
+      self.dependent_packages[pkg_spdx_id].external_references.append(purl_ref)
+      if component.get('vcs_url', None) is not None:
+        vcs_ref = ExternalPackageRef(
+          category=ExternalPackageRefCategory.OTHER,
+          reference_type='vcs',
+          locator=component.get('vcs_url')
+        )
+        self.dependent_packages[pkg_spdx_id].external_references.append(vcs_ref)
+      if component.get('homepage_url', None) is not None:
+        homepage_ref = ExternalPackageRef(
+          category=ExternalPackageRefCategory.OTHER,
+          reference_type='homepage',
+          locator=component.get('homepage_url')
+        )
+        self.dependent_packages[pkg_spdx_id].external_references.append(homepage_ref)
+    return self.dependent_packages[pkg_spdx_id]
 
-    self.package.verification_code = PackageVerificationCode(
-      value=verificationcode, excluded_files=excluded_files
+  def __create_license_files(self) -> None:
+    self.__create_license_file_from_component(self.scanner.get_scan_packages().parent_package, self.package)
+    for component in self.scanner.get_scan_packages().dependencies.values():
+      self.__create_license_file_from_component(component, self.__get_package_for_component(component))
+
+  def __create_copyright_files(self) -> None:
+    self.__create_copyright_file_from_component(self.scanner.get_scan_packages().parent_package, self.package)
+    for component in self.scanner.get_scan_packages().dependencies.values():
+      self.__create_copyright_file_from_component(component, self.__get_package_for_component(component))
+
+  def __create_license_file_from_component(self, component: dict, package: Package) -> None:
+    for result in component.get('SCANNER_RESULTS', []):
+      self.__add_license_file(package, result)
+
+  def __create_copyright_file_from_component(self, component: dict, package: Package) -> None:
+    for result in component.get('COPYRIGHT_RESULT', []):
+      self.__add_copyright_file(package, result)
+
+  def __add_files_to_document(self) -> None:
+    self.document.files = list(self.report_files.values())
+
+  def __update_package_verification_code(self) -> None:
+    for package in self.document.packages:
+      code = self.__calculate_verification_code(package.spdx_id)
+      if code is not None:
+        package.verification_code = code
+
+  def __calculate_verification_code(
+    self, package_spdx_id: str
+  ) -> PackageVerificationCode | None:
+    """
+    Calculate package verification code for the list of checksums and return it.
+
+    :param package_spdx_id: Package SPDX ID to calculate the verification code for.
+    :return: Package Verification Code based on SPDX specification.
+    """
+    if package_spdx_id not in self.package_verification_set:
+      return None
+    checksums = self.package_verification_set[package_spdx_id]['checksums']
+    excluded_files = self.package_verification_set[package_spdx_id]['excluded_files']
+    checksums.sort()
+    verification_code = hashlib.sha1("".join(checksums).encode()).hexdigest()
+    return PackageVerificationCode(
+      value=verification_code,
+      excluded_files=excluded_files
     )
-
-  def add_license_results(self, scan_results: List[ScanResult]):
-    """
-    Helper function to add scan results to the report from license scanners.
-
-    :param scan_results: List of scan results from the license scanners.
-    """
-    for result in scan_results:
-      self.add_license_file(result)
-
-  def add_copyright_results(self, copyright_results: List[ScanResult]):
-    """
-    Helper function to add scan results to the report from copyright scanner.
-
-    :param copyright_results: List of scan results from the copyright scanner.
-    """
-    for result in copyright_results:
-      self.add_copyright_file(result)
-
-  def __get_package_from_scan_result(self, scan_result: ScanResult) -> Package | None:
-    """
-    Get the package name based on file path in scan result from the parser.
-
-    :param scan_result: Result to get package from.
-    :return: Create or get existing package from scan result.
-    """
-    for component in self.cli_options.parser.npm_components + \
-                     self.cli_options.parser.python_components:
-      if component['download_dir'] in scan_result.path:
-        pkg_spdx_id = self.__get_package_spdx_id(component)
-        if pkg_spdx_id not in self.dependent_packages:
-          self.dependent_packages[pkg_spdx_id] = Package(
-            spdx_id=pkg_spdx_id,
-            name=component['name'],
-            version=component['version'],
-            download_location=component['fossology_download_url'] if 'fossology_download_url' in component else SpdxNoAssertion(),
-            license_info_from_files=[],
-            license_concluded=SpdxNoAssertion(),
-            files_analyzed=True
-          )
-          purl_ref = ExternalPackageRef(
-            category=ExternalPackageRefCategory.PACKAGE_MANAGER,
-            reference_type='purl',
-            locator=component.get('purl')
-          )
-          self.dependent_packages[pkg_spdx_id].external_references.append(purl_ref)
-          if component.get('vcs_url', None) is not None:
-            vcs_ref = ExternalPackageRef(
-              category=ExternalPackageRefCategory.OTHER,
-              reference_type='vcs',
-              locator=component.get('vcs_url')
-            )
-            self.dependent_packages[pkg_spdx_id].external_references.append(vcs_ref)
-          if component.get('homepage_url', None) is not None:
-            homepage_ref = ExternalPackageRef(
-              category=ExternalPackageRefCategory.OTHER,
-              reference_type='homepage',
-              locator=component.get('homepage_url')
-            )
-            self.dependent_packages[pkg_spdx_id].external_references.append(homepage_ref)
-        return self.dependent_packages[pkg_spdx_id]
-    return None

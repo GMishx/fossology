@@ -8,21 +8,23 @@
 
 import argparse
 import json
+import logging
 import os
 import sys
 import textwrap
-import logging
 from typing import List, Union, IO
 
 from FoScanner.ApiConfig import (ApiConfig, Runner)
 from FoScanner.CliOptions import (CliOptions, ReportFormat)
+from FoScanner.FormatResults import FormatResult
 from FoScanner.RepoSetup import RepoSetup
 from FoScanner.Scanners import (Scanners, ScanResult)
 from FoScanner.SpdxReport import SpdxReport
-from FoScanner.FormatResults import FormatResult
 from FoScanner.Utils import (validate_keyword_conf_file, copy_keyword_file_to_destination)
-from ScanDeps.Parsers import Parser, PythonParser, NPMParser
 from ScanDeps.Downloader import Downloader
+from ScanDeps.Parsers import Parser, PythonParser, NPMParser
+from utils.automation.FoScanner.Packages import Packages
+
 
 def get_api_config() -> ApiConfig:
   """
@@ -275,36 +277,36 @@ def bom_report(cli_options: CliOptions, result_dir: str, return_val: int,
   :param format_results: FormatResult object
   :return: Program's return value
   """
-  report_obj = SpdxReport(cli_options, api_config)
+  report_obj = SpdxReport(cli_options, api_config, scanner)
   if cli_options.nomos or cli_options.ojo:
-    scan_results = scanner.get_scanner_results()
-    report_obj.add_license_results(scan_results)
-    scan_results_with_line_number = format_license_results_with_line_numbers(
-    scanner=scanner, format_results=format_results)
-    failed_licenses = scanner.get_non_allow_listed_results(scan_results)
-    return_val = print_log_message(f"{result_dir}/licenses.txt",
-        failed_licenses, True, "Following licenses found which are not allow "
-                               "listed", "No license violation found",
-        "License", return_val, scan_results_with_line_number)
+    print("Scanning for licenses...")
+    scanner.set_scanner_results()
+    # scan_results_with_line_number = format_license_results_with_line_numbers(
+    # scanner=scanner, format_results=format_results)
+    # failed_licenses = scanner.get_non_allow_listed_results(scan_results)
+    # return_val = print_log_message(f"{result_dir}/licenses.txt",
+    #     failed_licenses, True, "Following licenses found which are not allow "
+    #                            "listed", "No license violation found",
+    #     "License", return_val, scan_results_with_line_number)
   if cli_options.copyright:
-    copyright_results = scanner.get_copyright_list(all_results=True)
-    if copyright_results is False:
-      copyright_results = []
-    report_obj.add_copyright_results(copyright_results)
-    failed_copyrights = scanner.get_non_allow_listed_copyrights(
-      copyright_results)
-    scan_results_with_line_number = format_copyright_results_with_line_numbers(
-    scanner=scanner, format_results=format_results)
-    return_val = print_log_message(f"{result_dir}/copyrights.txt",
-        failed_copyrights, False, "Following copyrights found",
-        "No copyright violation found", "Copyright", return_val,scan_results_with_line_number)
+    print("Scanning for copyrights...")
+    scanner.set_copyright_list(all_results=True)
+    # failed_copyrights = scanner.get_non_allow_listed_copyrights(
+    #   copyright_results)
+    # scan_results_with_line_number = format_copyright_results_with_line_numbers(
+    # scanner=scanner, format_results=format_results)
+    # return_val = print_log_message(f"{result_dir}/copyrights.txt",
+    #     failed_copyrights, False, "Following copyrights found",
+    #     "No copyright violation found", "Copyright", return_val,scan_results_with_line_number)
   if cli_options.keyword:
-    keyword_results = scanner.get_keyword_list()
-    scan_results_with_line_number = format_keyword_results_with_line_numbers(
-    scanner=scanner, format_results=format_results)
-    return_val = print_log_message(f"{result_dir}/keywords.txt",
-        keyword_results, False, "Following keywords found",
-        "No keyword violation found", "Keyword", return_val, scan_results_with_line_number)
+    print("Scanning keywords...")
+    scanner.set_keyword_list()
+    # scan_results_with_line_number = format_keyword_results_with_line_numbers(
+    # scanner=scanner, format_results=format_results)
+    # return_val = print_log_message(f"{result_dir}/keywords.txt",
+    #     keyword_results, False, "Following keywords found",
+    #     "No keyword violation found", "Keyword", return_val, scan_results_with_line_number)
+  print("Finalizing reports...")
   report_obj.finalize_document()
   report_name = f"{result_dir}/sbom_"
   if cli_options.report_format == ReportFormat.SPDX_JSON:
@@ -320,6 +322,18 @@ def bom_report(cli_options: CliOptions, result_dir: str, return_val: int,
   return return_val
 
 
+def get_scan_packages(api_config: ApiConfig) -> Packages:
+  scan_packages = Packages()
+  scan_packages.parent_package = {
+    'name': api_config.project_name,
+    'description': api_config.project_desc,
+    'author': api_config.project_orig,
+    'url': api_config.project_url
+  }
+
+  return scan_packages
+
+
 def main(parsed_args):
   """
   Main
@@ -331,6 +345,7 @@ def main(parsed_args):
   cli_options = CliOptions()
   cli_options.update_args(parsed_args)
   save_dir = 'pkg_downloads'
+  scan_packages = get_scan_packages(api_config)
   try:
     if cli_options.allowlist_path:
       allowlist_path = cli_options.allowlist_path
@@ -352,12 +367,10 @@ def main(parsed_args):
     else:
       print(f"Could not validate keyword file: {message}")
 
-  valid_comps_exist = False
   if (cli_options.scan_only_deps or cli_options.repo) and cli_options.sbom_path != '':
     sbom_file_path = cli_options.sbom_path
     cli_options.parser = Parser(sbom_file_path)
     cli_options.parser.classify_components(save_dir)
-    valid_comps_exist = len(cli_options.parser.parsed_components) > 0
 
     if cli_options.parser.python_components:
       python_parser = PythonParser()
@@ -371,21 +384,21 @@ def main(parsed_args):
       for comp in cli_options.parser.unsupported_components:
         print(f'The purl {comp["purl"]} is not supported. Package will not be downloaded.')
 
+    scan_packages.dependencies = cli_options.parser.parsed_components
+
     try:
       downloader = Downloader()
       downloader.download_concurrently(cli_options.parser)
     except Exception as e:
       print("Something went wrong while downloading the dependencies..")
 
-  if cli_options.scan_only_deps and valid_comps_exist:
-    cli_options.diff_dir = save_dir
-  elif cli_options.scan_dir:
+  if cli_options.scan_dir:
     cli_options.diff_dir = cli_options.dir_path
-  elif cli_options.repo is False:
+  elif cli_options.repo is False and cli_options.scan_only_deps is not True:
     repo_setup = RepoSetup(cli_options, api_config)
     cli_options.diff_dir = repo_setup.get_diff_dir()
 
-  scanner = Scanners(cli_options)
+  scanner = Scanners(cli_options, scan_packages)
   return_val = 0
 
   # Populate tmp dir in unified diff format
