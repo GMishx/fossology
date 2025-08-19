@@ -65,8 +65,12 @@ class SpdxReport:
       name="FOSSology CI Report",
       data_license="CC0-1.0",
       document_namespace="https://fossology.org",
-      creators=[Actor(ActorType.ORGANIZATION, "FOSSology",
-                      "fossology@fossology.org")],
+      creators=[
+        Actor(
+          ActorType.ORGANIZATION, "FOSSology",
+          "fossology@fossology.org"
+          )
+      ],
       created=datetime.now(),
     )
     self.document: Document = Document(self.creation_info)
@@ -88,8 +92,10 @@ class SpdxReport:
     if parent_package['description'] is not None:
       self.package.description = parent_package['description']
     if parent_package['author'] is not None and parent_package['author'] != "":
-      self.package.originator = Actor(ActorType.ORGANIZATION,
-                                      parent_package['author'])
+      self.package.originator = Actor(
+        ActorType.ORGANIZATION,
+        parent_package['author']
+        )
     else:
       self.package.originator = SpdxNoAssertion()
     if parent_package['url'] is not None and parent_package['url'] != "":
@@ -108,14 +114,20 @@ class SpdxReport:
     :param package: Package to which the file belongs.
     :param scan_result: Scan result from license scanner.
     """
-    all_allowed_licenses = all([lic['license'] in self.cli_options.allowlist['licenses']
-                                for lic in scan_result.result]) is True
+    all_allowed_licenses = all(
+      [lic['license'] in self.cli_options.allowlist['licenses']
+       for lic in scan_result.result]
+      ) is True
     file = self.__get_spdx_file(scan_result, package)
 
     if all_allowed_licenses:
-      file.license_concluded = get_spdx_licensing().parse(" AND ".join([
-        lic['license'] for lic in scan_result.result
-      ]))
+      file.license_concluded = get_spdx_licensing().parse(
+        " AND ".join(
+          [
+            lic['license'] for lic in scan_result.result
+          ]
+        )
+      )
     else:
       file.license_concluded = SpdxNoAssertion()
     file.license_info_in_file = [
@@ -123,9 +135,11 @@ class SpdxReport:
     ]
     # Update licenses found in the files of the package
     package.license_info_from_files = list(
-      set(package.license_info_from_files) | set(file.license_info_in_file))
+      set(package.license_info_from_files) | set(file.license_info_in_file)
+    )
 
-  def __get_spdx_file(self, scan_result: ScanResultList, package: Package) -> File:
+  def __get_spdx_file(
+    self, scan_result: ScanResultList, package: Package) -> File:
     """
     Create a new SPDX File for given scan result and populate common fields.
 
@@ -148,22 +162,31 @@ class SpdxReport:
         license_concluded=SpdxNoAssertion()
       )
       self.report_files[file_spdx_id] = spdx_file
-      contains_relationship = Relationship(package.spdx_id,
-                                           RelationshipType.CONTAINS,
-                                           file_spdx_id)
+      contains_relationship = Relationship(
+        package.spdx_id,
+        RelationshipType.CONTAINS,
+        file_spdx_id
+        )
       self.document.relationships.append(contains_relationship)
 
       if package.spdx_id not in self.package_verification_set:
-        self.package_verification_set[package.spdx_id] = {'checksums': [], 'excluded_files': []}
+        self.package_verification_set[package.spdx_id] = {
+          'checksums': [], 'excluded_files': []
+        }
 
       if self.scanner.is_excluded_path(spdx_file.name):
-        self.package_verification_set[package.spdx_id]['excluded_files'].append(spdx_file.name)
+        self.package_verification_set[package.spdx_id]['excluded_files'].append(
+          spdx_file.name
+          )
       else:
-        self.package_verification_set[package.spdx_id]['checksums'].append(sha1_hash.hexdigest())
+        self.package_verification_set[package.spdx_id]['checksums'].append(
+          sha1_hash.hexdigest()
+          )
 
     return self.report_files[file_spdx_id]
 
-  def __add_copyright_file(self, package: Package, copyright_result: ScanResultList):
+  def __add_copyright_file(
+    self, package: Package, copyright_result: ScanResultList):
     """
     Add scan result from copyright agent. If the file does not exist, creates a
     new one.
@@ -171,9 +194,11 @@ class SpdxReport:
     :param copyright_result: Scan result from copyright scanner.
     """
     file = self.__get_spdx_file(copyright_result, package)
-    file.copyright_text = "\n".join([
-      cpy['content'] for cpy in copyright_result.result
-    ])
+    file.copyright_text = "\n".join(
+      [
+        cpy['content'] for cpy in copyright_result.result
+      ]
+    )
 
   @staticmethod
   def __get_file_info(scan_result: ScanResultList) -> Tuple:
@@ -202,7 +227,8 @@ class SpdxReport:
     :return: SPDX ID for the file.
     """
     spdx_id = "SPDXRef-File-" + hashlib.md5(
-      scan_result.path.encode()).hexdigest()
+      scan_result.path.encode()
+    ).hexdigest()
     return spdx_id
 
   @staticmethod
@@ -214,7 +240,8 @@ class SpdxReport:
     :return: SPDX ID for the package.
     """
     return "SPDXRef-Package-" + hashlib.md5(
-      f"{component['name']}_{component['version']}".encode()).hexdigest()
+      f"{component['name']}_{component['version']}".encode()
+    ).hexdigest()
 
   def write_report(self, file_name: str):
     """
@@ -243,23 +270,31 @@ class SpdxReport:
     self.__update_package_verification_code()
 
   def __create_packages(self) -> None:
-    parent_name = self.scanner.get_scan_packages().parent_package.get('name', '')
+    parent_name = self.scanner.get_scan_packages().parent_package.get(
+      'name', ''
+      )
     if parent_name is not None and parent_name != '':
       self.package.spdx_id = re.sub(
         r'[^A-Za-z0-9\-_.]', '-',
         f"SPDXRef-Package-{parent_name}"
       )
-    describes_relationship = Relationship("SPDXRef-DOCUMENT",
-                                          RelationshipType.DESCRIBES,
-                                          self.package.spdx_id)
+    describes_relationship = Relationship(
+      "SPDXRef-DOCUMENT",
+      RelationshipType.DESCRIBES,
+      self.package.spdx_id
+      )
     self.document.relationships.append(describes_relationship)
 
-    for purl, component in self.scanner.get_scan_packages().dependencies.items():
+    for purl, component in self.scanner.get_scan_packages(
+
+    ).dependencies.items():
       package = self.__get_package_for_component(component)
       self.document.packages.append(package)
-      depends_on_relationship = Relationship(self.package.spdx_id,
-                                             RelationshipType.DEPENDS_ON,
-                                             package.spdx_id)
+      depends_on_relationship = Relationship(
+        self.package.spdx_id,
+        RelationshipType.DEPENDS_ON,
+        package.spdx_id
+        )
       self.document.relationships.append(depends_on_relationship)
 
   def __get_package_for_component(self, component: dict) -> Package:
@@ -275,7 +310,9 @@ class SpdxReport:
         spdx_id=pkg_spdx_id,
         name=component['name'],
         version=component['version'],
-        download_location=component['fossology_download_url'] if 'fossology_download_url' in component else SpdxNoAssertion(),
+        download_location=component[
+          'fossology_download_url'] if 'fossology_download_url' in component
+        else SpdxNoAssertion(),
         license_info_from_files=[],
         license_concluded=SpdxNoAssertion(),
         files_analyzed=True
@@ -299,24 +336,40 @@ class SpdxReport:
           reference_type='homepage',
           locator=component.get('homepage_url')
         )
-        self.dependent_packages[pkg_spdx_id].external_references.append(homepage_ref)
+        self.dependent_packages[pkg_spdx_id].external_references.append(
+          homepage_ref
+          )
     return self.dependent_packages[pkg_spdx_id]
 
   def __create_license_files(self) -> None:
-    self.__create_license_file_from_component(self.scanner.get_scan_packages().parent_package, self.package)
+    self.__create_license_file_from_component(
+      self.scanner.get_scan_packages().parent_package, self.package
+      )
     for component in self.scanner.get_scan_packages().dependencies.values():
-      self.__create_license_file_from_component(component, self.__get_package_for_component(component))
+      self.__create_license_file_from_component(
+        component, self.__get_package_for_component(
+          component
+          )
+        )
 
   def __create_copyright_files(self) -> None:
-    self.__create_copyright_file_from_component(self.scanner.get_scan_packages().parent_package, self.package)
+    self.__create_copyright_file_from_component(
+      self.scanner.get_scan_packages().parent_package, self.package
+      )
     for component in self.scanner.get_scan_packages().dependencies.values():
-      self.__create_copyright_file_from_component(component, self.__get_package_for_component(component))
+      self.__create_copyright_file_from_component(
+        component, self.__get_package_for_component(
+          component
+          )
+        )
 
-  def __create_license_file_from_component(self, component: dict, package: Package) -> None:
+  def __create_license_file_from_component(
+    self, component: dict, package: Package) -> None:
     for result in component.get('SCANNER_RESULTS', []):
       self.__add_license_file(package, result)
 
-  def __create_copyright_file_from_component(self, component: dict, package: Package) -> None:
+  def __create_copyright_file_from_component(
+    self, component: dict, package: Package) -> None:
     for result in component.get('COPYRIGHT_RESULT', []):
       self.__add_copyright_file(package, result)
 
@@ -335,13 +388,15 @@ class SpdxReport:
     """
     Calculate package verification code for the list of checksums and return it.
 
-    :param package_spdx_id: Package SPDX ID to calculate the verification code for.
+    :param package_spdx_id: Package SPDX ID to calculate the verification
+    code for.
     :return: Package Verification Code based on SPDX specification.
     """
     if package_spdx_id not in self.package_verification_set:
       return None
     checksums = self.package_verification_set[package_spdx_id]['checksums']
-    excluded_files = self.package_verification_set[package_spdx_id]['excluded_files']
+    excluded_files = self.package_verification_set[package_spdx_id][
+      'excluded_files']
     checksums.sort()
     verification_code = hashlib.sha1("".join(checksums).encode()).hexdigest()
     return PackageVerificationCode(
