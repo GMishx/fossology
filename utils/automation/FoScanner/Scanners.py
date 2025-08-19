@@ -98,15 +98,6 @@ class Scanners:
         break
     return path_is_excluded
 
-  def __normalize_path(self, path: str) -> str:
-    """
-    Normalize the given path to repository root
-
-    :param path: path to normalize
-    :return: Normalized path
-    """
-    return path.replace(f"{self.cli_options.diff_dir}/", '')
-
   def __normalize_path(self, path: str, against: str) -> str:
     """
     Normalize the given path against the given directory.
@@ -115,7 +106,14 @@ class Scanners:
     :param against: directory to normalize against
     :return: Normalized path
     """
-    return path.replace(f"{against}/", '')
+    if not against.endswith(os.sep):
+      against += os.sep
+    start_index_of_prefix = path.find(against)
+    if start_index_of_prefix == -1:
+      return path
+
+    relative_path_start_index = start_index_of_prefix + len(against)
+    return path[relative_path_start_index:]
 
   def __get_nomos_result(self, dir_to_scan: str) -> dict:
     """
