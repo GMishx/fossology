@@ -408,15 +408,9 @@ class Scanners:
     ojo_licenses = []
 
     if self.cli_options.nomos:
-      if whole:
-        nomos_licenses = self.__get_license_nomos(whole=True)
-      else:
-        nomos_licenses = self.__get_license_nomos()
+      nomos_licenses = self.__get_license_nomos(whole)
     if self.cli_options.ojo:
-      if whole:
-        ojo_licenses = self.__get_license_ojo(whole=True)
-      else:
-        ojo_licenses = self.__get_license_ojo()
+      ojo_licenses = self.__get_license_ojo(whole)
 
     if self.cli_options.nomos and self.cli_options.ojo:
       if whole:

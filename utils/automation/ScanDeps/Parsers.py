@@ -11,6 +11,9 @@ from typing import Dict, Union
 from packageurl import PackageURL
 from packageurl.contrib import purl2url
 
+DOWNLOAD_URL_KEY = 'fossology_download_url'
+COMPONENT_TYPE_KEY = 'fossology_component_type'
+
 
 class Parser:
     """
@@ -27,11 +30,8 @@ class Parser:
         with open(sbom_file, 'r') as file:
             self.sbom_data = json.load(file)
         self.root_component_name = None
-        self.python_components = []
-        self.npm_components = []
-        self.php_components = []
-        self.unsupported_components = []
-    
+        self.parsed_components = {}
+
     def classify_components(self, root_download_dir: str):
         """
         Classify components based on it's type
@@ -46,15 +46,8 @@ class Parser:
                 continue
             comp_type = self._extract_type(purl)
             component['download_dir'] = os.path.join(root_download_dir, comp_type, component['name'], component['version'])
-
-            if comp_type == 'pypi':
-                self.python_components.append(component)
-            elif comp_type == 'npm':
-                self.npm_components.append(component)
-            # elif type == 'composer':
-            #     self.php_components.append(component)
-            else:
-                self.unsupported_components.append(component)
+            component[COMPONENT_TYPE_KEY] = comp_type
+            self.parsed_components[purl] = component
 
     def _extract_type(self, purl: str) -> Union[str,None]:
         """
@@ -74,6 +67,22 @@ class Parser:
             return None
         except Exception:
             return None
+
+    @property
+    def python_components(self):
+        return [comp for comp in self.parsed_components.values() if comp[COMPONENT_TYPE_KEY] == 'pypi']
+
+    @property
+    def npm_components(self):
+      return [comp for comp in self.parsed_components.values() if comp[COMPONENT_TYPE_KEY] == 'npm']
+
+    @property
+    def php_components(self):
+      return [comp for comp in self.parsed_components.values() if comp[COMPONENT_TYPE_KEY] == 'composer']
+
+    @property
+    def unsupported_components(self):
+      return [comp for comp in self.parsed_components.values() if comp[COMPONENT_TYPE_KEY] not in ['pypi', 'npm', 'composer']]
 
 
 class PythonParser:
@@ -98,17 +107,14 @@ class PythonParser:
         """
         return f"https://pypi.org/pypi/{package_name}/{version}/json"
 
-    def parse_components(self, components: list[Dict]) -> Union[list[tuple[dict,str]],None]:
+    def parse_components(self, parser: Parser) -> Union[list[tuple[dict,str]],None]:
         """
         Parse SBOM file for package name and download url of package.
-        Args:
-            components: list[Dict] components to parse
         Return:
-            list of tuples with package_name and download_url of that package
+            None
         """
-        download_urls = []
-
-        for component in components:
+        for comp in parser.python_components:
+            component = parser.parsed_components[comp.get('purl')]
             package_name = component['name']
             version = component['version']
             api_endpoint = self._generate_api_endpoint(package_name, version)
@@ -129,16 +135,13 @@ class PythonParser:
                 # Prefer sdist, fallback to wheel if sdist is not available
                 download_url = sdist_url if sdist_url else wheel_url
                 if download_url:
-                    component['fossology_download_url'] = download_url
-                    download_urls.append((component, download_url))
+                    component[DOWNLOAD_URL_KEY] = download_url
                 else:
                     print(f"No suitable download URL found for {package_name} {version}")
                 component['vcs_url'] = data.get('info', {}).get('project_urls', {}).get(self.PYPI_SOURCE_FIELD, None)
                 component['homepage_url'] = data.get('info', {}).get('project_urls', {}).get(self.PYPI_HOME_FIELD, None)
             else:
                 print(f"Failed to retrieve data for {package_name} {version}")
-
-        return download_urls if download_urls else None
 
 
 class NPMParser:
@@ -157,23 +160,18 @@ class NPMParser:
         """
         return purl2url.get_download_url(purl)
     
-    def parse_components(self, components: list[Dict]) -> Union[list[tuple[dict,str]],None]:
+    def parse_components(self, parser: Parser) -> Union[list[tuple[dict,str]],None]:
         """
         Parse the components to extract the tuple of (<package_name>, <download_url>)
-        Args:
-            components: list[Dict]
         Return:
-            List[tuple(str,str)] (<package_name>, <download_url>)
+            None
         """
-        download_urls = []
-        for comp in components:
-            name = comp['name']
-            purl = comp['purl']
+        for comp in parser.npm_components:
+            component = parser.parsed_components[comp.get('purl')]
+            name = component['name']
+            purl = component['purl']
             try:
                 download_url = self._get_download_url(purl)
-                comp['fossology_download_url'] = download_url
-                download_urls.append((comp, download_url))
+                component[DOWNLOAD_URL_KEY] = download_url
             except Exception as e:
                 print(f"Invalid Download URL for NPM package: {name} :: {e}")
-        
-        return download_urls if download_urls else None
