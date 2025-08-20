@@ -11,21 +11,13 @@ import re
 from datetime import datetime
 from typing import List, Set, Dict, Tuple
 
-from license_expression import get_spdx_licensing
+from license_expression import get_spdx_licensing, LicenseExpression, \
+  combine_expressions
 from spdx_tools.spdx.model import (
-  Actor,
-  ActorType,
-  Checksum,
-  ChecksumAlgorithm,
-  CreationInfo,
-  Document,
-  File,
-  FileType,
-  Package,
-  PackageVerificationCode,
-  Relationship,
-  RelationshipType,
-  SpdxNoAssertion, ExternalPackageRef, ExternalPackageRefCategory, SpdxNone
+  Actor, ActorType, Checksum, ChecksumAlgorithm, CreationInfo, Document, File,
+  FileType, Package, PackageVerificationCode, Relationship, RelationshipType,
+  SpdxNoAssertion, ExternalPackageRef, ExternalPackageRefCategory, SpdxNone,
+  ExtractedLicensingInfo
 )
 from spdx_tools.spdx.validation.document_validator import \
   validate_full_spdx_document
@@ -104,8 +96,24 @@ class SpdxReport:
       self.package.download_location = SpdxNoAssertion()
 
     self.document.packages = [self.package]
-
     self.dependent_packages: Dict[str, Package] = {}
+    self.extracted_licenses: dict[str, ExtractedLicensingInfo] = {}
+
+  def __get_license_or_ref(self, lic: str) -> LicenseExpression:
+    license_spdx = lic
+    if get_spdx_licensing().validate(lic).invalid_symbols:
+      license_spdx = re.sub(
+        r'[^\da-zA-Z.-]', '-',
+        f"LicenseRef-fossology-{lic}"
+      )
+      if license_spdx not in self.extracted_licenses:
+        self.extracted_licenses[license_spdx] = ExtractedLicensingInfo(
+          license_id=license_spdx,
+          license_name=lic,
+          extracted_text=f"The license text for {license_spdx} has to be "
+                         "entered."
+        )
+    return get_spdx_licensing().parse(license_spdx)
 
   def __add_license_file(self, package: Package, scan_result: ScanResultList):
     """
@@ -115,35 +123,33 @@ class SpdxReport:
     :param scan_result: Scan result from license scanner.
     """
     all_allowed_licenses = all(
-      [lic['license'] in self.cli_options.allowlist['licenses']
-       for lic in scan_result.result]
-      ) is True
+      [lic['license'] in self.cli_options.allowlist['licenses'] for lic in
+       scan_result.result]
+    ) is True
     file = self.__get_spdx_file(scan_result, package)
 
     if all_allowed_licenses:
-      file.license_concluded = get_spdx_licensing().parse(
-        " AND ".join(
-          [
-            lic['license'] for lic in scan_result.result
-          ]
-        )
+      file.license_concluded = combine_expressions(
+        expressions=[self.__get_license_or_ref(lic['license']) for lic in
+          scan_result.result], relation='AND', unique=True
       )
     else:
       file.license_concluded = SpdxNoAssertion()
-    file.license_info_in_file = [
-      get_spdx_licensing().parse(lic['license']) for lic in scan_result.result
-    ]
+    file.license_info_in_file = list(
+      {self.__get_license_or_ref(lic['license']) for lic in scan_result.result}
+    )
     # Update licenses found in the files of the package
     package.license_info_from_files = list(
       set(package.license_info_from_files) | set(file.license_info_in_file)
     )
     if file.license_concluded != SpdxNoAssertion():
-      if (package.license_concluded == SpdxNoAssertion() or
+      if (
+        package.license_concluded == SpdxNoAssertion() or
         package.license_concluded == SpdxNone()):
         package.license_concluded = file.license_concluded
       else:
-        package.license_concluded = (package.license_concluded &
-                                     file.license_concluded).simplify()
+        package.license_concluded = (
+            package.license_concluded & file.license_concluded).simplify()
 
   def __get_spdx_file(
     self, scan_result: ScanResultList, package: Package) -> File:
@@ -263,7 +269,7 @@ class SpdxReport:
       logging.warning(message.context)
     if not self.cli_options.ignore_spdx:
       assert validation_messages == []
-    write_file(self.document, file_name)
+    write_file(self.document, file_name, validate=False)
 
   def finalize_document(self):
     """
@@ -275,6 +281,7 @@ class SpdxReport:
     self.__create_license_files()
     self.__create_copyright_files()
     self.__add_files_to_document()
+    self.__add_extracted_licenses()
     self.__update_package_verification_code()
 
   def __create_packages(self) -> None:
@@ -382,6 +389,10 @@ class SpdxReport:
 
   def __add_files_to_document(self) -> None:
     self.document.files = list(self.report_files.values())
+
+  def __add_extracted_licenses(self) -> None:
+    self.document.extracted_licensing_info = list(
+      self.extracted_licenses.values())
 
   def __update_package_verification_code(self) -> None:
     for package in self.document.packages:
