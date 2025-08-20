@@ -47,6 +47,7 @@ class SpdxReport:
     :param scanner:     Scanners to use
     """
     self.cli_options = cli_options
+    self._allowed_licenses_set = set(self.cli_options.allowlist['licenses'])
     self.scanner = scanner
     self.report_files: Dict[str, File] = {}
     self.license_package_set: Set[str] = set()
@@ -122,22 +123,24 @@ class SpdxReport:
     :param package: Package to which the file belongs.
     :param scan_result: Scan result from license scanner.
     """
+    raw_licenses_strings = [lic['license'] for lic in scan_result.result]
+    parsed_expressions = [self.__get_license_or_ref(lic_str) for lic_str in raw_licenses_strings]
+
     all_allowed_licenses = all(
-      [lic['license'] in self.cli_options.allowlist['licenses'] for lic in
-       scan_result.result]
+      lic_str in self._allowed_licenses_set for lic_str in raw_licenses_strings
     ) is True
+
     file = self.__get_spdx_file(scan_result, package)
 
     if all_allowed_licenses:
       file.license_concluded = combine_expressions(
-        expressions=[self.__get_license_or_ref(lic['license']) for lic in
-          scan_result.result], relation='AND', unique=True
+        expressions=parsed_expressions, relation='AND', unique=True
       )
     else:
       file.license_concluded = SpdxNoAssertion()
-    file.license_info_in_file = list(
-      {self.__get_license_or_ref(lic['license']) for lic in scan_result.result}
-    )
+
+    file.license_info_in_file = list(set(parsed_expressions))
+
     # Update licenses found in the files of the package
     package.license_info_from_files = list(
       set(package.license_info_from_files) | set(file.license_info_in_file)
